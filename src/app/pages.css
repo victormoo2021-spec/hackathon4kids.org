@@ -8,8 +8,12 @@
     box-shadow: 0 2px 4px rgb(0 0 0 / 0.04), 0 24px 48px -12px rgb(0 0 0 / 0.18);
   }
 }
-.page-hero { padding-top: 8rem; padding-bottom: 3rem; }
-@media (min-width: 64rem) { .page-hero { padding-top: 10rem; padding-bottom: 5rem; } }
+.page-hero { padding-top: clamp(7rem, 14vh, 9rem); padding-bottom: 2.5rem; }
+@media (min-width: 64rem) { .page-hero { padding-bottom: 4rem; } }
+.page-hero .t-lede { max-width: 36rem; }
 .page-section { padding-block: 3.5rem; }
 @media (min-width: 64rem) { .page-section { padding-block: 5.5rem; } }
 .bio-clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+.course-tile { background: linear-gradient(160deg, color-mix(in oklab, var(--hue) 9%, white), white 60%); }
+.course-visual { width: 100%; max-width: 9rem; aspect-ratio: 5 / 3; flex-shrink: 0; border-radius: var(--radius-tile); background: color-mix(in oklab, currentColor 14%, white); padding: 0.4rem; }

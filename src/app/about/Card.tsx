@@ -9,7 +9,7 @@ const LONG = 200
 export default function Card({ person }: { person: Person }) {
   const { name, role, photo, bio, current, tags } = person
   return (
-    <article data-reveal className="lift flex flex-col rounded-[1.75rem] bg-mist p-7">
+    <article data-reveal className="lift flex w-full flex-col rounded-[1.75rem] bg-mist p-7 md:w-[calc((100%-1.5rem)/2)] xl:w-[calc((100%-3rem)/3)]">
       <div className="flex items-center gap-4">
         <Image
           src={photo}

@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import Lenis from 'lenis'
+import type Lenis from 'lenis'
 
 gsap.registerPlugin(ScrollTrigger)
 ScrollTrigger.config({ ignoreMobileResize: true })
@@ -27,19 +27,26 @@ export default function MotionProviders({ children }: { children: React.ReactNod
 
     let lenis: Lenis | null = null
     let tick: ((time: number) => void) | null = null
+    let dead = false
 
     if (!reduce.matches && fine.matches) {
-      lenis = new Lenis({ duration: 1.1, smoothWheel: true, syncTouch: false, anchors: { offset: -80 } })
-      lenis.on('scroll', ScrollTrigger.update)
-      tick = (time: number) => lenis?.raf(time * 1000)
-      gsap.ticker.add(tick)
-      gsap.ticker.lagSmoothing(0)
+      // Loaded only here so touch / reduced-motion visitors never download Lenis.
+      import('lenis').then(({ default: Lenis }) => {
+        if (dead) return
+        const l = new Lenis({ duration: 1.1, smoothWheel: true, syncTouch: false, anchors: { offset: -80 } })
+        lenis = l
+        l.on('scroll', ScrollTrigger.update)
+        tick = (time: number) => l.raf(time * 1000)
+        gsap.ticker.add(tick)
+        gsap.ticker.lagSmoothing(0)
+      })
     }
 
     window.scrollTo(0, 0)
     document.fonts?.ready.then(() => ScrollTrigger.refresh())
 
     return () => {
+      dead = true
       if (tick) gsap.ticker.remove(tick)
       lenis?.destroy()
     }

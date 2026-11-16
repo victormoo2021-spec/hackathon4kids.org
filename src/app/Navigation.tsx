@@ -9,6 +9,8 @@ import logo from 'public/logo.png'
 import EmailCta from './components/EmailCta'
 import { contest } from './content/contest'
 
+const EMAIL = 'hackathon4kidsevent@gmail.com'
+
 const links = [
   { href: '/programs', label: 'Programs' },
   { href: '/about', label: 'About' },
@@ -99,6 +101,9 @@ export default function Navigation() {
             <EmailCta />
           </li>
         </ul>
+        <p className="m-contact">
+          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+        </p>
       </div>
     </header>
   )
