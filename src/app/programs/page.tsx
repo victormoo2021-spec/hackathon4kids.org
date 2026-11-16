@@ -64,7 +64,7 @@ export default function Programs() {
       </Reveal>
 
       <Reveal as="section" className="container-x page-section" aria-labelledby="courses">
-        <h2 id="courses" data-reveal className="t-headline">Courses we teach</h2>
+        <h2 id="courses" data-reveal className="t-headline">Courses we <span className="hl">teach</span></h2>
         <p data-reveal className="t-lede mt-4 max-w-xl">
           Each program offers some of these. Get class dates by email to hear which ones are next.
         </p>
@@ -86,7 +86,7 @@ export default function Programs() {
       </Reveal>
 
       <Reveal as="section" className="container-x page-section" aria-labelledby="past">
-        <h2 id="past" data-reveal className="t-headline">Past programs</h2>
+        <h2 id="past" data-reveal className="t-headline">Past <span className="hl">programs</span></h2>
         <div className="mt-12 border-t border-line">
           <div data-reveal className="grid gap-4 border-b border-line py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-10 md:py-10">
             <h3 className="t-title text-text">Summer 2021</h3>

@@ -1,11 +1,12 @@
 .skip-link{position:fixed;left:1rem;top:-4rem;z-index:100;padding:.7rem 1.1rem;border-radius:999px;background:var(--color-yellow);color:var(--color-page);font-weight:600;transition:top .2s var(--ease-out-expo)}
 .skip-link:focus{top:1rem}
 
-.site-header{position:sticky;top:0;z-index:50;animation:nav-in 400ms var(--ease-apple) both;view-transition-name:site-header}
+.site-header{position:sticky;top:0;z-index:50}
+.site-header::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:rgb(10 7 16/.8);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgb(255 255 255/.12);transition:background-color 300ms var(--ease-apple)}
+.site-header>div:first-child{animation:nav-in 400ms var(--ease-apple) both;view-transition-name:site-header}
 @keyframes nav-in{from{opacity:0}}
-.site-header::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.6;background:rgb(10 7 16/.88);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgb(255 255 255/.12);transition:opacity 300ms var(--ease-apple)}
-.site-header[data-scrolled="true"]::before{opacity:1;background:rgb(10 7 16/.92);-webkit-backdrop-filter:saturate(180%) blur(28px);backdrop-filter:saturate(180%) blur(28px)}
-.site-header[data-open="true"]::before{opacity:1;background:var(--color-page);-webkit-backdrop-filter:none;backdrop-filter:none;border-bottom-color:var(--color-line)}
+.site-header[data-scrolled="true"]::before{background:rgb(10 7 16/.92);-webkit-backdrop-filter:saturate(180%) blur(28px);backdrop-filter:saturate(180%) blur(28px)}
+.site-header[data-open="true"]::before{background:var(--color-page);-webkit-backdrop-filter:none;backdrop-filter:none;border-bottom-color:var(--color-line)}
 .nav-link-d{padding:.5rem .25rem;font-size:.875rem;font-weight:500;color:#e4dff0;transition:color .2s,background-size 300ms var(--ease-out);background:linear-gradient(#fff,#fff) no-repeat right calc(100% - .3rem)/0% 1px}
 .nav-link-d:hover,.nav-link-d:focus-visible{background-position:left calc(100% - .3rem);background-size:100% 1px}
 @media (prefers-reduced-motion:reduce){.nav-link-d{background:none}}
