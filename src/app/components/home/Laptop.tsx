@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { gpuTier } from '../fx/gpu'
 import './laptop.css'
 
 const Laptop3D = dynamic(() => import('./Laptop3D'), { ssr: false })
@@ -10,14 +11,8 @@ function canUse3D() {
   if (!window.matchMedia('(min-width: 900px)').matches) return false
   const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
   if (conn?.saveData) return false
-  try {
-    const gl = document.createElement('canvas').getContext('webgl2')
-    const dbg = gl?.getExtension('WEBGL_debug_renderer_info')
-    // no GPU (software GL): keep the CSS laptop
-    return !!gl && !/swiftshader|llvmpipe|software/i.test(dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '')
-  } catch {
-    return false
-  }
+  // no GPU (software GL or none): keep the CSS laptop. Shared, memoised probe (one context for the whole page)
+  return gpuTier() === 'gpu'
 }
 
 // Space-black laptop. CSS hardware renders first (no CLS, works without WebGL); on wide screens a lazy
