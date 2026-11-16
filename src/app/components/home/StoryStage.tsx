@@ -46,20 +46,21 @@ export default function StoryStage() {
       const lines = $$('.device .ln')
       const terms = $$('.term em')
       // one entry point: canvas progress, debugger line, terminal output
-      const setP = (p: number) => {
+      const setP = (p: number, showTerm = true) => {
         setProgress(p)
         const on = p >= 1 ? lines.length - 1 : p <= 0 ? LOOP_FIRST : LOOP_FIRST + 1 + (Math.floor(p * SEGS * 3) % 6)
         lines.forEach((l, i) => l.classList.toggle('on', i === on))
-        gsap.set(terms, { opacity: p >= 1 ? 1 : 0 })
+        if (showTerm) gsap.set(terms, { opacity: p >= 1 ? 1 : 0 })
       }
 
       mm.add('(min-width: 900px) and (prefers-reduced-motion: no-preference)', () => {
         const wrap = $('.device-wrap')
         const caps = $$('.cap')
         const prog = { p: 0 }
-        const capIn = { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+        // timeline units are percent of #hero's scroll, so positions below read straight off the spec
+        const capIn = { autoAlpha: 1, y: 0, duration: 4, ease: 'power2.out' }
         const capFrom = { autoAlpha: 0, y: 26 }
-        const capOut = { autoAlpha: 0, y: -26, duration: 0.4, ease: 'power2.in' }
+        const capOut = { autoAlpha: 0, y: -26, duration: 4, ease: 'power2.in' }
 
         setP(0)
 
@@ -95,40 +96,51 @@ export default function StoryStage() {
           },
         })
 
-        // a) copy leaves, laptop glides to center, the trail runs to it
-        tl.to($('.hero-copy'), { autoAlpha: 0, x: -90, duration: 1.1, ease: 'power2.in' }, 0)
-          .to(wrap, { x: () => hero.clientWidth / 2 - (wrap.offsetLeft + wrap.offsetWidth / 2), scale: SCALE, duration: 1.4, ease: 'power2.inOut' }, 0)
-          .fromTo($('.trail path'), { strokeDashoffset: () => buildTrail() }, { strokeDashoffset: 0, duration: 3, ease: 'power1.inOut' }, 0.3)
-          .fromTo(caps[0], capFrom, capIn, 0.9)
-          .to(caps[0], capOut, 3)
-          // b) run: the pill presses
-          .fromTo(caps[1], capFrom, capIn, 3.2)
-          .to($('.run-btn'), { scale: 0.92, backgroundColor: 'rgb(167 139 255 / 0.34)', duration: 0.18, ease: 'power2.out' }, 3.6)
-          .to($('.run-btn'), { scale: 1, backgroundColor: 'rgb(167 139 255 / 0.16)', duration: 0.3, ease: 'power2.out' }, 3.8)
-          .to($('.trail'), { opacity: 0, duration: 0.6 }, 3.5)
-          .to(caps[1], capOut, 4.2)
-          // c) execution: the active line walks the loop while the drawing builds
-          .fromTo(caps[2], capFrom, capIn, 4.4)
-          .to(prog, { p: 1, duration: 4, onUpdate: () => setP(prog.p) }, 4.2)
-          .to(caps[2], capOut, 8.3)
+        tl.to($('.hero-copy'), { autoAlpha: 0, x: -90, duration: 11, ease: 'power2.in' }, 0)
+          .to(wrap, { x: () => hero.clientWidth / 2 - (wrap.offsetLeft + wrap.offsetWidth / 2), scale: SCALE, duration: 15, ease: 'power3.inOut' }, 0)
+          .fromTo($('.trail path'), { strokeDashoffset: () => buildTrail() }, { strokeDashoffset: 0, duration: 31, ease: 'power1.inOut' }, 3)
+          .fromTo(caps[0], capFrom, capIn, 9)
+          .to(caps[0], capOut, 31)
+          // b) run: the pill presses at 38
+          .fromTo(caps[1], capFrom, capIn, 33)
+          .to($('.run-btn'), { scale: 0.92, backgroundColor: 'rgb(167 139 255 / 0.34)', duration: 1.5, ease: 'power2.out' }, 38)
+          .to($('.run-btn'), { scale: 1, backgroundColor: 'rgb(167 139 255 / 0.16)', duration: 2.5, ease: 'power2.out' }, 39.5)
+          .to($('.trail'), { opacity: 0, duration: 6 }, 36)
+          .to(caps[1], capOut, 44)
+          // c) execution: the active line walks the loop while the drawing builds (44-85)
+          .fromTo(caps[2], capFrom, capIn, 46)
+          .to(prog, { p: 1, duration: 41, onUpdate: () => setP(prog.p) }, 44)
+          .to(caps[2], capOut, 86)
           // d) it printed, then keep going
-          .fromTo(caps[3], capFrom, capIn, 8.6)
-          .to({}, { duration: 0.3 }, 9.3)
+          .fromTo(caps[3], capFrom, capIn, 90)
+          .to({}, { duration: 0.01 }, 99.99)
 
         return () => setP(1)
       })
 
-      // no pin: a short autoplay once the laptop is on screen (skipped under reduced motion)
-      mm.add('(max-width: 899px) and (prefers-reduced-motion: no-preference)', () => {
+      // no pin: one autoplay when the laptop is on screen. Calm tier = same beats, color/opacity only
+      mm.add('(max-width: 899px), (prefers-reduced-motion: reduce)', () => {
+        const full = !matchMedia('(prefers-reduced-motion: reduce)').matches
         const prog = { p: 0 }
+        const caps = $$('.cap')
+        const run = $('.run-btn')
+        const shot = $('.shot')
+        let tl: gsap.core.Timeline | undefined
         setP(0)
         const st = ScrollTrigger.create({
           trigger: $('.device-wrap'),
           start: 'top 75%',
           once: true,
-          onEnter: () => { gsap.to(prog, { p: 1, duration: 3.2, ease: 'power1.inOut', onUpdate: () => setP(prog.p) }) },
+          onEnter: () => {
+            tl = gsap.timeline({ delay: window.scrollY === 0 ? 1.6 : 0 })
+            tl.to(run, { backgroundColor: 'rgb(167 139 255 / 0.34)', ...(full && { scale: 0.92 }), duration: 0.24, yoyo: true, repeat: 1, ease: 'power2.out', clearProps: 'transform' }, 0)
+              .to(prog, { p: 1, duration: 3, ease: 'power1.inOut', onUpdate: () => setP(prog.p, false) }, 0)
+              .to(terms, { opacity: 1, duration: 0.3, ease: 'none' }, 3)
+            if (full) tl.fromTo(shot, { y: 16 }, { y: 0, duration: 0.7, ease: 'power3.out', clearProps: 'transform' }, 0)
+            ;[0, 0.5, 0.9, 3.9].forEach((t, i) => tl!.call(() => caps[i].classList.add('on'), [], t))
+          },
         })
-        return () => { st.kill(); setP(1) }
+        return () => { st.kill(); tl?.kill(); caps.forEach((c) => c.classList.add('on')); setP(1) }
       })
 
       const refresh = () => ScrollTrigger.refresh()

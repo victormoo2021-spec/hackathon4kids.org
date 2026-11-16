@@ -22,7 +22,7 @@ export default memo(function CodeTyper() {
   return (
     <pre className="code-typer" aria-hidden>
       {LINES.map((line, i) => (
-        <span className={i === LINES.length - 1 ? 'ln on' : 'ln'} key={i}>
+        <span className={i === LINES.length - 1 ? 'ln on' : 'ln'} key={i} style={{ '--i': i } as React.CSSProperties}>
           <span className="no">{i + 1}</span>
           <span className="tx">
             {tokens(line).map(([text, cls], j) => (
