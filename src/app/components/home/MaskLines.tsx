@@ -17,11 +17,10 @@ type Props = {
   anchor?: 'l' | 'r'
   className?: string
   start?: string
-  end?: string
 }
 
-/** Display headline whose lines slide up out of a mask, scrubbed to scroll. Static under reduced motion. */
-export default function MaskLines({ id, lines, dimFrom = Infinity, hl, anchor, className = '', start = 'top 85%', end = 'top 45%' }: Props) {
+/** Display headline whose lines slide up out of a mask once on enter. Fades under reduced motion. */
+export default function MaskLines({ id, lines, dimFrom = Infinity, hl, anchor, className = '', start = 'top 85%' }: Props) {
   const ref = useRef<HTMLHeadingElement>(null)
   useGSAP(
     () => {
@@ -30,7 +29,8 @@ export default function MaskLines({ id, lines, dimFrom = Infinity, hl, anchor, c
         gsap.fromTo(
           '[data-line]',
           { yPercent: 110 },
-          { yPercent: 0, stagger: 0.3, ease: 'none', scrollTrigger: { trigger: ref.current, start, end, scrub: 0.6 } },
+          // plays once on enter: a scrubbed mask could be parked half-revealed, which reads as clipped text
+          { yPercent: 0, duration: 0.9, stagger: 0.12, ease: 'expo.out', scrollTrigger: { trigger: ref.current, start, once: true } },
         )
       })
       // calm: no movement, lines fade in once
