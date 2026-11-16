@@ -4,6 +4,7 @@
   To swap the roster: drop new headshots in public/, import them below, and
   replace the entries in `team`. Order here is display order. Set
   `hidden: true` to keep someone in the file without showing them.
+  Privacy: for high-school instructors use first name + grade only; no school names; get student + parent consent before publishing photos.
   `courses` must use names from content/courses.ts (add a new course there first).
 */
 import type { StaticImageData } from 'next/image'
@@ -40,7 +41,7 @@ export const team: Person[] = [
     photo: johnnyWang,
     current: true,
     tags: ['Robotics'],
-    bio: 'Johnny is a Senior at Valley Christian High School that likes programming, robotics, and football. He has 2 years of programming experience and 3 years of robotics experience. Johnny is currently the programming mentor for 2 middle school robotics teams and seeks to pass on his programming knowledge.',
+    bio: 'Johnny is a high school senior who likes programming, robotics, and football. He has 2 years of programming experience and 3 years of robotics experience. Johnny is currently the programming mentor for 2 middle school robotics teams and seeks to pass on his programming knowledge.',
   },
   {
     name: 'Kartik',
@@ -48,7 +49,7 @@ export const team: Person[] = [
     photo: kartikBalu,
     current: true,
     tags: ['AP CSA'],
-    bio: 'Kartik is a Senior at Cupertino High School. He is interested in Coding, Math and Soccer. In his free time, he enjoys hiking and spending time with his family. He also enjoys playing soccer with his friends. Being with friends is something he always prefers which helps balance his high school academic life.',
+    bio: 'Kartik is a high school senior. He is interested in Coding, Math and Soccer. In his free time, he enjoys hiking and spending time with his family. He also enjoys playing soccer with his friends. Being with friends is something he always prefers which helps balance his high school academic life.',
   },
   {
     name: 'Victor',
@@ -56,7 +57,7 @@ export const team: Person[] = [
     photo: victorJiang,
     current: true,
     tags: ['Intro to Algebra'],
-    bio: 'Victor is a junior at Stratford Preparatory Blackford. He enjoys taekwondo and robotics, and has been coding since 6th grade. He has worked with Java, JavaScript, Python and C++.',
+    bio: 'Victor is a high school junior. He enjoys taekwondo and robotics, and has been coding since 6th grade. He has worked with Java, JavaScript, Python and C++.',
   },
   {
     name: 'Chris',
@@ -64,7 +65,7 @@ export const team: Person[] = [
     photo: chrisWang,
     current: false,
     tags: ['AMC 10', 'AP Physics 1'],
-    bio: 'Chris is a graduate from Mission San Jose High School. He is interested in a variety of STEM related topics such as mathematics, reading, science, and especially astronomy. He enjoys witnessing the wonders of the natural world and outer space. Chris is also one who is always willing to help out others or the community. During his free time, he likes to hang out with his friends or exercise.',
+    bio: 'Chris is a high school graduate. He is interested in a variety of STEM related topics such as mathematics, reading, science, and especially astronomy. He enjoys witnessing the wonders of the natural world and outer space. Chris is also one who is always willing to help out others or the community. During his free time, he likes to hang out with his friends or exercise.',
   },
   {
     name: 'Eric',
@@ -72,7 +73,7 @@ export const team: Person[] = [
     photo: ericLan,
     current: false,
     tags: ['AP CSA'],
-    bio: "Eric is a graduate from Irvington High School. He is interested in scripting, modeling, and graphic design. In his free time, Eric enjoys hiking, gaming, photography, and pondering life's big questions. Eric finds solace and inspiration in the great outdoors. Hiking through nature's scenic trails allows him to escape the hustle and bustle of everyday life, connecting him with the serenity and beauty of the natural world.",
+    bio: "Eric is a high school graduate. He is interested in scripting, modeling, and graphic design. In his free time, Eric enjoys hiking, gaming, photography, and pondering life's big questions. Eric finds solace and inspiration in the great outdoors. Hiking through nature's scenic trails allows him to escape the hustle and bustle of everyday life, connecting him with the serenity and beauty of the natural world.",
   },
   {
     name: 'Michael',

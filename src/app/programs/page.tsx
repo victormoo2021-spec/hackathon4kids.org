@@ -1,37 +1,34 @@
-import Image from 'next/image'
+import Image, { type StaticImageData } from 'next/image'
 import Block from '../components/Block'
 import { MAILING_LIST } from '../content/contest'
-import { courseColor, type Course } from '../about/team'
+import { categories, courseColor, type Course } from '../content/courses'
 import flyerSummer2023 from 'public/flyer-summer-2023.png'
 import flyerContestWinter24 from 'public/H4K_Coding_Competition_Flyer_Winter_24.jpg'
 import flyerContest from 'public/H4K_Coding_Competition_Flyer.png'
 
 export const metadata = { title: 'Programs' }
 
-const coding: [Course, string][] = [
-  ['Python', 'A first text-based programming language, written and run line by line.'],
-  ['Game Development', 'Using code to design and build games.'],
-  ['Robotics', 'Writing programs that control a real robot.'],
-  ['Git + GitHub', 'The tools programmers use to save, track, and share their code.'],
-  ['AP CSA', 'Java programming, following the AP Computer Science A course.'],
-]
+const blurbs: Record<Course, string> = {
+  Python: 'A first text-based programming language, written and run line by line.',
+  'Game Development': 'Using code to design and build games.',
+  Robotics: 'Writing programs that control a real robot.',
+  'Git + GitHub': 'The tools programmers use to save, track, and share their code.',
+  'AP CSA': 'Java programming, following the AP Computer Science A course.',
+  'Intro to Algebra': 'Variables, expressions, and equations, the start of algebra.',
+  'AMC 8': 'Practice for the AMC 8 middle school math competition.',
+  'AMC 10': 'Practice for the AMC 10 math competition.',
+  'Intro to Physics': 'How things move, and the forces that move them.',
+  'AP Physics 1': 'Mechanics, following the AP Physics 1 course.',
+}
 
-const mathScience: [Course, string][] = [
-  ['Intro to Algebra', 'Variables, expressions, and equations, the start of algebra.'],
-  ['AMC 8', 'Practice for the AMC 8 middle school math competition.'],
-  ['AMC 10', 'Practice for the AMC 10 math competition.'],
-  ['Intro to Physics', 'How things move, and the forces that move them.'],
-  ['AP Physics 1', 'Mechanics, following the AP Physics 1 course.'],
-]
-
-function Script({ title, courses }: { title: string; courses: [Course, string][] }) {
+function Script({ title, courses }: { title: string; courses: readonly Course[] }) {
   return (
     <div>
       <Block color="yellow" shape="hat" bodyClassName="px-5 pt-6 pb-4">
         <h3 className="text-2xl font-extrabold">{title}</h3>
       </Block>
       <ul>
-        {courses.map(([name, line], i) => (
+        {courses.map((name, i) => (
           <li key={name}>
             <Block
               color={courseColor[name]}
@@ -39,12 +36,23 @@ function Script({ title, courses }: { title: string; courses: [Course, string][]
               bodyClassName="px-5 pt-5 pb-4"
             >
               <span className="block font-display text-xl font-bold">{name}</span>
-              <span className="block leading-snug">{line}</span>
+              <span className="block leading-snug">{blurbs[name]}</span>
             </Block>
           </li>
         ))}
       </ul>
     </div>
+  )
+}
+
+function Flyer({ src, file, alt, caption }: { src: StaticImageData; file: string; alt: string; caption: string }) {
+  return (
+    <figure>
+      <a href={`/${file}`} target="_blank" rel="noopener noreferrer" aria-label={`Open full-size flyer: ${caption}`}>
+        <Image src={src} alt={alt} sizes="(min-width: 640px) 24rem, 100vw" className={flyerFrame} />
+      </a>
+      <figcaption className="mt-3 text-sm font-bold text-ink-soft">{caption}</figcaption>
+    </figure>
   )
 }
 
@@ -70,11 +78,12 @@ export default function Programs() {
           Courses we teach
         </h2>
         <p className="max-w-[62ch] text-lg leading-relaxed text-ink-soft mb-10">
-          Each program offers some of these. Join the mailing list to hear which ones are next.
+          Each program offers some of these. Get class dates by email to hear which ones are next.
         </p>
         <div className="grid gap-12 md:grid-cols-2 md:gap-10">
-          <Script title="Coding" courses={coding} />
-          <Script title="Math and science" courses={mathScience} />
+          {categories.map((c) => (
+            <Script key={c.name} title={c.name} courses={c.courses} />
+          ))}
         </div>
       </section>
 
@@ -99,34 +108,21 @@ export default function Programs() {
                 and Modern React.
               </p>
             </div>
-            <Image
-              src={flyerSummer2023}
-              alt="Flyer: Free STEM Camps, join Hackathon4Kids this summer. July 3-7, 3-5pm PT, AMC 10. July 10-14, 1-3pm PT, AP Physics 1. July 17-21, 1-3pm PT, AP CSA. July 26-29, 2-4pm PT, Programming for Robotics. July 31-Aug 4, 2-4pm PT, Modern React."
-              sizes="(min-width: 640px) 24rem, 100vw"
-              className={`${flyerFrame} mt-8 sm:max-w-sm`}
-            />
+            <div className="mt-8 sm:max-w-sm">
+              <Flyer src={flyerSummer2023} file="flyer-summer-2023.png" caption="Past program flyer" alt="Flyer: Free STEM Camps, join Hackathon4Kids this summer. July 3-7, 3-5pm PT, AMC 10. July 10-14, 1-3pm PT, AP Physics 1. July 17-21, 1-3pm PT, AP CSA. July 26-29, 2-4pm PT, Programming for Robotics. July 31-Aug 4, 2-4pm PT, Modern React." />
+            </div>
           </li>
           <li>
             <Block color="orange" className="inline-block" bodyClassName="px-5 pt-4 pb-3">
-              <h3 className="text-2xl font-extrabold">Winter 2024 coding contest</h3>
+              <h3 className="text-2xl font-extrabold">Past coding contests</h3>
             </Block>
             <p className="mt-5 max-w-[62ch] text-lg leading-relaxed">
               A coding competition for grades K to 8 on Code.org, where students worked at their own pace
               and competed for awards.
             </p>
             <div className="mt-8 grid gap-8 sm:grid-cols-2 max-w-3xl items-start">
-              <Image
-                src={flyerContestWinter24}
-                alt="Flyer: Hackathon4Kids coding competition, K-8th grade, Oct 12th to Nov 8th. Learn coding through code.org at your own pace and compete for awards; winners awarded November 16th, 2024 at the Bascom Community Room, Bascom Library. Prize pool up to $2,000."
-                sizes="(min-width: 640px) 24rem, 100vw"
-                className={flyerFrame}
-              />
-              <Image
-                src={flyerContest}
-                alt="Flyer: Hackathon4Kids Coding Competition, K-8th grade, January 10th to February 7th. Learn coding through code.org at your own pace and compete for awards; winners awarded February 10th at Educational Park Library. Prize pool up to $2,000."
-                sizes="(min-width: 640px) 24rem, 100vw"
-                className={flyerFrame}
-              />
+              <Flyer src={flyerContestWinter24} file="H4K_Coding_Competition_Flyer_Winter_24.jpg" caption="Past contest flyer" alt="Flyer: Hackathon4Kids coding competition, K-8th grade, Oct 12th to Nov 8th. Learn coding through code.org at your own pace and compete for awards; winners awarded November 16th, 2024 at the Bascom Community Room, Bascom Library. Prize pool up to $2,000." />
+              <Flyer src={flyerContest} file="H4K_Coding_Competition_Flyer.png" caption="Past contest flyer" alt="Flyer: Hackathon4Kids Coding Competition, K-8th grade, January 10th to February 7th. Learn coding through code.org at your own pace and compete for awards; winners awarded February 10th at Educational Park Library. Prize pool up to $2,000." />
             </div>
           </li>
         </ol>
@@ -142,7 +138,7 @@ export default function Programs() {
         </p>
         <div className="flex flex-wrap gap-x-4 gap-y-6">
           <Block color="green" href={MAILING_LIST} external bodyClassName="px-5 py-3 font-bold">
-            Join the mailing list
+            Get class dates by email
           </Block>
           <Block color="blue" href="/code.org" bodyClassName="px-5 py-3 font-bold">
             Contest instructions

@@ -8,7 +8,7 @@ export default function MdxLayout({ children }: { children: React.ReactNode }) {
       <article>{children}</article>
       <div className="mt-12 flex flex-wrap gap-x-4 gap-y-6">
         <Block color="green" href={MAILING_LIST} external bodyClassName="px-5 py-3 font-bold">
-          Join the mailing list
+          Get class dates by email
         </Block>
         <Block color="blue" href="/programs" bodyClassName="px-5 py-3 font-bold">
           See our programs
