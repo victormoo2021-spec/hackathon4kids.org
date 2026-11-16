@@ -1,8 +1,8 @@
 // Pointer fluid: a small stable-fluids sim (velocity + one-channel dye) stirred by the pointer and,
 // lightly, by scrolling. The dye is drawn as yellow light ink with purple edges on a canvas BEHIND
 // the page content. A [data-spectral] heading the pointer stirs is handed over to the canvas for a
-// moment (class is-prism clears its DOM glyphs) and drawn through vertical glass slits that bend it
-// along the flow with six-band dispersion, then settles back onto the exact DOM glyphs.
+// moment (class is-prism clears its DOM glyphs) and drawn through fine vertical glass slits that bend it
+// along the flow near the pointer's path with six-band dispersion, then settles back onto the exact DOM glyphs.
 // Raw WebGL2, loaded on first interaction, zero frames when idle.
 
 const VS = `#version 300 es
@@ -34,40 +34,46 @@ const BLOOM = `${H}uniform sampler2D uT;uniform vec2 uTx;
 void main(){o=.25*(texture(uT,v+uTx*vec2(1.5,.5))+texture(uT,v+uTx*vec2(-.5,1.5))+texture(uT,v+uTx*vec2(-1.5,-.5))+texture(uT,v+uTx*vec2(.5,-1.5)));}`
 // uTm maps screen uv to the text textures (they cover the viewport plus a scroll margin).
 // uS: b = "there is text here" shield (low res, mipmapped). uG: premultiplied glyphs of the headings
-// currently handed to the canvas, at device resolution. uHr/uHs: their boxes (css px) and (bend, opacity).
-const COMP = `${H}uniform sampler2D uD,uB,uV,uS,uG;uniform vec2 uTm,uRes;uniform float uAsp,uSlit,uMax;uniform vec4 uHr[4];uniform vec2 uHs[4];
-const vec3 P=vec3(.486,.361,1.),Y=vec3(1.,.839,.039),W=vec3(1.,.97,.86);
+// currently handed to the canvas, at device resolution. uHr/uHs: their boxes (css px) and (bend, opacity, font px).
+// uPt: the pointer and a point trailing it (css px); the bend lives around that segment.
+const COMP = `${H}uniform sampler2D uD,uB,uV,uS,uG;uniform vec2 uTm,uRes;uniform vec4 uPt,uHr[4],uHs[4];
+const vec3 P=vec3(.486,.361,1.),Y=vec3(1.,.87,.48),W=vec3(1.,.97,.9),V=vec3(.62,.5,1.);
 float lum(vec3 c){return dot(c*c,vec3(.2126,.7152,.0722));}
 void main(){
 float h=texture(uD,v).r,g=texture(uB,v).r;
 vec2 tp=vec2(v.x,(1.-v.y)*uTm.x+uTm.y);
 float s=textureLod(uS,tp,5.3).b,ot=smoothstep(.12,.6,s);
 // wispier behind any text, stronger in empty space
-h*=mix(1.25,.6,ot);g*=mix(1.25,.45,ot);
-vec3 c=mix(P,Y,smoothstep(.03,.2,h)*(1.-.85*smoothstep(.75,1.,s)));c=mix(c,W,smoothstep(.5,1.,h));
-c=c*(1.-exp(-h*h*9.))+mix(P,Y,.6)*g*.7;
+h*=mix(1.,.6,ot);g*=mix(1.,.45,ot);
+// pale gold core thinning out to violet, no hard edge
+vec3 c=mix(P,Y,smoothstep(.04,.32,h)*(1.-.85*smoothstep(.75,1.,s)));c=mix(c,W,smoothstep(.6,1.1,h));
+c=c*(1.-exp(-h*h*4.5))+mix(P,Y,.4)*g*.6;
 // keep text readable: behind text blocks the light is clamped to a low luminance
 float cap=mix(2.,mix(.16,.055,smoothstep(.65,1.,s)),ot);
 c*=min(1.,sqrt(cap/max(lum(c),1e-5)));
 c+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.*min(1.,(h+g)*40.);
-vec2 px=vec2(v.x,1.-v.y)*uRes;float e=0.,op=0.;
-for(int i=0;i<4;i++){vec2 q=min(px-uHr[i].xy,uHr[i].zw-px);float ins=min(q.x,q.y);if(ins>0.){e=uHs[i].x*smoothstep(0.,14.,ins);op=uHs[i].y;}}
+vec2 px=vec2(v.x,1.-v.y)*uRes;float e=0.,op=0.,em=16.;
+for(int i=0;i<4;i++){vec2 q=min(px-uHr[i].xy,uHr[i].zw-px);float ins=min(q.x,q.y);if(ins>0.){e=uHs[i].x*smoothstep(0.,14.,ins);op=uHs[i].y;em=uHs[i].z;}}
 vec4 t=vec4(0);
 if(op>0.){
-vec2 d=texture(uV,v).xy*.8*uMax*e;float m=length(d);
-if(m>2e-4){
-// glass slits: inside each vertical slit the bend ramps from nothing to full, ramping with the flow on each axis
-d*=min(1.,uMax/m);float f=fract(px.x/uSlit);
-vec2 D=d*vec2(d.x<0.?1.-f:f,d.y<0.?1.-f:f);D=vec2(D.x/uAsp,-D.y*uTm.x);
+// local: the bend fades with distance from the pointer's recent path, the rest of the line stays put
+vec2 pa=px-uPt.xy,ba=uPt.zw-uPt.xy;float dl=length(pa-ba*clamp(dot(pa,ba)/max(dot(ba,ba),1e-4),0.,1.))/(1.4*em);
+vec2 d=texture(uV,v).xy*uRes.y*.03*e*exp(-dl*dl);
+if(length(d)>.04){
+// fine reeded glass, ribs a tenth of an em wide: across each rib the view slides sideways and eases back
+// (soft edges, no hard steps), a little along the flow vertically. The slide stays under a rib's width, so
+// letters are never folded over themselves and stay readable.
+float x=fract(px.x/(.1*em)),f=smoothstep(0.,.75,x)*(1.-smoothstep(.75,1.,x)),m=length(d);
+vec2 cap=vec2(.05,.012)*em,D=cap*(1.-exp(-vec2(m,abs(d.y))/cap))*d/(abs(d)+vec2(.15*m+.3,.3))*f;D=vec2(D.x/uRes.x,-D.y/uRes.y*uTm.x);
 // six bands, red bends least and purple most, two taps each for a soft glassy edge;
-// the weights add back up to the untouched glyph. Only coverage disperses: the glyph keeps its own colour,
-// and a saturated one (the yellow words) barely splits at all.
-#define S(k) (texture(uG,tp-D*k)+texture(uG,tp-D*(k+.07)))*.5
-vec4 r=S(.68),y=S(.8),gr=S(.92),cy=S(1.04),b=S(1.17),p=S(1.32),sum=r+y+gr+cy+b+p;
+// the weights add back up to the untouched glyph, so it only shows as thin rainbow edges
+#define S(k) (texture(uG,tp-D*k)+texture(uG,tp-D*(k+.08)))*.5
+vec4 r=S(.4),y=S(.7),gr=S(.95),cy=S(1.2),b=S(1.5),p=S(1.85),sum=r+y+gr+cy+b+p;
 vec3 col=sum.rgb/max(sum.a,1e-4),a=vec3(.42*r.a+.3*y.a+.28*p.a,.3*y.a+.4*gr.a+.3*cy.a,.3*cy.a+.42*b.a+.28*p.a);
-float hi=max(col.r,max(col.g,col.b)),lo=min(col.r,min(col.g,col.b));
-a=mix(a,vec3(sum.a/6.),(hi-lo)/max(hi,1e-4));
-t=vec4(col*a,max(a.r,max(a.g,a.b)));
+// a coloured glyph (the yellow words) keeps its colour and gets a white edge on one side, violet on the other
+float lo=(r.a+y.a)*.5,mid=(gr.a+cy.a)*.5,hi=(b.a+p.a)*.5,mx=max(col.r,max(col.g,col.b)),mn=min(col.r,min(col.g,col.b));
+vec3 ce=col*mid+W*max(lo-mid,0.)+V*max(hi-mid,0.);
+t=vec4(mix(col*a,ce,(mx-mn)/max(mx,1e-4)),max(max(a.r,max(a.g,a.b)),max(lo,hi)));
 }else t=texture(uG,tp);
 t*=op;}
 o=vec4(c*(1.-t.a)+t.rgb,t.a);}`
@@ -157,12 +163,12 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
   const ctx = tcan.getContext('2d')!, gctx = gcan.getContext('2d')!
   const ttex = gl.createTexture()!, gtex = gl.createTexture()!
   let sig = '', rasterY = 0
-  type Word = { s: string; x: number; y: number; h: number; font: string; ls: string; col: string; clip: number[] }
+  type Word = { s: string; x: number; y: number; h: number; font: string; fs: number; ls: string; col: string; clip: number[] }
   // a heading the canvas is drawing instead of the DOM: e = bend envelope, op = canvas glyph opacity,
   // out = when the DOM glyphs started fading back in, cols = real colours (the DOM's are transparent meanwhile)
   type Prism = { e: number; op: number; hot: number; out: number; cols: Map<Element, string>; words: Word[] }
   const prisms = new Map<HTMLElement, Prism>()
-  const hr = new Float32Array(16), hs = new Float32Array(8)
+  const hr = new Float32Array(16), hs = new Float32Array(16), pt = new Float32Array(4)
   const range = document.createRange()
   const re = /\S+/g
   type Chain = { op: number; clip: number[]; bg: boolean }
@@ -205,7 +211,7 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
         const r = range.getClientRects()[0]
         if (!r) continue
         if (r.bottom <= clip[1] || r.top >= clip[3] || r.right <= clip[0] || r.left >= clip[2]) { re.lastIndex = 0; return null }
-        words.push({ s: tt === 'uppercase' ? w[0].toUpperCase() : tt === 'lowercase' ? w[0].toLowerCase() : w[0], x: r.left, y: r.top, h: r.height, font, ls, col, clip })
+        words.push({ s: tt === 'uppercase' ? w[0].toUpperCase() : tt === 'lowercase' ? w[0].toLowerCase() : w[0], x: r.left, y: r.top, h: r.height, font, fs: parseFloat(cs.fontSize), ls, col, clip })
       }
     }
     return words.length ? words : null
@@ -228,6 +234,9 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
       el.classList.add('is-prism') // css fades the DOM glyphs out over 150ms
     })
     hr.fill(0); hs.fill(0)
+    // a point trailing the pointer: the segment between them is the path the bend follows
+    const lag = 1 - Math.exp(-dt * 6)
+    pt[2] += (cx - pt[2]) * lag; pt[3] += (cy - pt[3]) * lag; pt[0] = cx; pt[1] = cy
     let i = 0
     prisms.forEach((st, el) => {
       const words = el.isConnected ? measure(el, st.cols) : null
@@ -243,7 +252,7 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
         else if ((st.e *= Math.exp(-dt * 8)) < 0.004) { st.e = 0; st.out = t; el.classList.add('is-prism-out') }
       }
       const r = el.getBoundingClientRect()
-      hr.set([r.left - PAD, r.top - PAD, r.right + PAD, r.bottom + PAD], i * 4); hs.set([st.e, st.op], i * 2)
+      hr.set([r.left - PAD, r.top - PAD, r.right + PAD, r.bottom + PAD], i * 4); hs.set([st.e, st.op, Math.max(...words.map((w) => w.fs))], i * 4)
       i++
     })
   }
@@ -308,7 +317,7 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     cx = x; cy = y
     px = x / innerWidth; py = 1 - y / innerHeight
     // a new stroke (first move, or first after the sim went to sleep) starts where the pointer is
-    if (fresh || !raf) { lx = px; ly = py; fresh = false }
+    if (fresh || !raf) { lx = px; ly = py; pt[2] = x; pt[3] = y; fresh = false }
     moved = true
     wake()
   }
@@ -352,8 +361,8 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
       let vx = ((px - lx) * asp) / dt, vy = (py - ly) / dt // viewport-heights per second
       const sp = Math.hypot(vx, vy), c = Math.min(1, 5 / (sp || 1))
       vx *= c; vy *= c
-      splat(vel, [lx, ly], [px, py], 0.035, [vx * 0.55 * k, vy * 0.55 * k], 8)
-      splat(dye, [lx, ly], [px, py], 0.0065, [Math.min(0.12 + sp * 0.28, 0.8) * (rm ? 0.6 : 1), 0], 1.4)
+      splat(vel, [lx, ly], [px, py], 0.035, [vx * 0.45 * k, vy * 0.45 * k], 8)
+      splat(dye, [lx, ly], [px, py], 0.0048, [Math.min(0.1 + sp * 0.2, 0.5) * (rm ? 0.6 : 1), 0], 1)
       lx = px; ly = py
     }
     if (sdy) {
@@ -362,7 +371,7 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     }
 
     pass(progs.curl, div, [['uT', vel[0].tex]], tx)
-    pass(progs.vort, vel[1], [['uT', div.tex], ['uV', vel[0].tex]], (u) => { tx(u); gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uK, 14) })
+    pass(progs.vort, vel[1], [['uT', div.tex], ['uV', vel[0].tex]], (u) => { tx(u); gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uK, 5) }) // light: strong confinement curls the ink into a hooked head
     swap(vel)
     pass(progs.advect, vel[1], [['uV', vel[0].tex], ['uS', vel[0].tex]], (u) => { gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uAsp, asp); gl.uniform1f(u.uK, Math.exp(-dt * (rm ? 4 : 1.8))); gl.uniform1f(u.uSub, 0) })
     swap(vel)
@@ -370,7 +379,7 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     for (let i = 0; i < 8; i++) { pass(progs.jacobi, prs[1], [['uT', prs[0].tex], ['uD', div.tex]], tx); swap(prs) }
     pass(progs.grad, vel[1], [['uT', prs[0].tex], ['uV', vel[0].tex]], tx)
     swap(vel)
-    pass(progs.advect, dye[1], [['uV', vel[0].tex], ['uS', dye[0].tex]], (u) => { gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uAsp, asp); gl.uniform1f(u.uK, Math.exp(-dt * (rm ? 4.5 : 3.2))); gl.uniform1f(u.uSub, dt * 0.05) })
+    pass(progs.advect, dye[1], [['uV', vel[0].tex], ['uS', dye[0].tex]], (u) => { gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uAsp, asp); gl.uniform1f(u.uK, Math.exp(-dt * (rm ? 6 : 5))); gl.uniform1f(u.uSub, dt * 0.05) })
     swap(dye)
     pass(progs.bloom, bloom, [['uT', dye[0].tex]], (u) => gl.uniform2f(u.uTx, 1 / dye[0].w, 1 / dye[0].h))
     const span = vh * (1 + 2 * MARGIN)
@@ -378,9 +387,8 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     const off = Math.round((scrollY - rasterY) * canvas.width / vw) * vw / canvas.width
     pass(progs.comp, null, [['uD', dye[0].tex], ['uB', bloom.tex], ['uV', vel[0].tex], ['uS', ttex], ['uG', gtex]], (u) => {
       gl.uniform2f(u.uTm, vh / span, (off + Math.round(vh * MARGIN)) / span)
-      gl.uniform2f(u.uRes, vw, vh); gl.uniform1f(u.uAsp, asp); gl.uniform1f(u.uSlit, Math.max(9, Math.min(18, vw / 90)))
-      gl.uniform1f(u.uMax, Math.max(12, Math.min(30, vw * 0.021)) / vh) // furthest a glyph may bend, so small headings stay legible
-      gl.uniform4fv(u['uHr[0]'], hr); gl.uniform2fv(u['uHs[0]'], hs)
+      gl.uniform2f(u.uRes, vw, vh); gl.uniform4fv(u.uPt, pt)
+      gl.uniform4fv(u['uHr[0]'], hr); gl.uniform4fv(u['uHs[0]'], hs)
     })
   }
 
