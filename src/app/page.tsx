@@ -3,15 +3,11 @@ import Link from 'next/link'
 import { ArrowRightIcon } from '@radix-ui/react-icons'
 import Block, { type BlockColor } from './components/Block'
 import { contest, MAILING_LIST } from './content/contest'
+import { categories } from './content/courses'
 
 const wrap = 'mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10'
 
-const palette: { name: string; color: BlockColor; courses: string[] }[] = [
-  { name: 'Code', color: 'purple', courses: ['Python', 'Git + GitHub', 'AP CSA'] },
-  { name: 'Build', color: 'blue', courses: ['Robotics', 'Game Development'] },
-  { name: 'Math', color: 'green', courses: ['Intro to Algebra', 'AMC 8', 'AMC 10'] },
-  { name: 'Physics', color: 'teal', courses: ['Intro to Physics', 'AP Physics 1'] },
-]
+const palette = categories
 
 // Block label word, e.g. "say", "repeat". Decorative grammar around real content.
 function Op({ children }: { children: ReactNode }) {

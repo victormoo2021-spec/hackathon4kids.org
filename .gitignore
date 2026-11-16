@@ -38,3 +38,6 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /blob-report/
+
+# agent worktrees
+/.claude/worktrees/

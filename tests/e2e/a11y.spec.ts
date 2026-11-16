@@ -22,7 +22,7 @@ test.describe('reduced motion', () => {
   test('hero script does not animate', async ({ page }) => {
     await page.goto('/')
     const animated = await page.evaluate(() =>
-      [...document.querySelectorAll('.snap-in > *')].filter(
+      Array.from(document.querySelectorAll('.snap-in > *')).filter(
         (el) => getComputedStyle(el).animationName !== 'none',
       ).length,
     )

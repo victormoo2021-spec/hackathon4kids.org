@@ -4,10 +4,9 @@
   To swap the roster: drop new headshots in public/, import them below, and
   replace the entries in `team`. Order here is display order. Set
   `hidden: true` to keep someone in the file without showing them.
-  `courses` must use names from `courseColor` (add a new course there first).
+  `courses` must use names from content/courses.ts (add a new course there first).
 */
 import type { StaticImageData } from 'next/image'
-import type { BlockColor } from '../components/Block'
 import johnnyWang from 'public/johnny_wang.jpg'
 import kartikBalu from 'public/kartik_balu.jpg'
 import victorJiang from 'public/victor_jiang.jpg'
@@ -20,21 +19,9 @@ import rohanGulati from 'public/rohan_gulati.jpg'
 import srinidhiRaghavendran from 'public/srinidhi_raghavendran.jpg'
 import ojusGarg from 'public/ojus_garg.jpg'
 
-// Course -> block category color (text color follows the AA rule in globals.css).
-export const courseColor = {
-  Python: 'yellow',
-  'Game Development': 'purple',
-  Robotics: 'orange',
-  'Git + GitHub': 'teal',
-  'AP CSA': 'pink',
-  'Intro to Algebra': 'green',
-  'AMC 8': 'green',
-  'AMC 10': 'green',
-  'Intro to Physics': 'blue',
-  'AP Physics 1': 'blue',
-} satisfies Record<string, BlockColor>
-
-export type Course = keyof typeof courseColor
+// Course colors live in content/courses.ts (shared with Home and Programs).
+import { courseColor, type Course } from '../content/courses'
+export { courseColor, type Course }
 
 export type Person = {
   name: string
