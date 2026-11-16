@@ -2,29 +2,40 @@
    the pinned layout is gated by the same media query Hero.tsx hands to gsap.matchMedia. */
 
 .hero { position: relative; overflow: clip; padding-block: 6.5rem 3.5rem; background: var(--color-paper); }
-.hero-grid { display: grid; gap: 2.5rem; align-items: center; }
+.hero-grid { display: grid; gap: 2.5rem; align-items: start; }
+.stage { display: grid; gap: 2.5rem; min-width: 0; }
 
-.hero-h1 { font-size: clamp(2.5rem, 5.6vw, 5rem); line-height: 1.02; font-weight: 650; letter-spacing: -0.045em; color: var(--color-ink); max-width: 12ch; }
+.hero-h1 { font-size: clamp(2.75rem, 6.6vw, 6rem); line-height: 1.02; font-weight: 650; letter-spacing: -0.045em; color: var(--color-ink); max-width: 11ch; }
+.hero-soft { color: var(--color-ink-soft); }
 .hero-cont { margin-top: 1.1rem; font-size: clamp(1.35rem, 2.4vw, 2.1rem); line-height: 1.2; font-weight: 600; letter-spacing: -0.03em; color: var(--color-ink-soft); max-width: 20ch; }
 .hero-copy > div { margin-top: 2rem; }
-.facts { display: flex; flex-wrap: wrap; gap: 0.35rem 1.1rem; margin-top: 1.75rem; font-size: 0.9rem; color: var(--color-ink-soft); }
+.facts { display: flex; flex-wrap: wrap; gap: 0.35rem 0; margin-top: 1.75rem; font-size: 0.8125rem; color: var(--color-ink-soft); }
+.facts li { display: inline-flex; }
+.facts .dot { margin-inline: 0.6rem; }
+@media (max-width: 639px) {
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem 1rem; }
+  .facts .dot { display: none; }
+}
 
 
 .rise { animation: hero-rise 800ms var(--ease-out-expo) both; }
 @keyframes hero-rise { from { opacity: 0; transform: translateY(18px); } }
 
 /* ---------- device ---------- */
-.device-wrap { position: relative; width: 100%; max-width: 46rem; margin-inline: auto; will-change: transform; }
+.device-wrap { position: relative; width: 100%; max-width: 50rem; margin-inline: auto; }
 .device-in { position: relative; animation: hero-rise 1000ms var(--ease-out-expo) 120ms both; }
 .glow {
-  position: absolute; left: 4%; width: 92%; aspect-ratio: 1; top: 50%; margin-top: -46%; z-index: 0;
-  background: conic-gradient(from 0deg, #2448f5, #7a5af8, #ff7a59, #ffb3a0, #7a5af8, #2448f5);
-  filter: blur(54px); opacity: 0.68;
-  -webkit-mask-image: radial-gradient(closest-side, #000 35%, transparent 100%);
-  mask-image: radial-gradient(closest-side, #000 35%, transparent 100%);
-  animation: hero-spin 36s linear infinite;
+  position: absolute; z-index: 0; left: -30%; width: 160%; top: 8%; height: 80%; opacity: 0.85; pointer-events: none;
+  background: linear-gradient(100deg, #2448f5 0%, #7a5af8 38%, #ff7a59 72%, #ffb3a0 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent), linear-gradient(180deg, transparent, #000 28%, #000 72%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent), linear-gradient(180deg, transparent, #000 28%, #000 72%, transparent);
+  -webkit-mask-composite: source-in; mask-composite: intersect;
+  transform: rotate(-14deg);
 }
-@keyframes hero-spin { to { transform: rotate(360deg); } }
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .glow { will-change: transform; animation: hero-drift 14s ease-in-out infinite alternate; }
+}
+@keyframes hero-drift { from { transform: rotate(-14deg) translateX(-3%); } to { transform: rotate(-14deg) translateX(3%); } }
 
 .device { position: relative; z-index: 1; aspect-ratio: 1.55; container-type: inline-size; }
 .device::before { content: ''; position: absolute; left: 5%; right: 5%; bottom: -1.5%; height: 7%; background: rgb(15 15 40 / 0.4); filter: blur(22px); border-radius: 50%; }
@@ -47,7 +58,7 @@
 .base span { position: absolute; left: 50%; top: 0; width: 16%; height: 36%; margin-left: -8%; border-radius: 0 0 1cqw 1cqw; background: #a3a7b3; }
 
 /* editor */
-.editor { position: absolute; inset: 0; color: #e6e8f2; font-family: var(--font-mono); font-size: 2.9cqw; line-height: 1.75; will-change: transform, opacity; }
+.editor { position: absolute; inset: 0; color: #e6e8f2; font-family: var(--font-mono); font-size: 2.9cqw; line-height: 1.75; }
 .bar { display: flex; align-items: center; gap: 0.9cqw; height: 6.2cqw; padding-inline: 2cqw; background: #1b1c28; font-size: 2.3cqw; line-height: 1; }
 .bar i { width: 1.5cqw; height: 1.5cqw; border-radius: 50%; background: #3a3c4f; }
 .bar i:nth-child(1) { background: #ff6b6b; } .bar i:nth-child(2) { background: #ffc857; } .bar i:nth-child(3) { background: #4fd18b; }
@@ -90,16 +101,20 @@
 }
 
 @media (min-width: 900px) {
-  .hero { padding-block: 7.5rem 4rem; }
+  .hero { padding-block: clamp(7rem, 14vh, 9rem) 4rem; }
+  .stage { display: contents; }
+  .story { grid-column: 1 / -1; }
   .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 3rem; }
 }
 
 /* ---------- pinned story layout ---------- */
 @media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
-  .hero { height: 100svh; min-height: 40rem; padding-block: 5rem 1.5rem; }
+  .hero { height: calc(max(100svh, 40rem) + 240svh); padding: 0; overflow: visible; }
+  .hero-pin { position: sticky; top: 0; height: max(100svh, 40rem); padding-block: 0 1.5rem; overflow: clip; background: var(--color-paper); }
   .hero-grid { height: 100%; }
-  .hero-copy { will-change: transform, opacity; }
-  .device-wrap { max-width: min(46rem, calc(56svh * 1.55)); }
+  .hero-copy { padding-top: clamp(7rem, 14vh, 9rem); will-change: transform, opacity; }
+  .device-wrap { align-self: center; max-width: min(50rem, calc(58svh * 1.55)); margin-right: -3%; will-change: transform; }
+  .editor { will-change: transform, opacity; }
   .game-layer { display: block; clip-path: inset(0 0 0 100%); }
   .story { position: absolute; inset: 0; margin: 0; padding: 0; display: block; pointer-events: none; z-index: 2; }
   .game-card, .chips { display: none; }
