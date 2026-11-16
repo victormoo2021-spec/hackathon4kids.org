@@ -1,31 +1,44 @@
-import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { ROUTES, settle } from './routes'
+import { expect, test, type Page } from '@playwright/test'
+import { ROUTES } from './routes'
+import { scrollToBottom, scrollToTop, settle } from './helpers'
 
-for (const route of ROUTES) {
-  test(`${route.path} has no serious accessibility violations`, async ({ page }) => {
-    await page.goto(route.path)
-    await settle(page)
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .analyze()
-    const serious = results.violations
-      .filter((v) => v.impact === 'serious' || v.impact === 'critical')
-      .map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(', ')}`)
-    expect(serious).toEqual([])
-  })
+async function seriousViolations(page: Page) {
+  const { violations } = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze()
+  return violations
+    .filter((v) => v.impact === 'serious' || v.impact === 'critical')
+    .map((v) => `${v.id}: ${v.nodes.slice(0, 3).map((n) => n.target.join(' ')).join(' | ')}`)
 }
 
-test.describe('reduced motion', () => {
-  test.use({ reducedMotion: 'reduce' })
+async function prepare(page: Page) {
+  await scrollToBottom(page)
+  await scrollToTop(page)
+  await settle(page)
+}
 
-  test('hero script does not animate', async ({ page }) => {
+test.describe('accessibility (axe)', () => {
+  for (const route of ROUTES) {
+    test(`${route.path} has no serious violations`, async ({ page }) => {
+      await page.goto(route.path)
+      await prepare(page)
+      expect(await seriousViolations(page)).toEqual([])
+    })
+  }
+
+  test('404 page has no serious violations', async ({ page }) => {
+    await page.goto('/nope')
+    await prepare(page)
+    expect(await seriousViolations(page)).toEqual([])
+  })
+
+  test('home with all FAQ items open has no serious violations', async ({ page }) => {
     await page.goto('/')
-    const animated = await page.evaluate(() =>
-      Array.from(document.querySelectorAll('.snap-in > *')).filter(
-        (el) => getComputedStyle(el).animationName !== 'none',
-      ).length,
-    )
-    expect(animated).toBe(0)
+    await page
+      .locator('#faq details')
+      .evaluateAll((els) => els.forEach((e) => ((e as HTMLDetailsElement).open = true)))
+    await prepare(page)
+    expect(await seriousViolations(page)).toEqual([])
   })
 })

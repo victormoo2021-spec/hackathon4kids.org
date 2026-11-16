@@ -7,10 +7,3 @@ export const ROUTES = [
   { path: '/about', title: /About/ },
   { path: '/code.org', title: /Contest/ },
 ] as const
-
-import type { Page } from '@playwright/test'
-
-/** Wait for entrance animations to settle so checks see the resting layout. */
-export async function settle(page: Page) {
-  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))))
-}
