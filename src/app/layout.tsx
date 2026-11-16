@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from 'next'
 import MotionProviders from './components/motion/Providers'
 import Navigation from './Navigation'
 import Footer from './Footer'
+import StreakField from './components/fx/StreakField'
 
 // Fonts: system SF stack (see globals.css), so no web font download.
 export const viewport: Viewport = {
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="skip-link">
           Skip to content
         </a>
+        <StreakField />
         <MotionProviders>
           <Navigation />
           <main id="main" className="flex-1">
