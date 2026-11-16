@@ -5,6 +5,7 @@ import MotionProviders from './components/motion/Providers'
 import Navigation from './Navigation'
 import Footer from './Footer'
 import Fluid from './components/fx/Fluid'
+import Blueprint from './components/fx/blueprint/Blueprint'
 
 // Fonts: system SF stack (see globals.css), so no web font download.
 export const viewport: Viewport = {
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <Fluid />
+        <Blueprint />
         <MotionProviders>
           <Navigation />
           <main id="main" className="flex-1">

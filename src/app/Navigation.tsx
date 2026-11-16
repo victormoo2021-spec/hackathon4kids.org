@@ -62,8 +62,9 @@ export default function Navigation() {
           <ul className="flex items-center gap-6">
             {links.map((l) => (
               <li key={l.href}>
-                <Link href={l.href} aria-current={current(l.href)} className="nav-link-d">
+                <Link href={l.href} aria-current={current(l.href)} className="nav-link-d relative">
                   {l.label}
+                  {current(l.href) && <span className="nav-pill" aria-hidden />}
                 </Link>
               </li>
             ))}
