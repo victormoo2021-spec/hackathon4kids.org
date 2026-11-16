@@ -15,12 +15,12 @@
   padding: 0.12cqw;
   box-shadow: inset 0 0.08cqw 0 rgb(255 255 255 / 0.22), 0 0 0 0.1cqw rgb(255 255 255 / 0.12), 0 40px 80px -30px rgb(0 0 0 / 0.8);
 }
-.lap-bezel { height: 100%; background: #0c0526; border-radius: 1.9cqw 1.9cqw 0.3cqw 0.3cqw; padding: 0.9cqw 0.9cqw 1.1cqw; box-shadow: 0 0 0 0.1cqw #000; }
-.laptop .screen { container-type: inline-size; position: relative; height: 100%; border-radius: 0.8cqw 0.8cqw 0.2cqw 0.2cqw; overflow: hidden; background: #0f0830; }
+.lap-bezel { height: 100%; background: #050408; border-radius: 1.9cqw 1.9cqw 0.3cqw 0.3cqw; padding: 0.9cqw 0.9cqw 1.1cqw; box-shadow: 0 0 0 0.1cqw #000; }
+.laptop .screen { container-type: inline-size; position: relative; height: 100%; border-radius: 0.8cqw 0.8cqw 0.2cqw 0.2cqw; overflow: hidden; background: #0d0916; }
 .laptop .screen::after { content: ''; position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(115deg, rgb(255 255 255 / 0.06), transparent 38%); }
 /* host holds the children; it is the container for cqw units in both the CSS and 3D screens */
 .lap-host { position: absolute; inset: 0; container-type: inline-size; }
-.lap-notch { position: absolute; z-index: 3; top: 0; left: 50%; width: 12cqw; height: 2.2cqw; margin-left: -6cqw; border-radius: 0 0 1.2cqw 1.2cqw; background: #0c0526; display: grid; place-items: center; }
+.lap-notch { position: absolute; z-index: 3; top: 0; left: 50%; width: 12cqw; height: 2.2cqw; margin-left: -6cqw; border-radius: 0 0 1.2cqw 1.2cqw; background: #050408; display: grid; place-items: center; }
 .lap-notch i { width: 0.7cqw; height: 0.7cqw; border-radius: 50%; background: #14121c; box-shadow: inset 0 0 0 0.12cqw #22202c; }
 .lap-base {
   position: absolute; left: 0; right: 0; bottom: 0; height: 7%;
@@ -31,7 +31,7 @@
 .lap-base span { position: absolute; left: 50%; top: 0; width: 15%; height: 38%; margin-left: -7.5%; border-radius: 0 0 1cqw 1cqw; background: #101015; box-shadow: inset 0 0.25cqw 0.4cqw rgb(0 0 0 / 0.7); }
 
 /* 3D screen: sized in px by Laptop3D; notch + glare drawn over the host */
-.lap-3d-screen { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; border-radius: 6px; background: #0f0830; container-type: inline-size; }
+.lap-3d-screen { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; border-radius: 6px; background: #0d0916; container-type: inline-size; }
 .lap-3d-screen > .lap-host { position: absolute; inset: 0; }
 .lap-3d-screen::after { content: ''; position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(115deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.015) 22%, transparent 42%); }
 .lap-3d-screen > .lap-notch { width: 12.9%; height: 3.3%; margin-left: -6.45%; border-radius: 0 0 1cqw 1cqw; }

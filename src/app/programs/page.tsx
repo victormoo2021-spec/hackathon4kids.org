@@ -2,7 +2,6 @@ import Image, { type StaticImageData } from 'next/image'
 import EmailCta from '../components/EmailCta'
 import Reveal from '../components/motion/Reveal'
 import { categories, type Course } from '../content/courses'
-import '../components/home/sections.css'
 import flyerSummer2023 from 'public/flyer-summer-2023.png'
 import flyerContestWinter24 from 'public/H4K_Coding_Competition_Flyer_Winter_24.jpg'
 import flyerContest from 'public/H4K_Coding_Competition_Flyer.png'
@@ -71,11 +70,11 @@ export default function Programs() {
         </p>
         <div className="mt-12 border-t border-line">
           {categories.map((c) => (
-            <section key={c.name} data-reveal="rule" style={{ '--accent': c.neon } as React.CSSProperties} className="spec relative grid gap-4 py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-10 md:py-10" aria-labelledby={`cat-${c.name}`}>
-              <h3 id={`cat-${c.name}`} data-reveal className="t-title text-[var(--accent)]">{c.name}</h3>
+            <section key={c.name} data-reveal="rule" className="relative grid gap-4 py-8 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:bg-line after:[transform:scaleX(var(--rule,1))] md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-10 md:py-10" aria-labelledby={`cat-${c.name}`}>
+              <h3 id={`cat-${c.name}`} data-reveal className="t-title text-text">{c.name}</h3>
               <ul className="divide-y divide-line">
                 {c.courses.map((name) => (
-                  <li key={name} data-reveal className="course py-4 first:pt-0 last:pb-0">
+                  <li key={name} data-reveal className="py-4 first:pt-0 last:pb-0">
                     <span className="block text-xl font-semibold text-text">{name}</span>
                     <span className="mt-1 block text-base text-text-dim">{blurbs[name]}</span>
                   </li>
