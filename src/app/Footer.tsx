@@ -5,13 +5,13 @@ import { contest } from './content/contest'
 const EMAIL = 'hackathon4kidsevent@gmail.com'
 
 export default function Footer() {
-  const col = 'mb-3 text-xs font-semibold uppercase tracking-wider text-ink'
+  const col = 'mb-3 text-xs font-semibold uppercase tracking-wider text-text'
   return (
     <footer className="site-footer">
       <div className="container-x py-12">
         <div className="footer-grid">
           <div>
-            <p className="text-base font-semibold text-ink">Hackathon4Kids</p>
+            <p className="text-base font-semibold text-text">Hackathon4Kids</p>
             <p className="mt-1 max-w-[32ch]">Free computer science and STEM classes for kids in grades 3 to 8, taught by high-school students.</p>
           </div>
           <nav aria-label="Footer">
@@ -25,7 +25,7 @@ export default function Footer() {
           </nav>
           <div>
             <h2 className={col}>Contact</h2>
-            <a href={`mailto:${EMAIL}`} className="break-all">{EMAIL}</a>
+            <a href={`mailto:${EMAIL}`} className="whitespace-nowrap">{EMAIL}</a>
           </div>
           <div>
             <h2 className={col}>Stay in the loop</h2>

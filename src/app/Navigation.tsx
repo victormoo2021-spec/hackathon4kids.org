@@ -53,8 +53,8 @@ export default function Navigation() {
   return (
     <header className="site-header glass" data-scrolled={scrolled} data-open={open}>
       <div className="container-x flex h-14 items-center justify-between gap-4 md:h-16">
-        <Link href="/" className="flex items-center gap-2.5 rounded-md text-[1.0625rem] font-semibold tracking-tight text-ink">
-          <Image src={logo} alt="" sizes="36px" priority className="h-9 w-9" />
+        <Link href="/" className="flex items-center gap-2 rounded-md text-[1.0625rem] font-semibold tracking-tight text-text">
+          <Image src={logo} alt="" sizes="24px" priority className="logo-mark h-6 w-6" />
           Hackathon4Kids
         </Link>
 

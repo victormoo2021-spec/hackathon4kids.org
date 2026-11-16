@@ -7,16 +7,12 @@ export const contentType = 'image/png'
 export default function Image() {
   return new ImageResponse(
     (
-      <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#fff', color: '#1d1d1f', padding: 80 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 36, fontWeight: 600 }}>
-          <div style={{ width: 24, height: 24, borderRadius: 12, background: '#2448f5' }} />
-          Hackathon4Kids
+      <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#0a0710', color: '#f4f1fa', padding: 80 }}>
+        <div style={{ fontSize: 32, fontWeight: 600, color: '#9a93ad' }}>Hackathon4Kids</div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ width: 96, height: 6, borderRadius: 3, background: '#ffd60a', marginBottom: 40 }} />
+          <div style={{ fontSize: 104, fontWeight: 700, letterSpacing: -4, lineHeight: 1.04, display: 'flex' }}>Free coding classes for grades 3-8</div>
         </div>
-        <div style={{ fontSize: 108, fontWeight: 700, letterSpacing: -4, lineHeight: 1.02, display: 'flex', flexWrap: 'wrap' }}>
-          <span>Free coding classes for&nbsp;</span>
-          <span style={{ color: '#2448f5' }}>grades 3-8</span>
-        </div>
-        <div style={{ fontSize: 32, color: '#6e6e73' }}>Taught by high-school students. Bay Area.</div>
       </div>
     ),
     size,
