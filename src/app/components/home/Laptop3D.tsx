@@ -15,7 +15,7 @@ const LID_Z = 1.06 // lid centre, measured from the hinge along the lid
 // final scale, so text stays crisp as long as this is >= the projected size (~500px at 1440 wide).
 const PX_W = 1000
 const PX_H = Math.round((PX_W * SCREEN_H) / SCREEN_W)
-const GLOW = { purple: '#6d5cff', violet: '#a78bff', gold: '#ffaa05' } as const
+const GLOW = { purple: '#6d3bff', violet: '#ff3fb4', gold: '#ffaa05' } as const
 
 type Props = { progress: number; host: HTMLElement; onReady: () => void; onFail: () => void }
 
@@ -279,7 +279,7 @@ export default function Laptop3D(props: Props) {
         <Environment resolution={256} frames={1}>
           <Lightformer form="rect" intensity={4} color="#ffffff" position={[-3, 3, 2]} scale={[5, 3, 1]} />
           <Lightformer form="rect" intensity={3} color="#f4f2ff" position={[0, 6, 1]} scale={[12, 8, 1]} />
-          <Lightformer form="rect" intensity={4} color="#a78bff" position={[3.5, 1.5, -3]} scale={[0.6, 4, 1]} />
+          <Lightformer form="rect" intensity={4} color="#b49bff" position={[3.5, 1.5, -3]} scale={[0.6, 4, 1]} />
           <Lightformer form="rect" intensity={2.2} color="#e8e6f2" position={[0, 2, 5]} scale={[8, 3, 1]} />
         </Environment>
         <directionalLight position={[-2, 4, 3]} intensity={1.6} />

@@ -124,7 +124,7 @@ void main() {
   vec3 irid = mix(uColA, uColB, smoothstep(0.25, 0.9, w));
 
   // clear body: tinted transmission of the bent background, no fill of its own
-  vec3 col = through * mix(vec3(0.9, 0.86, 1.0), irid + 0.25, 0.5) * 1.3 + lit * 0.9;
+  vec3 col = through * mix(vec3(0.9, 0.86, 1.0), irid + 0.2, 0.65) * 1.3 + lit * 0.9;
   // soft clip, so a bar can never wash out the text that sits on top of it; only thin lines below stay hot
   col /= 1.0 + dot(col, vec3(0.2126, 0.7152, 0.0722)) * 2.0;
   // rims: Fresnel on the bevels
@@ -144,7 +144,7 @@ void main() {
   vec3 spc = smoothstep(0.2, 0.0, length(fract(g) - 0.5)) * step(0.93, h) * tw * uSparkle * vec3(3.2, 2.9, 2.2);
 
   col = (col * uGlow) + spc * (0.25 + 0.75 * uGlow);
-  col = mix(vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))), col, uSat * 1.4);
+  col = mix(vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))), col, uSat * 1.7);
   o = vec4(mix(texture(tBg, uv).rgb, col, clamp(uVis, 0.0, 1.0)), 1.0);
 }`
 
