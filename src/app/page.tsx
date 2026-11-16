@@ -32,8 +32,8 @@ export default function Home() {
             </Snap>
             <Snap i={1}>
               <Block color="purple" className="w-fit max-w-full" bodyClassName="px-6 pt-5 pb-5">
-                <Op>say</Op>
-                <h1 className="mt-1 text-4xl leading-[1.1] font-extrabold sm:text-5xl lg:text-6xl">
+                <h1 className="text-4xl leading-[1.1] font-extrabold sm:text-5xl lg:text-6xl">
+                  <span aria-hidden className="mr-3 font-display font-bold opacity-80">say</span>
                   <span className="slot">Free</span> coding classes for{' '}
                   <span className="slot whitespace-nowrap">grades 3-8</span>
                 </h1>
@@ -56,10 +56,21 @@ export default function Home() {
                 className="w-fit max-w-full"
                 bodyClassName="flex items-center gap-3 px-6 pt-4 pb-4 font-display text-xl font-extrabold"
               >
-                Join our mailing list
+                Get class dates by email
                 <ArrowRightIcon aria-hidden width={22} height={22} />
               </Block>
             </Snap>
+          </div>
+
+          <p className="mt-3 text-sm text-ink-soft">No spam. Unsubscribe anytime.</p>
+
+          <div className="mt-8">
+            <Block color="teal" className="w-fit max-w-full" bodyClassName="flex flex-wrap items-center gap-2 px-6 pt-4 pb-3 text-lg">
+              <Op>quick facts</Op>
+              {['Free', 'Grades 3-8', 'Bay Area', 'In person and online', 'Taught by high-school students'].map((f) => (
+                <span key={f} className="slot font-bold">{f}</span>
+              ))}
+            </Block>
           </div>
 
           <p className="mt-8 max-w-[60ch] text-lg text-ink-soft">
@@ -72,7 +83,7 @@ export default function Home() {
           {contest.active && (
             <aside aria-labelledby="contest-title" className="contest-card relative">
               <Pin />
-              <div className="cb cb-blue cb-cap lg:rotate-[1.2deg]">
+              <div className="cb cb-blue cb-cap">
                 <div className="cb-body px-6 pt-9 pb-6">
                   <h2 id="contest-title" className="text-2xl font-extrabold">
                     {contest.title}
@@ -170,7 +181,7 @@ export default function Home() {
           </li>
           <li>
             <Block color="orange" shape="cap" bodyClassName="px-6 pt-5 pb-5">
-              <p className="font-display text-xl font-bold">forever</p>
+              <p className="font-display text-xl font-bold">when you donate</p>
               <p className="mt-1">Donations go toward assisting underprivileged children.</p>
             </Block>
           </li>
@@ -221,9 +232,13 @@ export default function Home() {
                 className="w-fit max-w-full"
                 bodyClassName="flex items-center gap-3 px-6 pt-4 pb-4 font-display text-xl font-extrabold"
               >
-                Join our mailing list
+                Get class dates by email
                 <ArrowRightIcon aria-hidden width={22} height={22} />
               </Block>
+              <p className="text-sm text-ink-soft">No spam. Unsubscribe anytime.</p>
+              <p className="max-w-[40ch] text-sm text-ink-soft">
+                For parents and guardians. We never sell or share your email.
+              </p>
             </div>
           </div>
         </div>

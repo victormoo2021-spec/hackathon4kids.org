@@ -133,11 +133,13 @@
   }
 
   /* interactive blocks lift like being dragged */
-  a.cb:hover,
-  button.cb:hover,
-  .cb-lift:hover {
-    transform: translate(-2px, -3px) rotate(-0.6deg);
-    filter: drop-shadow(0 10px 14px rgb(27 26 43 / 0.22));
+  @media (hover: hover) {
+    a.cb:hover,
+    button.cb:hover,
+    .cb-lift:hover {
+      transform: translate(-2px, -3px) rotate(-0.6deg);
+      filter: drop-shadow(0 10px 14px rgb(27 26 43 / 0.22));
+    }
   }
 
   /* press: click into place, fast and flush */
@@ -229,8 +231,13 @@
     background: linear-gradient(var(--color-motion), var(--color-motion)) left bottom 4px / 0 3px no-repeat;
     transition: background-size 260ms var(--ease-out-expo);
   }
-  .nav-link:hover {
+  .nav-link:focus-visible {
     background-size: 100% 3px;
+  }
+  @media (hover: hover) {
+    .nav-link:hover {
+      background-size: 100% 3px;
+    }
   }
   .nav-link[aria-current="page"] {
     background-image: linear-gradient(var(--color-events), var(--color-events));
@@ -241,16 +248,20 @@
   .robot {
     transition: transform 420ms var(--ease-snap);
   }
-  .stage-art:hover .robot {
-    transform: translate(-10px, 4px);
+  @media (hover: hover) {
+    .stage-art:hover .robot {
+      transform: translate(-10px, 4px);
+    }
   }
 
   /* contest pin wobbles once when the card is hovered */
   .pin {
     transform-origin: 50% 90%;
   }
-  .contest-card:hover .pin {
-    animation: pin-wobble 520ms var(--ease-out-expo);
+  @media (hover: hover) {
+    .contest-card:hover .pin {
+      animation: pin-wobble 520ms var(--ease-out-expo);
+    }
   }
 
   /* mobile menu: blocks stack in one after another */

@@ -14,8 +14,9 @@ export default function Footer() {
 
   return (
     <footer className="mt-24 border-t-2 bg-stage/80">
-      <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[minmax(0,1fr)_auto] lg:px-10">
-        <div className="cb-stack max-w-xl">
+      <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[auto_auto] md:justify-start md:gap-24 lg:px-10">
+        <div className="max-w-xl">
+        <div className="cb-stack">
           <Block color="yellow" shape="hat" className="w-fit max-w-full" bodyClassName="px-5 pt-4 pb-3 font-display text-lg font-bold">
             when parent has a question
           </Block>
@@ -33,19 +34,24 @@ export default function Footer() {
             <span className="slot">&copy; {new Date().getFullYear()} Hackathon4Kids</span>
           </Block>
         </div>
+          <p className="mt-5 max-w-[48ch] text-sm text-ink-soft">
+            The sign-up form is for parents and guardians. We only use your email to send Hackathon4Kids
+            updates and never sell or share it.
+          </p>
+        </div>
 
         <nav aria-label="Footer">
           <h2 className="font-display text-lg font-bold">Pages</h2>
           <ul className="mt-3 space-y-2">
             {pages.map((p) => (
               <li key={p.href}>
-                <Link href={p.href} className="font-bold text-motion underline">
+                <Link href={p.href} className="nav-link font-bold">
                   {p.label}
                 </Link>
               </li>
             ))}
             <li>
-              <a href={MAILING_LIST} target="_blank" rel="noopener noreferrer" className="font-bold text-motion underline">
+              <a href={MAILING_LIST} target="_blank" rel="noopener noreferrer" className="nav-link font-bold">
                 Mailing list sign-up
               </a>
             </li>
