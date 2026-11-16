@@ -1,191 +1,258 @@
 ---
 name: Hackathon4Kids
-description: Free kids' coding classes, built as snap-together code blocks on a dot-grid stage.
+description: An Apple-clean launch page for a free kids' coding class, taught by high-school students.
 colors:
-  ink: "#1b1a2b"
-  ink-soft: "#4a4760"
-  stage: "#ffffff"
-  grid: "#e7e5f0"
-  events: "#ffc21a"
-  control: "#ff8a1f"
-  operators: "#2bb673"
-  looks: "#6f3fe8"
-  motion: "#2563eb"
-  sensing: "#14a3a3"
-  pen: "#e8457a"
-  lilac: "#f3f0fb"
+  ink: "#1d1d1f"
+  ink-soft: "#6e6e73"
+  paper: "#ffffff"
+  mist: "#f5f5f7"
+  hairline: "#e3e3e8"
+  accent: "#2448f5"
+  accent-strong: "#1d3bf0"
+  night: "#0b0b0f"
+  night-2: "#16161c"
+  ink-dim: "#a1a1a6"
+  accent-dark: "#7c8cff"
+  hue-code: "#2448f5"
+  hue-build: "#7a5af8"
+  hue-math: "#0ea47a"
+  hue-physics: "#f76b15"
 typography:
   display:
-    fontFamily: "Bricolage Grotesque, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "2.25rem / 3rem / 3.75rem"
-    fontWeight: 800
-    lineHeight: 1.1
-    letterSpacing: "-0.02em"
+    fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif"
+    fontSize: "clamp(2.75rem, 7.2vw, 6.5rem)"
+    fontWeight: 650
+    lineHeight: 1.02
+    letterSpacing: "-0.045em"
   headline:
-    fontFamily: "Bricolage Grotesque, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1.875rem / 2.25rem"
-    fontWeight: 800
-    letterSpacing: "-0.02em"
+    fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif"
+    fontSize: "clamp(2.25rem, 4.6vw, 4rem)"
+    fontWeight: 650
+    lineHeight: 1.05
+    letterSpacing: "-0.04em"
   title:
-    fontFamily: "Bricolage Grotesque, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1.5rem"
-    fontWeight: 800
-    letterSpacing: "-0.02em"
-  body:
-    fontFamily: "Atkinson Hyperlegible, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1.125rem"
+    fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif"
+    fontSize: "clamp(1.5rem, 2.2vw, 2rem)"
+    fontWeight: 600
+    lineHeight: 1.15
+    letterSpacing: "-0.025em"
+  lede:
+    fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif"
+    fontSize: "clamp(1.125rem, 1.4vw, 1.375rem)"
     fontWeight: 400
+    lineHeight: 1.5
+  code:
+    fontFamily: "Geist Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
+    fontSize: "2.9cqw"
+    lineHeight: 1.75
 rounded:
-  block: "8px"
-  hat: "28px 28px 8px 8px"
-  slot: "999px"
-  panel: "16px"
-  media: "12px"
+  tile: "1.25rem"
+  card: "1.75rem"
+  pill: "999px"
 spacing:
-  block-x: "24px"
-  block-y: "16px"
-  page-gutter: "16px / 24px / 40px"
+  gutter-mobile: "1.25rem"
+  gutter-desktop: "2rem"
+  section-mobile: "6rem"
+  section-desktop: "9rem"
+  container: "75rem"
 components:
-  block-yellow: { backgroundColor: "{colors.events}", textColor: "{colors.ink}", rounded: "{rounded.block}", padding: "16px 24px" }
-  block-orange: { backgroundColor: "{colors.control}", textColor: "{colors.ink}", rounded: "{rounded.block}", padding: "16px 24px" }
-  block-green: { backgroundColor: "{colors.operators}", textColor: "{colors.ink}", rounded: "{rounded.block}", padding: "16px 24px" }
-  block-teal: { backgroundColor: "{colors.sensing}", textColor: "{colors.ink}", rounded: "{rounded.block}", padding: "16px 24px" }
-  block-pink: { backgroundColor: "{colors.pen}", textColor: "{colors.ink}", rounded: "{rounded.block}", padding: "16px 24px" }
-  block-purple: { backgroundColor: "{colors.looks}", textColor: "{colors.stage}", rounded: "{rounded.block}", padding: "16px 24px" }
-  block-blue: { backgroundColor: "{colors.motion}", textColor: "{colors.stage}", rounded: "{rounded.block}", padding: "16px 24px" }
-  slot: { backgroundColor: "{colors.stage}", textColor: "{colors.ink}", rounded: "{rounded.slot}", padding: "0.05em 0.6em" }
+  button-primary:
+    backgroundColor: "{colors.accent}"
+    textColor: "{colors.paper}"
+    rounded: "{rounded.pill}"
+    padding: "0.75rem 1.4rem"
+    height: "2.75rem"
+  button-primary-hover:
+    backgroundColor: "{colors.accent-strong}"
+  button-primary-lg:
+    backgroundColor: "{colors.accent}"
+    textColor: "{colors.paper}"
+    rounded: "{rounded.pill}"
+    padding: "1rem 1.9rem"
+    height: "3.5rem"
+  button-secondary:
+    backgroundColor: "{colors.mist}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.pill}"
+    padding: "0.75rem 1.4rem"
+  button-secondary-hover:
+    backgroundColor: "{colors.hairline}"
+  card:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.card}"
+  tile:
+    backgroundColor: "{colors.mist}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.card}"
+  dark-band:
+    backgroundColor: "{colors.night}"
+    textColor: "{colors.paper}"
 ---
 
 # Design System: Hackathon4Kids
 
-## 1. Overview
+## Overview
 
-**Creative North Star: "The Script You Can Run"**
+**Creative North Star: "The Launch Page"**
 
-The site is a block-coding editor a parent happens to be reading. Every section is a snap-together code block on a bright white stage with a faint dot grid. Blocks are flat saturated color with real notch and tab joins, white inset slots for values, and chunky rounded display type. It refuses the gradient-hero-plus-clipart edtech page.
+A parent skims a free class the way they skim a product launch: a white page, one confident headline, one blue action, and a single scroll-driven demo that shows what a kid actually does (type code, press run, watch a game move, pick a course). References: apple.com for restraint and pacing, stripe.com for soft layered depth, linear.app for crisp type and a dark band. The content is the product; the chrome stays out of the way.
 
-Color is a language, not decoration: each hue is a block category and keeps its meaning across pages. Text on blocks is always ink or white by an AA rule, never tinted.
+Density is low and the rhythm is generous. Almost everything is white or pale grey, ink-coloured type with tight display tracking, one saturated blue, and exactly one dark section for contrast. Depth comes from soft layered shadows and a few translucent glass surfaces, never from borders or hard edges. The build replaced an earlier "snap-together code blocks" world entirely; nothing of it survives.
 
 **Key Characteristics:**
-- White stage, dot grid (22px, 1.2px dots in grid color) on body.
-- Flat blocks with an inset bottom edge and a soft drop shadow; no gradients.
-- Block grammar: hat starts a script, stack continues, cap ends it, slots hold values.
-- One signature motion: the hero script snaps together once.
-- Content width max-w-7xl with gutters 16 / 24 / 40px (base / sm / lg).
+- White (paper) and mist grey surfaces, ink text, one blue accent; one night band.
+- Geist at heavy-but-not-black weights (600-650) with negative tracking; Geist Mono only for code.
+- Big radii (20-28px), pill buttons, soft multi-layer shadows.
+- One authored motion moment; everything else is a quiet opacity-and-rise.
+- One primary action on the whole site.
 
-## 2. Colors
+## Colors
 
-Full palette, each role deliberate. Neutrals are an indigo-tinted ink and a pale lavender grid.
+Restrained: neutrals carry the page, a single blue carries action and focus, category hues appear only as small marks.
 
 ### Primary
-- **Go Green** (#2bb673, operators): the primary action. The mailing-list CTA is the only green action block; text is ink.
-
-### Secondary
-- **Hat Yellow** (#ffc21a, events): hat blocks, events, announcements, text selection, current-page nav underline, focus glow.
-- **Looks Purple** (#6f3fe8, looks): statements ("say") and the Code course category. Also accent-color and scrollbar. White text.
-- **Link Blue** (#2563eb, motion): links, navigation, focus outline, contest card, Build course category. White text.
-
-### Tertiary
-- **Loop Orange** (#ff8a1f, control): loops, programs, "repeat" rows. Ink text.
-- **Info Teal** (#14a3a3, sensing): info rows ("quick facts"), Physics category. Ink text.
-- **Highlight Pink** (#e8457a, pen): highlight; defined, used sparingly. Ink text.
+- **Launch Blue** (accent): the only action colour. Primary button fill, focus ring, active nav underline, current-page link in the mobile sheet, `accent-color`, selection tint.
+- **Pressed Blue** (accent-strong): primary button hover only.
 
 ### Neutral
-- **Ink** (#1b1a2b): body text, text on light blocks, skip link.
-- **Soft Ink** (#4a4760): secondary paragraphs, helper notes.
-- **Stage White** (#ffffff): page and slot background.
-- **Grid Lavender** (#e7e5f0): dot grid and default borders.
+- **Ink** (ink): headings and body on paper and mist.
+- **Soft Ink** (ink-soft): ledes, captions, nav links at rest, footer text.
+- **Paper** (paper): page background and card fill.
+- **Mist** (mist): footer, final CTA band, secondary button, About cards, tile gradient end.
+- **Hairline** (hairline): 1px dividers (FAQ rows, header when scrolled, footer rule) and secondary-button hover.
+- **Night** (night) and **Night 2** (night-2): the single dark band. Night 2 is declared but not yet used by a component.
+- **Dim Ink** (ink-dim) and **Dark Blue** (accent-dark): secondary text and accent on night.
 
-### Course category colors (src/app/content/courses.ts is the single source)
-Code = purple (Python, Git + GitHub, AP CSA); Build = blue (Robotics, Game Development); Math = green (Intro to Algebra, AMC 8, AMC 10); Physics = teal (Intro to Physics, AP Physics 1). Every page reads `courseColor`; never hand-pick a course color.
+### Category hues
+Code, Build, Math and Physics each own a hue (hue-code, hue-build, hue-math, hue-physics), defined once in `src/app/content/courses.ts` and read everywhere via `courseHue`. They tint mini visuals, dots, tile gradients (9% mix into white) and glows only.
 
-### Named Rules
-**The AA Text Rule.** Ink text on yellow, orange, green, teal, pink. White text on purple and blue. Set once in `.cb-*` via `--cb-fg`; never override per block.
-
-**The Meaning Rule.** Yellow = hats, events, announcements. Green = the primary action. Purple/blue/green/teal = Code/Build/Math/Physics categories on course surfaces. A color used outside its meaning needs a reason.
-
-## 3. Typography
-
-**Display Font:** Bricolage Grotesque (ui-sans-serif fallback), loaded via next/font as `--font-bricolage`; applied to h1-h3 in base layer.
-**Body Font:** Atkinson Hyperlegible 400/700, `--font-atkinson`, default on body.
-
-**Character:** Bricolage is chunky and a little quirky for headings; Atkinson is engineered for legibility, which suits parents and young readers.
-
-### Hierarchy (as built)
-- **Hero** (`.h-hero`, 2.25 / 3 / 3.75rem at base / sm / lg, leading 1.1): the home h1 only, inside the purple "say" block.
-- **Page** (`.h-page`, 3 / 3.75rem, leading 1.02): h1 on Programs, About and MDX pages. Programs and About set it in a purple hat block.
-- **Section** (`.h-section`, 1.875 / 2.25rem, leading 1.15): every section h2.
-- **Card** (`.h-card`, 1.5rem, leading 1.2): contest card, script and person titles, MDX h2 block.
-All four are display 800; sizes come from `--text-hero/page/section/card` in `@theme`. Never size a heading ad hoc.
-- **Body** (400, text-lg, ink-soft for lead paragraphs): max-w 50-65ch.
-- **Label** (display 700-800, text-lg to xl): hat and button block labels. Not uppercase, no tracking.
+### Verified contrast (AA)
+- ink and ink-soft on paper and on mist.
+- paper text on accent: 6.3:1.
+- On night: white, ink-dim 7.6:1, accent-dark 6.6:1.
+- Category hues are not contrast-verified for text on white.
 
 ### Named Rules
-**The Op Word Rule.** Op words ("when", "say", "repeat", "quick facts") are inline grammar inside a block, via the `Op` helper or aria-hidden span. They are never standalone eyebrow or kicker labels above a heading.
+**The One Blue Rule.** Launch Blue marks action and focus. It never decorates.
+**The Hue Is A Mark Rule.** Category hues are never text on white; they are dots, icon fills and gradients.
+**The One Night Rule.** Exactly one dark band per page; the rest is light.
 
-## 4. Elevation
+## Typography
 
-Hybrid but flat at rest: depth comes from the block's inset bottom edge and a tight drop shadow, and from lift on interaction. Shadows are structural (they make a block read as a physical piece), not ambient.
+**Display Font:** Geist (with ui-sans-serif, system-ui, -apple-system)
+**Body Font:** Geist (same stack)
+**Label/Mono Font:** Geist Mono, used only for the code editor inside the device
+
+**Character:** Plain, geometric and quiet. Hierarchy comes from scale and tracking, not from a second typeface.
+
+### Hierarchy
+- **Display** (650, clamp 2.75rem to 6.5rem, 1.02, -0.045em, `t-display`): page-level statements. The hero h1 uses a slightly smaller bespoke clamp (2.75rem to 6rem) capped at 11ch.
+- **Headline** (650, clamp 2.25rem to 4rem, 1.05, -0.04em, `t-headline`): section headings.
+- **Title** (600, clamp 1.5rem to 2rem, 1.15, -0.025em, `t-title`): card and tile headings.
+- **Lede** (400, clamp 1.125rem to 1.375rem, 1.5, ink-soft, `t-lede`): supporting paragraph; capped at 36rem in page heroes.
+- **Body**: Tailwind text-base/text-sm in ink or ink-soft. All h1-h3 get `text-wrap: balance`, paragraphs `text-wrap: pretty`.
+
+### Named Rules
+**The Tight Tracking Rule.** Headings track negative (-0.025em to -0.045em); the bigger the size, the tighter.
+**The Mono Is Code Rule.** Geist Mono appears only where source code is shown.
+
+## Layout
+
+Single column on mobile, wide centred container (`container-x`: max 75rem, 1.25rem gutters, 2rem from 48rem). Vertical rhythm is `section-y` (6rem, 9rem from 64rem). Subpages open with `page-hero` (top padding clamp 7rem to 9rem to clear the sticky header, 2.5rem bottom, 4rem from 64rem) and separate content with `page-section` (3.5rem, 5.5rem from 64rem). Fixed header, scroll-padding-top 5rem, `overflow-x: clip` on body. Breakpoints in use: 640px (facts grid), 48rem, 64rem, and 900px (the pinned story and hero two-column grid).
+
+## Elevation & Depth
+
+Hybrid: flat white-on-mist tonal layering plus two soft, multi-layer shadows. Depth is atmospheric (Stripe-like), never outlined.
 
 ### Shadow Vocabulary
-- **Block rest** (`filter: drop-shadow(0 2px 2px)` in ink at 14% via color-mix, plus `inset 0 -4px 0 var(--cb-edge)` (black 14%) on body): every block. Filter, not box-shadow, so notch and tab are shadowed.
-- **Block lift** (`drop-shadow(0 10px 14px rgb(27 26 43 / 0.22))`, translate(-2px,-3px) rotate(-0.6deg)): interactive blocks on hover, only under `@media (hover: hover)`.
-- **Block press** (`drop-shadow(0 1px 1px ...)`, translate(0,2px), 70ms): active.
-- **Focus glow** (double yellow drop-shadow 3px/6px plus inset 3px ink ring on body): focus-visible on block links and buttons, reading as Scratch block selection. Plain elements get a 3px blue outline, 3px offset.
-- **Slot well** (`inset 0 1px 2px rgb(0 0 0 / 0.18)`): value slots.
+- **Float** (`--shadow-float`: 0 1px 1px rgb(0 0 0/.04), 0 8px 24px -6px rgb(0 0 0/.1), 0 24px 64px -16px rgb(0 0 0/.14)): resting cards, game card, chips.
+- **Lift** (`--shadow-lift`: adds a faint blue 0 40px 96px -24px rgb(36 72 245/.22) glow): hovered home tile.
+- **Primary glow** (`0 6px 20px -6px rgb(36 72 245/.55)`): under the primary button.
+- **Lift hover** (`.lift`: 0 2px 4px / 0 24px 48px -12px rgb(0 0 0/.18) plus 6px rise): hovered About and Programs cards, fine pointers only.
 
 ### Named Rules
-**The Dragged-Block Rule.** Only blocks that are links or buttons (`a.cb`, `button.cb`, `.cb-lift`) lift. Static blocks never move on hover.
+**The Glass Is Rare Rule.** Glass (white at 72%, saturate 180%, blur 20px) is for the sticky nav and the floating course chips only. Content cards are solid.
+**The Static Blur Rule.** Blur lives on static surfaces. Never animate a filter or backdrop-filter.
 
-### Tokens (`@theme`)
-Radius: `--radius-block` 8px, `--radius-panel` 16px (bordered panels, portraits), `--radius-media` 12px (images). Shadows: `--shadow-soft` (media), `--shadow-pill`. Fill: `--color-lilac` (bio card, inline code).
+## Shapes
 
-## 5. Components
+Generous and soft: tile 1.25rem, card 1.75rem, pill 999px for buttons, chips and the skip link. Focus ring is a 2px accent outline offset 3px with 8px corners. Thin hairlines separate list rows instead of boxes. The hero device mock sizes in `cqw` so it scales as one object.
 
-### Block (`components/Block.tsx`, `.cb`)
-Props: `color` (yellow, orange, green, purple, blue, teal, pink), `shape` (stack, hat, cap), `href`, `external`, `size` (`sm` px-3 pt-2 pb-1.5, `md` default px-5 pt-4 pb-3, `lg` px-6 pt-5 pb-4; hats get 0.25rem more top), `bodyClassName` (layout and type extras only, never padding). Renders a Next Link, an external `<a>` (noopener), or a div. Radius 8px; top notch (36x9 mask at 18px offset) and bottom tab join stacked blocks. Hat: 28px top radius, no notch. Cap: no bottom tab. The bottom tab uses the same `--cb-edge` darkening as the body inset edge, so the join is seamless.
+## Components
 
-### Slot (`.slot`)
-Pill (999px) white inset well with ink text, holds a value: "Free", "grades 3-8", course names, quick facts.
+### Buttons
+- **Shape:** pill (999px), min-height 2.75rem, weight 600, tracking -0.01em; `btn-lg` is 3.5rem at 1.125rem.
+- **Primary:** Launch Blue fill, white text, blue glow shadow. Hover to Pressed Blue.
+- **Secondary:** mist fill, ink text, hover to hairline.
+- **Active:** scale 0.97 over 90ms; release springs back (ease-spring).
 
-### Op (`components/Op.tsx`)
-Inline op word ("repeat", "quick facts", "at a glance") inside a block.
+### EmailCta (the only primary action)
+The single primary action on the site, from `EmailCta.tsx`. Copy is fixed: "Get class dates by email" (nav-compact: "Get class dates"), with an arrow icon, opens the Google Form in a new tab with an sr-only notice, optional "No spam. Unsubscribe anytime." line. Do not reword, and do not add a second primary button.
 
-### Primary CTA and CtaPair (`components/CtaPair.tsx`)
-`CtaPrimary` is the single source of the copy (`hero` gives the large arrow version). `CtaPair secondary={{label, href}}` is the green primary plus a blue secondary, used at the end of About, Programs and MDX pages.
-Green cap block, display 800 text-xl, label "Get class dates by email" plus arrow icon, links to `MAILING_LIST`. Followed by "No spam. Unsubscribe anytime." in soft ink. The copy is fixed; do not reword to "Join" or "Sign up".
+### Cards and Tiles
+- **Card** (`.card`): paper fill, 1.75rem radius, Float shadow.
+- **Tile** (home courses): 1.75rem, 160deg gradient from a 9% category hue to white, 3D tilt via `--rx/--ry` (transform only), Lift shadow on hover, mini visual (`tile-visual`) in a 1.25rem rounded box.
+- **Course tile** on Programs: same gradient, `course-visual` max 9rem.
+- **About card:** mist fill, 1.75rem, `.lift` hover.
 
-### Contest card
-Blue cap block with a pin that wobbles once on hover, white inner pill link (hover yellow). Driven by `content/contest.ts`.
+### FAQ
+Native `<details>/<summary>` (keyboard and no-JS safe), hairline rows, 1.25rem semibold question, plus/minus icon built from two 2px bars. Open state animates `::details-content` block-size and opacity (400ms ease-out-expo) using `interpolate-size: allow-keywords`; reduced motion removes the transition. Facts live in `content/faq.ts`.
 
 ### Navigation
-`.nav-link`: ink text, no underline; a blue 3px bar slides in from the left on hover or focus; current page holds a 4px yellow bar. Mobile menu items snap in staggered (50ms). Skip link slides in on focus.
+Sticky header with glass; when scrolled it gains a hairline bottom and an 86% white fill. Links are ink-soft, ink on hover and current; the current page gets a 2px blue underline that scales in. On mobile a full-height sheet below the 3.5rem header fades and slides in, links stagger by 55ms, current page in accent; Escape closes and returns focus to the toggle. A skip link is the first tab stop. Page changes use a View Transition cross-fade with a 12px rise.
 
-### Hero snap-in (`.snap-in`)
-Each child of the hero stack animates from translate(-24px,-10px) rotate(-2deg) with an overshoot ease (`cubic-bezier(0.22, 1.25, 0.36, 1)`), 620ms, delayed 110ms per `--i` plus 120ms. Once, on load. The only choreographed moment.
+### Footer
+Mist background, ink-soft 0.875rem text, 4-column grid from 64rem (2fr 1fr 1fr 1.2fr), links darken and underline on hover, hairline rule above the fine print.
 
-### Motion
-Hover lift, press, nav bar and robot nudge are state feedback only. Under `prefers-reduced-motion: reduce` the snap-in is not applied, nav, robot and block transitions are off, pin wobble and mobile-menu animation are off. Body uses `overflow-x: clip` so animations never cause sideways scroll.
+### Dark Band
+The one night section ("run by students"): night fill, white headings, large stat-style figures (the figures are descriptive of the model, e.g. who teaches, never invented numbers), soft ribbon and speck glints in accent-dark. Final CTA band is mist with a pre-baked soft gradient ribbon.
 
-### Layout and rhythm (as implemented)
-Every page uses `.wrap` (max-w-7xl, gutters 16 / 24 / 40px) with `.page-top` (2.5rem, 4rem from md) and `.page-bottom` (5rem). Sections are separated by `.section` (6rem, 7rem from md) only. Home hero is two columns: script stack left, contest right. Course list rows are a grid of a 9rem category column plus content.
+### Hero device and story
+A laptop mock (CSS, `cqw` sized) with an editor in Geist Mono, a game layer (SVG) and a course fly-in. Detailed behaviour is below.
 
-## 6. Do's and Don'ts
+## Motion
+
+- **Runtime:** GSAP + ScrollTrigger. Lenis loads by dynamic import only when the pointer is fine and reduced motion is off (never on touch), driven by `gsap.ticker`. Rebuilt per route, refreshed after fonts load. `motion-ok` is set on html.
+- **The one authored moment:** at 900px and wider with motion allowed, the hero becomes a CSS `position: sticky` stage (height about 100svh + 240svh) that scrubs: code types in the editor, run is pressed, a game scene wipes in, and course chips fly out. Sticky instead of a GSAP pin is deliberate: no wrapper is injected, so layout shift stays at 0.
+- **Below 900px or reduced motion:** a static stack (device with finished code, a game card with a calm CSS-only loop, chips, captions). Reduced motion shows the final frame.
+- **Reveal:** every `[data-reveal]` fades from opacity 0 and rises 16px (0.7s expo.out, staggered), once. Opacity only, never `visibility: hidden`, so unrevealed content stays focusable. Items already in view at load are set instantly.
+- **Easings:** ease-apple (state changes), ease-out-expo (entrances), ease-spring (press and lift).
+- **Perf rules:** animate transform and opacity only; no animated filters; glows are pre-baked radial gradients, not blurred layers.
+
+## Content Rules
+
+- No invented stats, student counts, partner logos or testimonials (PRODUCT.md).
+- Minors appear as first name plus grade only; no school names; consent before photos.
+- Swap the roster in `src/app/about/team.ts` (new headshots in `public/`, ordered array, `hidden: true` to retire, `courses` must exist in `content/courses.ts`).
+- Contest announcement is `src/app/content/contest.ts` (`active: false` hides the nav pill and home slot); `MAILING_LIST` lives there too.
+- FAQ answers are in `src/app/content/faq.ts`; courses and hues in `src/app/content/courses.ts`.
+
+## Performance and Tests
+
+Budget: Lighthouse mobile at or above 95, CLS 0. Guards in `tests/e2e`: `motion.spec.ts` (story pins without overflow, zero layout shift while scrolling, no pin/Lenis under reduced motion, reveal elements visible), `a11y.spec.ts` (axe, including all FAQ items open), `home.spec.ts` (CTA fully inside first viewport, FAQ keyboard behaviour), `site.spec.ts` (one h1, skip link, no overflow, mobile menu focus).
+
+## Do's and Don'ts
 
 ### Do:
-- **Do** read course colors from `content/courses.ts`.
-- **Do** keep the AA Text Rule: ink on yellow/orange/green/teal/pink, white on purple/blue.
-- **Do** use hat to start, stack to continue, cap to end a script; put values in slots.
-- **Do** gate hover lift behind `@media (hover: hover)` and honor reduced motion.
-- **Do** keep copy factual: no invented stats, testimonials, or counts. Unknown facts (safety, FAQ) wait for owner answers.
-- **Do** list minors as first name plus grade only; never school names; get student and parent consent before publishing a photo. Roster lives in `src/app/about/team.ts` (replace entries, order is display order, `hidden: true` suppresses, `courses` must exist in courses.ts). Contest lives in `src/app/content/contest.ts` (`active: false` hides the nav pill and home card; edit title, blurb, href, ctaLabel, navLabel).
+- **Do** use EmailCta for the single primary action, with its fixed copy.
+- **Do** use `container-x`, `section-y` and the `t-*` utilities rather than ad hoc sizes.
+- **Do** read category colours from `content/courses.ts`.
+- **Do** use mist for secondary surfaces and hairlines for dividers.
+- **Do** add new motion as transform/opacity with a reduced-motion fallback that shows the final state.
 
 ### Don't:
-- **Don't** build the generic edtech page: gradient hero plus clipart, stock-photo kids, mascots.
-- **Don't** use op words as eyebrow or kicker labels above headings.
-- **Don't** use white text on yellow, orange, green, teal, or pink.
-- **Don't** add a second signature animation or loop motion.
-- **Don't** hardcode new hexes or rgb shadows in components; use `@theme` tokens.
+- **Don't** add a second primary button, or reword "Get class dates by email".
+- **Don't** use category hues as text on white.
+- **Don't** animate blur, filter or backdrop-filter; don't put glass on content cards.
+- **Don't** hide unrevealed content with `visibility: hidden` or `display: none`.
+- **Don't** replace the sticky story with a GSAP pin (CLS).
+- **Don't** invent numbers, testimonials or full names of minors.
 
-### Known gaps (build carries these; fix later, do not inherit as rules)
-- Safety and FAQ sections are pending owner facts.
+## Known Gaps (not canonized)
+
+- Hardcoded hex colours in components instead of tokens: `src/app/components/home/ClassSize.tsx:19,22` (#d2d2d7, #1d1d1f), `Formats.tsx:6-25` (#d2d2d8, #f5b800, others), `GameScene.tsx:7-29` (illustration palette), `src/app/not-found.tsx:12-14` (traffic-light dots), `hero.css` device/editor greys and syntax colours, `sections.css:63-64` (#7c8cff/#a98bff instead of accent-dark).
+- Fixed font sizes outside the scale: `Faq.tsx:15` (1.25rem), `DarkBand.tsx:65-66` (2.5rem, 0.9375rem, white/62), `Navigation.tsx:56`, `Footer.tsx:35,38` (.8125rem).
+- `About/Card.tsx:12` repeats 1.75rem instead of the card radius token.
+- `night-2`, `ink-dim`, `accent-dark` tokens are declared but no component uses them; DarkBand uses white alpha instead.
+- `opengraph-image.tsx` hardcodes brand hex (unavoidable in ImageResponse).

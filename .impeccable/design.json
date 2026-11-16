@@ -4,67 +4,273 @@
   "title": "Design System: Hackathon4Kids",
   "extensions": {
     "colorMeta": {
-      "ink": {"role": "neutral", "displayName": "Ink", "canonical": "#1b1a2b"},
-      "events": {"role": "secondary", "displayName": "Hat Yellow", "canonical": "#ffc21a"},
-      "operators": {"role": "primary", "displayName": "Go Green", "canonical": "#2bb673"},
-      "looks": {"role": "secondary", "displayName": "Looks Purple", "canonical": "#6f3fe8"},
-      "motion": {"role": "secondary", "displayName": "Link Blue", "canonical": "#2563eb"},
-      "control": {"role": "tertiary", "displayName": "Loop Orange", "canonical": "#ff8a1f"},
-      "sensing": {"role": "tertiary", "displayName": "Info Teal", "canonical": "#14a3a3"},
-      "pen": {"role": "tertiary", "displayName": "Highlight Pink", "canonical": "#e8457a"}
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1d1d1f"
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#6e6e73"
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff"
+      },
+      "mist": {
+        "role": "neutral",
+        "displayName": "Mist",
+        "canonical": "#f5f5f7"
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#e3e3e8"
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Launch Blue",
+        "canonical": "#2448f5"
+      },
+      "accent-strong": {
+        "role": "primary",
+        "displayName": "Pressed Blue",
+        "canonical": "#1d3bf0"
+      },
+      "night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "canonical": "#0b0b0f"
+      },
+      "night-2": {
+        "role": "neutral",
+        "displayName": "Night 2",
+        "canonical": "#16161c"
+      },
+      "ink-dim": {
+        "role": "neutral",
+        "displayName": "Dim Ink",
+        "canonical": "#a1a1a6"
+      },
+      "accent-dark": {
+        "role": "primary",
+        "displayName": "Dark Blue",
+        "canonical": "#7c8cff"
+      },
+      "hue-code": {
+        "role": "secondary",
+        "displayName": "Code Blue",
+        "canonical": "#2448f5"
+      },
+      "hue-build": {
+        "role": "secondary",
+        "displayName": "Build Violet",
+        "canonical": "#7a5af8"
+      },
+      "hue-math": {
+        "role": "secondary",
+        "displayName": "Math Green",
+        "canonical": "#0ea47a"
+      },
+      "hue-physics": {
+        "role": "secondary",
+        "displayName": "Physics Orange",
+        "canonical": "#f76b15"
+      }
     },
     "typographyMeta": {
-      "display": {"displayName": "Display", "purpose": "h1-h3, block labels. Bricolage Grotesque 800."},
-      "body": {"displayName": "Body", "purpose": "All running text. Atkinson Hyperlegible."}
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page statements. Geist 650, tracking -0.045em."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card and tile headings."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "Supporting paragraph in ink-soft."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Geist Mono, editor inside the hero device only."
+      }
     },
     "shadows": [
-      {"name": "block-rest", "value": "drop-shadow(0 2px 2px rgb(27 26 43 / 0.14))", "purpose": "Every block."},
-      {"name": "block-lift", "value": "drop-shadow(0 10px 14px rgb(27 26 43 / 0.22))", "purpose": "Interactive block hover, hover:hover only."},
-      {"name": "block-edge", "value": "inset 0 -4px 0 rgb(0 0 0 / 0.14)", "purpose": "Inset bottom edge on block body."}
+      {
+        "name": "float",
+        "value": "0 1px 1px rgb(0 0 0 / 0.04), 0 8px 24px -6px rgb(0 0 0 / 0.1), 0 24px 64px -16px rgb(0 0 0 / 0.14)",
+        "purpose": "Resting cards, game card, chips."
+      },
+      {
+        "name": "lift",
+        "value": "0 2px 4px rgb(0 0 0 / 0.05), 0 16px 40px -8px rgb(0 0 0 / 0.16), 0 40px 96px -24px rgb(36 72 245 / 0.22)",
+        "purpose": "Hovered home tile."
+      },
+      {
+        "name": "primary-glow",
+        "value": "0 6px 20px -6px rgb(36 72 245 / 0.55)",
+        "purpose": "Under the primary button."
+      }
     ],
     "motion": [
-      {"name": "ease-snap", "value": "cubic-bezier(0.22, 1.25, 0.36, 1)", "purpose": "Hero snap-in and robot nudge."},
-      {"name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Lift, nav bar, pin wobble."}
+      {
+        "name": "ease-apple",
+        "value": "cubic-bezier(0.25, 0.1, 0.25, 1)",
+        "purpose": "State changes."
+      },
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Entrances, FAQ, nav."
+      },
+      {
+        "name": "ease-spring",
+        "value": "cubic-bezier(0.34, 1.36, 0.64, 1)",
+        "purpose": "Press and lift."
+      }
     ],
-    "breakpoints": [{"name": "sm", "value": "640px"}, {"name": "lg", "value": "1024px"}]
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "48rem"
+      },
+      {
+        "name": "story",
+        "value": "900px"
+      },
+      {
+        "name": "lg",
+        "value": "64rem"
+      }
+    ]
   },
   "components": [
     {
-      "name": "Primary CTA Block", "kind": "button", "refersTo": "block-green",
-      "description": "Green cap block, the single primary action.",
-      "html": "<a class=\"ds-cta\" href=\"#\"><span class=\"ds-cta-body\">Get class dates by email</span></a>",
-      "css": ".ds-cta{display:inline-block;filter:drop-shadow(0 2px 2px rgb(27 26 43 / .14));transition:transform 220ms cubic-bezier(.16,1,.3,1),filter 220ms cubic-bezier(.16,1,.3,1);text-decoration:none}.ds-cta-body{display:block;background:var(--color-operators,#2bb673);color:var(--color-ink,#1b1a2b);border-radius:8px;box-shadow:inset 0 -4px 0 rgb(0 0 0 / .14);padding:16px 24px;font-family:var(--font-display,sans-serif);font-weight:800;font-size:1.25rem}@media (hover:hover){.ds-cta:hover{transform:translate(-2px,-3px) rotate(-.6deg);filter:drop-shadow(0 10px 14px rgb(27 26 43 / .22))}}.ds-cta:active{transform:translate(0,2px);transition-duration:70ms}.ds-cta:focus-visible{outline:none;filter:drop-shadow(0 0 3px #ffc21a) drop-shadow(0 0 6px #ffc21a)}"
+      "name": "Primary Button (EmailCta)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one primary action: Get class dates by email.",
+      "html": "<a class=\"ds-btn-primary\" href=\"#\">Get class dates by email</a>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;min-height:2.75rem;padding:.75rem 1.4rem;border-radius:999px;background:var(--color-accent,#2448f5);color:#fff;font-weight:600;letter-spacing:-.01em;box-shadow:0 6px 20px -6px rgb(36 72 245/.55);transition:transform 320ms cubic-bezier(.34,1.36,.64,1),background-color 200ms} .ds-btn-primary:hover{background:var(--color-accent-strong,#1d3bf0)} .ds-btn-primary:focus-visible{outline:2px solid var(--color-accent,#2448f5);outline-offset:3px} .ds-btn-primary:active{transform:scale(.97)}"
     },
     {
-      "name": "Hat Block", "kind": "custom", "refersTo": "block-yellow",
-      "description": "Starts a script; rounded cap, no top notch.",
-      "html": "<div class=\"ds-hat\">when parent visits</div>",
-      "css": ".ds-hat{background:#ffc21a;color:#1b1a2b;border-radius:28px 28px 8px 8px;box-shadow:inset 0 -4px 0 rgb(0 0 0 / .14);padding:20px 24px 12px;font-family:var(--font-display,sans-serif);font-weight:700;font-size:1.125rem;width:fit-content}"
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Quiet alternative on white.",
+      "html": "<a class=\"ds-btn-secondary\" href=\"#\">Learn more</a>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;min-height:2.75rem;padding:.75rem 1.4rem;border-radius:999px;background:var(--color-mist,#f5f5f7);color:var(--color-ink,#1d1d1f);font-weight:600} .ds-btn-secondary:hover{background:var(--color-hairline,#e3e3e8)} .ds-btn-secondary:focus-visible{outline:2px solid var(--color-accent,#2448f5);outline-offset:3px}"
     },
     {
-      "name": "Value Slot", "kind": "chip", "refersTo": "slot",
-      "description": "White inset pill holding a value inside a block.",
-      "html": "<span class=\"ds-slot\">grades 3-8</span>",
-      "css": ".ds-slot{display:inline-block;padding:.05em .6em;border-radius:999px;background:#fff;color:#1b1a2b;box-shadow:inset 0 1px 2px rgb(0 0 0 / .18);font-weight:700}"
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "White card with soft float shadow.",
+      "html": "<div class=\"ds-card\"><h3>Python</h3><p>Start from zero.</p></div>",
+      "css": ".ds-card{padding:1.75rem;border-radius:1.75rem;background:#fff;color:#1d1d1f;box-shadow:0 1px 1px rgb(0 0 0/.04),0 8px 24px -6px rgb(0 0 0/.1),0 24px 64px -16px rgb(0 0 0/.14)} .ds-card h3{margin:0 0 .5rem;font-size:1.5rem;font-weight:600;letter-spacing:-.025em} .ds-card p{margin:0;color:#6e6e73}"
     },
     {
-      "name": "Nav Link", "kind": "nav", "refersTo": "nav-link",
-      "description": "Blue bar slides in on hover; yellow when current.",
-      "html": "<a class=\"ds-nav\" href=\"#\">Programs</a>",
-      "css": ".ds-nav{color:#1b1a2b;text-decoration:none;background:linear-gradient(#2563eb,#2563eb) left bottom 4px / 0 3px no-repeat;transition:background-size 260ms cubic-bezier(.16,1,.3,1)}.ds-nav:hover,.ds-nav:focus-visible{background-size:100% 3px}"
+      "name": "Course Tile",
+      "kind": "card",
+      "refersTo": "tile",
+      "description": "Category hue gradient tile; hue is a tint only.",
+      "html": "<div class=\"ds-tile\"><h3>Robotics</h3></div>",
+      "css": ".ds-tile{--hue:#7a5af8;padding:1.75rem;border-radius:1.75rem;background:linear-gradient(160deg,color-mix(in oklab,var(--hue) 9%,white),white 60%);color:#1d1d1f} .ds-tile:hover{box-shadow:0 2px 4px rgb(0 0 0/.05),0 16px 40px -8px rgb(0 0 0/.16),0 40px 96px -24px rgb(36 72 245/.22)} .ds-tile h3{margin:0;font-size:1.5rem;font-weight:600;letter-spacing:-.025em}"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "description": "Sticky glass header, blue underline for current page.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-a\" aria-current=\"page\" href=\"#\">Home</a><a class=\"ds-nav-a\" href=\"#\">Programs</a></nav>",
+      "css": ".ds-nav{display:flex;gap:1.5rem;padding:.9rem 1.25rem;background:color-mix(in oklab,white 72%,transparent);backdrop-filter:saturate(180%) blur(20px)} .ds-nav-a{position:relative;padding:.5rem .25rem;font-size:.9375rem;font-weight:500;color:#6e6e73;text-decoration:none} .ds-nav-a:hover,.ds-nav-a[aria-current=page]{color:#1d1d1f} .ds-nav-a[aria-current=page]::after{content:'';position:absolute;left:.25rem;right:.25rem;bottom:.1rem;height:2px;border-radius:2px;background:#2448f5} .ds-nav-a:focus-visible{outline:2px solid #2448f5;outline-offset:3px}"
+    },
+    {
+      "name": "FAQ Item",
+      "kind": "custom",
+      "description": "Native details row with hairline.",
+      "html": "<details class=\"ds-faq\"><summary>Does it cost anything?</summary><p>No. Classes are free.</p></details>",
+      "css": ".ds-faq{border-top:1px solid #e3e3e8} .ds-faq summary{cursor:pointer;list-style:none;padding:1.5rem 0;font-size:1.25rem;font-weight:600;letter-spacing:-.01em;color:#1d1d1f} .ds-faq summary:focus-visible{outline:2px solid #2448f5;outline-offset:3px} .ds-faq p{margin:0 0 1.5rem;color:#6e6e73}"
+    },
+    {
+      "name": "Course Chip",
+      "kind": "chip",
+      "description": "Floating glass chip with a category dot.",
+      "html": "<span class=\"ds-chip\"><i></i>Python</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;gap:.55rem;padding:.55rem 1rem;border-radius:999px;font-size:.95rem;font-weight:600;color:#1d1d1f;background:color-mix(in oklab,white 78%,transparent);box-shadow:0 8px 24px -6px rgb(0 0 0/.1),inset 0 0 0 1px rgb(255 255 255/.7);backdrop-filter:saturate(180%) blur(16px)} .ds-chip i{width:.6rem;height:.6rem;border-radius:50%;background:#2448f5}"
     }
   ],
   "narrative": {
-    "northStar": "The Script You Can Run",
-    "overview": "The site is a block-coding editor a parent happens to be reading. Every section is a snap-together code block on a bright white stage with a faint dot grid.",
-    "keyCharacteristics": ["White stage with dot grid", "Flat blocks with inset edge and drop shadow", "Hat, stack, cap, slot grammar", "One signature hero snap-in", "max-w-7xl with 16/24/40px gutters"],
-    "rules": [
-      {"name": "The AA Text Rule", "body": "Ink text on yellow, orange, green, teal, pink. White text on purple and blue.", "section": "colors"},
-      {"name": "The Meaning Rule", "body": "Yellow = hats/events/announcements. Green = primary action. Purple/blue/green/teal = Code/Build/Math/Physics.", "section": "colors"},
-      {"name": "The Op Word Rule", "body": "Op words are inline grammar inside a block, never eyebrow labels.", "section": "typography"},
-      {"name": "The Dragged-Block Rule", "body": "Only link/button blocks lift, only under hover:hover.", "section": "elevation"}
+    "northStar": "The Launch Page",
+    "overview": "A parent skims a free class the way they skim a product launch: a white page, one confident headline, one blue action, and a single scroll-driven demo that shows what a kid actually does. References: apple.com, stripe.com, linear.app. Low density, generous rhythm; neutrals plus one blue and exactly one dark band. Depth comes from soft layered shadows and a few glass surfaces.",
+    "keyCharacteristics": [
+      "White (paper) and mist surfaces, ink text, one blue accent; one night band.",
+      "Geist at 600-650 with negative tracking; Geist Mono only for code.",
+      "Big radii (20-28px), pill buttons, soft multi-layer shadows.",
+      "One authored motion moment; everything else is a quiet opacity-and-rise.",
+      "One primary action on the whole site."
     ],
-    "dos": ["Read course colors from content/courses.ts", "Keep the AA Text Rule", "Honor reduced motion", "Keep copy factual; minors first name plus grade only"],
-    "donts": ["Don't build the generic edtech page", "Don't use op words as eyebrows", "Don't hardcode new hexes or rgb shadows", "Don't add a second signature animation"]
+    "rules": [
+      {
+        "name": "The One Blue Rule",
+        "body": "Launch Blue marks action and focus. It never decorates.",
+        "section": "colors"
+      },
+      {
+        "name": "The Hue Is A Mark Rule",
+        "body": "Category hues are never text on white; they are dots, icon fills and gradients.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Night Rule",
+        "body": "Exactly one dark band per page; the rest is light.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tight Tracking Rule",
+        "body": "Headings track negative (-0.025em to -0.045em); the bigger the size, the tighter.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mono Is Code Rule",
+        "body": "Geist Mono appears only where source code is shown.",
+        "section": "typography"
+      },
+      {
+        "name": "The Glass Is Rare Rule",
+        "body": "Glass is for the sticky nav and the floating course chips only. Content cards are solid.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Static Blur Rule",
+        "body": "Blur lives on static surfaces. Never animate a filter or backdrop-filter.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use EmailCta for the single primary action, with its fixed copy.",
+      "Do use container-x, section-y and the t-* utilities rather than ad hoc sizes.",
+      "Do read category colours from content/courses.ts.",
+      "Do use mist for secondary surfaces and hairlines for dividers.",
+      "Do add new motion as transform/opacity with a reduced-motion fallback that shows the final state."
+    ],
+    "donts": [
+      "Don't add a second primary button, or reword \"Get class dates by email\".",
+      "Don't use category hues as text on white.",
+      "Don't animate blur, filter or backdrop-filter; don't put glass on content cards.",
+      "Don't hide unrevealed content with visibility: hidden or display: none.",
+      "Don't replace the sticky story with a GSAP pin (CLS).",
+      "Don't invent numbers, testimonials or full names of minors."
+    ]
   }
 }
