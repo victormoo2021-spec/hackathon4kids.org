@@ -108,14 +108,43 @@
 
   /* the signature: a yellow highlighter mark behind ink text, used on key heading words only */
   .hl {
-    background: var(--color-yellow);
+    position: relative;
+    isolation: isolate;
     color: var(--color-page);
-    padding: 0 0.08em;
-    margin-inline: -0.02em;
-    border-radius: 0.06em 0.18em 0.1em 0.22em;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
+    padding: 0 0.16em;
+    margin-inline: -0.06em;
   }
+  /* the stroke: hugs x-height..descender; ragged soft ends from an feTurbulence mask */
+  .hl::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0.06em 0 0;
+    background: var(--color-yellow);
+    border-radius: 0.14em 0.4em 0.18em 0.5em / 0.3em 0.2em 0.4em 0.22em;
+    transform-origin: left center;
+    --hl-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' preserveAspectRatio='none'%3E%3Cfilter id='f' x='-10%25' y='-30%25' width='120%25' height='160%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.03 .09' numOctaves='2' seed='7' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='9' xChannelSelector='R' yChannelSelector='G'/%3E%3CfeGaussianBlur stdDeviation='.6'/%3E%3C/filter%3E%3Crect x='3%25' y='8%25' width='94%25' height='84%25' rx='6' fill='%23000' filter='url(%23f)'/%3E%3C/svg%3E");
+    -webkit-mask-image: var(--hl-mask);
+    mask-image: var(--hl-mask);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+  /* sweep once on enter (Providers adds .hl-in); visible without JS. Hero word sweeps after its word-rise */
+  html.js .hl:not(.hl-in)::before { transform: scaleX(0); }
+  html.js .hl.hl-in::before { animation: hl-sweep 550ms var(--ease-out) var(--hl-d, 0ms) both; }
+  html.js .hero-h1 .hl::before { animation: hl-sweep 550ms var(--ease-out) 750ms both; transform: none; }
+  @keyframes hl-sweep { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @media (prefers-reduced-motion: reduce) {
+    html.js .hl:not(.hl-in)::before { transform: none; opacity: 0; }
+    html.js .hl.hl-in::before, html.js .hero-h1 .hl::before { animation-name: hl-fade; animation-duration: 300ms; }
+    @keyframes hl-fade { from { opacity: 0; } to { opacity: 1; } }
+  }
+  /* GlyphText: the real text stays in place; overlay chars draw their glyph from data-c */
+  .gl { position: relative; display: block; }
+  .gl.gl-hide, .gl.gl-hide .hl { color: transparent; }
+  .gl-overlay { position: absolute; inset: 0; pointer-events: none; }
+  .gl-overlay > span { position: absolute; display: block; text-align: center; white-space: pre; letter-spacing: 0; }
+  .gl-overlay > span::after { content: attr(data-c); }
   .t-display { font-size: var(--text-display); line-height: 0.98; font-weight: 600; letter-spacing: -0.03em; }
   .t-headline { font-size: var(--text-headline); line-height: 1.02; font-weight: 600; letter-spacing: -0.025em; }
   .t-title { font-size: var(--text-title); line-height: 1.15; font-weight: 600; letter-spacing: -0.02em; }

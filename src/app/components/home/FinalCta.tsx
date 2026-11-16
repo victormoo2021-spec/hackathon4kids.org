@@ -5,6 +5,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import Reveal from '../motion/Reveal'
+import GlyphText from '../motion/GlyphText'
 import EmailCta from '../EmailCta'
 
 /** The guide streak curls into the button; it appears as soon as it is on screen. Visible without JS. */
@@ -51,9 +52,9 @@ function CtaButton() {
 
 export default function FinalCta() {
   return (
-    <Reveal as="section" id="join" aria-labelledby="join-title" className="container-x section-y border-t border-line">
+    <Reveal as="section" id="join" aria-labelledby="join-title" className="container-x section-y relative before:absolute before:inset-x-5 before:top-0 before:h-px before:bg-line md:before:inset-x-8">
       <div className="grid gap-8 md:grid-cols-[1fr_auto] md:items-end md:gap-12">
-        <h2 id="join-title" data-reveal data-spectral className="t-display max-w-3xl">Get the next <span className="hl">class dates</span></h2>
+        <h2 id="join-title" data-reveal data-spectral className="t-display max-w-3xl"><GlyphText>Get the next <span className="hl">class dates</span></GlyphText></h2>
         <CtaButton />
       </div>
     </Reveal>

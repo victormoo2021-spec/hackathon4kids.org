@@ -20,8 +20,23 @@ export default function MotionProviders({ children }: { children: React.ReactNod
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
     document.documentElement.classList.toggle('motion-ok', !reduce.matches)
+    // highlighter strokes sweep in once, in order within their heading; `js` lets CSS hide them first
+    document.documentElement.classList.add('js')
+    const io = new IntersectionObserver(
+      (es) =>
+        es.forEach((e) => {
+          if (!e.isIntersecting) return
+          io.unobserve(e.target)
+          const sibs = Array.from((e.target.closest('h1,h2,h3') ?? document).querySelectorAll('.hl'))
+          ;(e.target as HTMLElement).style.setProperty('--hl-d', `${sibs.indexOf(e.target) * 550 + 250}ms`)
+          e.target.classList.add('hl-in')
+        }),
+      { rootMargin: '0px 0px -10% 0px' },
+    )
+    document.querySelectorAll('.hl:not(.hero-h1 .hl)').forEach((el) => io.observe(el))
     window.scrollTo(0, 0)
     document.fonts?.ready.then(() => ScrollTrigger.refresh())
+    return () => io.disconnect()
   }, [pathname])
 
   return <>{children}</>

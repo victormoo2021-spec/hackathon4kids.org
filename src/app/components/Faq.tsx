@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { faq } from '../content/faq'
+import GlyphText from './motion/GlyphText'
 
 const linkCls = 'link inline-flex min-h-11 items-center font-semibold'
 
@@ -17,7 +18,7 @@ function FaqLink({ href, label }: { href: string; label: string }) {
 export default function Faq({ headingId }: { headingId?: string }) {
   return (
     <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
-      <h2 id={headingId} data-spectral data-reveal className="t-headline lg:sticky lg:top-28 lg:self-start">Questions parents ask</h2>
+      <h2 id={headingId} data-spectral data-reveal className="t-headline lg:sticky lg:top-28 lg:self-start"><GlyphText>Questions parents ask</GlyphText></h2>
       <div className="faq-list">
         {faq.map(({ q, a, link }) => (
           <details key={q} data-reveal="fade" className="faq-item">
