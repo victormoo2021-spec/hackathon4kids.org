@@ -1,0 +1,85 @@
+/* Home sections. Transforms/opacity only for motion; reduced-motion safe. */
+.tile {
+  --rx: 0deg;
+  --ry: 0deg;
+  position: relative;
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 350ms var(--ease-out-expo), box-shadow 350ms var(--ease-apple);
+  background: linear-gradient(160deg, color-mix(in oklab, var(--hue) 9%, white), white 60%);
+}
+.tile:hover { box-shadow: var(--shadow-lift); }
+.tile-visual {
+  width: 100%;
+  max-width: 16rem;
+  aspect-ratio: 5 / 3;
+  flex-shrink: 0;
+  border-radius: var(--radius-tile);
+  background: color-mix(in oklab, currentColor 14%, white);
+  padding: 0.5rem;
+}
+@media (prefers-reduced-motion: reduce) { .tile { transform: none; } }
+
+.band-glyphs {
+  position: absolute;
+  inset: -20% 0;
+  z-index: -1;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgb(124 140 255 / 0.5) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgb(255 255 255 / 0.4) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 45% 85%, rgb(124 140 255 / 0.35) 0 1px, transparent 1.5px);
+  background-size: 180px 180px, 130px 130px, 220px 220px;
+  will-change: transform;
+}
+
+.final-cta { background: var(--color-mist); }
+.final-ribbon {
+  position: absolute;
+  inset: -30% -10%;
+  z-index: -1;
+  filter: blur(60px);
+  opacity: 0.55;
+  background:
+    radial-gradient(40% 50% at 25% 40%, #7aa2ff, transparent 70%),
+    radial-gradient(40% 50% at 55% 60%, #a98bff, transparent 70%),
+    radial-gradient(40% 50% at 82% 40%, #ff9d8a, transparent 70%);
+  animation: ribbon 18s ease-in-out infinite alternate;
+}
+@keyframes ribbon { to { transform: translate3d(4%, 3%, 0) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .final-ribbon { animation: none; } }
+
+/* FAQ */
+.faq-list { interpolate-size: allow-keywords; }
+.faq-item { border-top: 1px solid var(--color-hairline); }
+.faq-item:last-child { border-bottom: 1px solid var(--color-hairline); }
+.faq-item summary { list-style: none; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item::details-content {
+  block-size: 0;
+  overflow: clip;
+  opacity: 0;
+  transition: block-size 400ms var(--ease-out-expo), opacity 300ms var(--ease-apple), content-visibility 400ms allow-discrete;
+}
+.faq-item[open]::details-content { block-size: auto; opacity: 1; }
+.faq-icon { position: relative; width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
+.faq-icon::before,
+.faq-icon::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 350ms var(--ease-out-expo);
+}
+.faq-icon::after { transform: rotate(90deg); }
+.faq-item[open] .faq-icon::after { transform: rotate(0deg); }
+.faq-item[open] .faq-icon::before { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  .faq-item::details-content,
+  .faq-icon::before,
+  .faq-icon::after { transition: none; }
+}
