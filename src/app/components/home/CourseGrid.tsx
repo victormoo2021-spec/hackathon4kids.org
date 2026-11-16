@@ -84,7 +84,7 @@ function Tile({ cat, wide }: { cat: Cat; wide?: boolean }) {
         style={{ '--hue': cat.hue } as React.CSSProperties}
       >
         <div>
-          <p className="text-base text-ink-soft">{cat.name}</p>
+          <h3 className="text-base font-medium tracking-normal text-ink-soft">{cat.name}</h3>
           <ul className="mt-3 space-y-2 text-base text-ink-soft">
             {cat.courses.map((c) => (
               <li key={c} className="text-xl font-semibold text-ink">{c}</li>
