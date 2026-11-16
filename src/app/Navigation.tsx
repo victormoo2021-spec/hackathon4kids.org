@@ -1,106 +1,105 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Cross2Icon, HamburgerMenuIcon } from '@radix-ui/react-icons'
 import logo from 'public/logo.png'
-import Block from './components/Block'
-import { contest, MAILING_LIST } from './content/contest'
+import EmailCta from './components/EmailCta'
+import { contest } from './content/contest'
 
 const links = [
-  { href: '/', label: 'Home' },
   { href: '/programs', label: 'Programs' },
   { href: '/about', label: 'About' },
+  ...(contest.active ? [{ href: contest.href, label: contest.navLabel }] : []),
 ]
 
 export default function Navigation() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const btn = useRef<HTMLButtonElement>(null)
 
   useEffect(() => setOpen(false), [pathname])
 
   useEffect(() => {
+    const on = () => setScrolled(window.scrollY > 8)
+    on()
+    window.addEventListener('scroll', on, { passive: true })
+    return () => window.removeEventListener('scroll', on)
+  }, [])
+
+  useEffect(() => {
     if (!open) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false)
+        btn.current?.focus()
+      }
+    }
     document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
   }, [open])
 
-  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href))
-
-  const items = (
-    <>
-      {links.map((l, i) => (
-        <li key={l.href} style={{ '--i': i } as React.CSSProperties}>
-          <Link
-            href={l.href}
-            aria-current={isActive(l.href) ? 'page' : undefined}
-            className="nav-link block rounded-md px-2 py-2 text-lg font-bold"
-          >
-            {l.label}
-          </Link>
-        </li>
-      ))}
-      {contest.active && (
-        <li style={{ '--i': links.length } as React.CSSProperties}>
-          <Block
-            color="yellow"
-            shape="hat"
-            href={contest.href}
-            className="cb-cap"
-            size="sm"
-            bodyClassName="font-display font-bold"
-          >
-            {contest.navLabel}
-          </Block>
-        </li>
-      )}
-      <li style={{ '--i': links.length + 1 } as React.CSSProperties}>
-        <Block
-          color="green"
-          shape="cap"
-          href={MAILING_LIST}
-          external
-          size="sm"
-          bodyClassName="font-display font-bold"
-        >
-          Join mailing list
-        </Block>
-      </li>
-    </>
-  )
+  const current = (href: string) => (pathname.startsWith(href) ? 'page' : undefined)
 
   return (
-    <header className="wrap pt-4">
-      <nav aria-label="Main" className="flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-3 rounded-md font-display text-xl font-extrabold text-ink">
-          <Image src={logo} alt="" className="h-9 w-9" priority />
+    <header className="site-header glass" data-scrolled={scrolled} data-open={open}>
+      <div className="container-x flex h-14 items-center justify-between gap-4 md:h-16">
+        <Link href="/" className="flex items-center gap-2.5 rounded-md text-[1.0625rem] font-semibold tracking-tight text-ink">
+          <Image src={logo} alt="" sizes="36px" priority className="h-9 w-9" />
           Hackathon4Kids
         </Link>
 
-        <ul className="hidden items-center gap-5 md:flex">{items}</ul>
+        <nav aria-label="Main" className="hidden md:block">
+          <ul className="flex items-center gap-7">
+            {links.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} aria-current={current(l.href)} className="nav-link-d">
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-        <button
-          type="button"
-          className="flex items-center gap-2 rounded-md px-3 py-2 font-bold md:hidden"
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          onClick={() => setOpen((o) => !o)}
-        >
-          {open ? <Cross2Icon aria-hidden width={20} height={20} /> : <HamburgerMenuIcon aria-hidden width={20} height={20} />}
-          Menu
-        </button>
-      </nav>
+        <div className="flex items-center gap-2">
+          <div className="hidden md:block">
+            <EmailCta compact />
+          </div>
+          <button
+            ref={btn}
+            type="button"
+            className="-mr-2 flex h-11 w-11 items-center justify-center rounded-full md:hidden"
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            onClick={() => setOpen((o) => !o)}
+          >
+            {open ? <Cross2Icon aria-hidden width={22} height={22} /> : <HamburgerMenuIcon aria-hidden width={22} height={22} />}
+          </button>
+        </div>
+      </div>
 
-      <ul
-        id="mobile-menu"
-        hidden={!open}
-        className="mt-3 flex flex-col items-start gap-3 rounded-block border-2 bg-stage p-4 md:hidden"
-      >
-        {items}
-      </ul>
+      <div id="mobile-menu" className="mobile-sheet md:hidden" data-open={open} inert={!open}>
+        <ul>
+          {links.map((l, i) => (
+            <li key={l.href} style={{ '--i': i } as React.CSSProperties}>
+              <Link href={l.href} aria-current={current(l.href)} className="m-link">
+                {l.label}
+              </Link>
+            </li>
+          ))}
+          <li style={{ '--i': links.length } as React.CSSProperties} className="pt-6">
+            <EmailCta />
+          </li>
+        </ul>
+      </div>
     </header>
   )
 }

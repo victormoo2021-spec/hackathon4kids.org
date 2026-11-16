@@ -2,6 +2,7 @@
   "name": "h4k",
   "version": "0.1.0",
   "private": true,
+  "browserslist": ["defaults and supports es6-module", "not dead"],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

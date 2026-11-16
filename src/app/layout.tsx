@@ -1,4 +1,5 @@
 import './globals.css'
+import './shell.css'
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import MotionProviders from './components/motion/Providers'
@@ -29,6 +30,8 @@ export const metadata: Metadata = {
     siteName: 'Hackathon4Kids',
     type: 'website',
   },
+  twitter: { card: 'summary_large_image', title: 'Hackathon4Kids · Free coding classes for grades 3-8' },
+  alternates: { canonical: '/' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
