@@ -105,7 +105,16 @@ test.describe('load choreography and sections (desktop, no-preference)', () => {
       page.locator('#hero h1 .w > span').evaluateAll((els) =>
         els.map((e) => new DOMMatrixReadOnly(getComputedStyle(e).transform).m42),
       )
-    expect(Math.max(...(await ty()))).toBeGreaterThan(0)
+    // deterministic: every word runs the rise animation, starting below its mask (reading a live
+    // transform mid-load raced the animation under CI load)
+    const starts = await page.locator('#hero h1 .w > span').evaluateAll((els) =>
+      els.map((e) => {
+        const a = e.getAnimations().find((x) => (x as CSSAnimation).animationName === 'h-word')
+        const k = (a?.effect as KeyframeEffect | undefined)?.getKeyframes()[0]
+        return k ? String(k.transform) : 'none'
+      }),
+    )
+    for (const t of starts) expect(t).toContain('translateY')
     await page.waitForTimeout(1500)
     for (const y of await ty()) expect(Math.abs(y)).toBeLessThan(0.5)
   })

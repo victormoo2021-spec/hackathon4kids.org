@@ -209,7 +209,8 @@ export async function createPrism(canvas: HTMLCanvasElement, onFail: () => void,
     const page = hasHero ? ss((0.92 * vh - heroBottom) / (0.6 * vh)) : 1
     const lit = f.glow !== null || page > 0.5
     // in the hero one bar is not a ring (the resting stage asks for 1): wait for the typed count
-    const want = Math.min(page > 0.5 ? f.streaks || 5 : f.streaks > 1 ? f.streaks : 0, mobile ? 3 : N)
+    // phones have no free gutter: past the hero the bars would cross body text, so only the glow stays
+    const want = mobile && page > 0.5 ? 0 : Math.min(page > 0.5 ? f.streaks || 5 : f.streaks > 1 ? f.streaks : 0, mobile ? 3 : N)
     const spinning = lit && want > 0 && !rm && f.intensity > 0
     const busy = now < dirtyUntil
     if (!spinning && !busy) return 0
