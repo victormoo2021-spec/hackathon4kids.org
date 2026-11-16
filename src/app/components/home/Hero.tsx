@@ -2,8 +2,8 @@ import EmailCta from '../EmailCta'
 import StoryStage from './StoryStage'
 import './hero.css'
 
-const H1 = 'Free coding classes for grades 3-8.'.split(' ')
-const HL = new Set([0, 4, 5]) // Free, grades, 3-8.
+const H1 = ['Free', 'coding', 'classes', 'for', 'grades 3-8.']
+const HL = new Set([0, 4]) // Free, grades 3-8. (one highlight box)
 
 // Server component: the h1 and CTA paint without waiting for JS. Only StoryStage is client.
 export default function Hero() {

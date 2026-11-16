@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { FINAL, expectNoOverflow, fxState, scrollThrough, settle, trackErrors } from './helpers'
+import { expectNoOverflow, scrollThrough, settle, trackErrors } from './helpers'
 
 test.describe('motion allowed (desktop)', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop motion tier')
@@ -18,10 +18,25 @@ test.describe('motion allowed (desktop)', () => {
     expect(errors.list).toEqual([])
   })
 
-  test('the laptop types the sketch on its own', async ({ page }) => {
+  test('the laptop types hello, then runs the code demo on its own', async ({ page }) => {
     await page.goto('/')
-    // no scrolling: the hero types once after load and each finished line drives the shader
-    await expect.poll(() => fxState(page), { timeout: 15000 }).toMatchObject(FINAL)
+    await expect(page.locator('#story .file')).toHaveText('spiral.py', { timeout: 15000 })
+    await expect(page.locator('#story .run[data-on]')).toBeAttached()
+  })
+
+  test('the laptop travels into the courses column and follows each group', async ({ page }) => {
+    await page.goto('/')
+    for (const [g, file] of [['math', 'line.py'], ['physics', 'pendulum.py']]) {
+      await page.locator(`[data-group="${g}"]`).evaluate((e) => {
+        const r = e.getBoundingClientRect()
+        scrollTo(0, scrollY + r.top + r.height / 2 - innerHeight / 2)
+      })
+      await expect(page.locator('#story .file')).toHaveText(file)
+    }
+    await expect.poll(async () => {
+      const [a, b] = await Promise.all(['#story .laptop', '.course-lap-slot'].map((s) => page.locator(s).evaluate((e) => e.getBoundingClientRect().left)))
+      return Math.abs(a - b)
+    }).toBeLessThan(2)
   })
 
   test('scrolling the page causes no layout shift', async ({ page }) => {
@@ -53,10 +68,13 @@ test.describe('reduced motion', () => {
     await expect(page.locator('html.motion-ok')).toHaveCount(0)
   })
 
-  test('fx autoplays to the final state without scrolling', async ({ page }) => {
+  test('the laptop stays in the hero; courses get inline demo cards', async ({ page }) => {
     await page.goto('/')
-    await page.waitForTimeout(9000)
-    expect(await fxState(page)).toMatchObject(FINAL)
+    await expect(page.locator('#story .file')).toHaveText('spiral.py', { timeout: 9000 })
+    await expect(page.locator('.course-lap')).toBeHidden()
+    await expect(page.locator('.demo-card')).toHaveCount(4)
+    await page.locator('[data-group="math"] .demo-card').scrollIntoViewIfNeeded()
+    await expect(page.locator('[data-group="math"] .run[data-on]')).toBeAttached()
   })
 
   test('every [data-reveal] ends visible after scrolling through', async ({ page }) => {
@@ -151,9 +169,11 @@ test.describe('mobile', () => {
     expect(await stickyInHero(page)).toEqual([])
   })
 
-  test('fx autoplays to the final state', async ({ page }) => {
+  test('hero laptop runs the code demo; groups get inline cards', async ({ page }) => {
     await page.goto('/')
-    await page.waitForTimeout(11000)
-    expect(await fxState(page)).toMatchObject(FINAL)
+    await expect(page.locator('#story .file')).toHaveText('spiral.py', { timeout: 11000 })
+    await page.locator('[data-group="physics"] .demo-card').scrollIntoViewIfNeeded()
+    await expect(page.locator('[data-group="physics"] .file')).toHaveText('pendulum.py')
+    await expect(page.locator('[data-group="physics"] .run[data-on]')).toBeAttached()
   })
 })

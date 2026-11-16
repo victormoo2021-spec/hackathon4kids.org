@@ -66,10 +66,3 @@ export function trackErrors(page: Page) {
   })
   return { list }
 }
-
-type FxWin = { __fx: { get(): Record<string, unknown> } }
-
-/** Current fx store state (window.__fx is exposed by Fluid). */
-export const fxState = (page: Page) => page.evaluate(() => (window as unknown as FxWin).__fx?.get())
-
-export const FINAL = { glow: 'purple', streaks: 5, sparkle: true, followMouse: true }

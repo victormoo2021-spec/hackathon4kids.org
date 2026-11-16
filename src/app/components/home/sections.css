@@ -3,6 +3,16 @@
 /* Courses: divider scales in via --rule (set by Reveal) */
 .spec::after { content: ""; position: absolute; inset: auto 0 0 0; height: 1px; background: var(--color-line); transform: scaleX(var(--rule, 1)); transform-origin: left; }
 
+/* Courses: inline demo cards (mobile, reduced motion); on desktop with motion the hero laptop rides in .course-lap-slot */
+.demo-card { position: relative; container-type: inline-size; aspect-ratio: 16 / 10; max-width: 26rem; margin-top: 1.25rem; overflow: hidden; border-radius: 0.75rem; border: 1px solid var(--color-line); background: var(--color-editor); }
+.course-lap { display: none; }
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .courses-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; }
+  .course-lap { display: block; }
+  .course-lap-slot { position: sticky; top: max(5rem, calc(50vh - 12rem)); aspect-ratio: 1.55; }
+  .demo-card { display: none; }
+}
+
 /* Formats: vertical divider scales down from the top */
 @media (min-width: 768px) {
   .formats-grid::before { content: ""; position: absolute; inset: 0 auto 0 50%; width: 1px; background: var(--color-line); transform: scaleY(var(--rule, 1)); transform-origin: top; }

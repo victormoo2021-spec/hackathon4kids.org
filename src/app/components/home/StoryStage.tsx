@@ -1,68 +1,74 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import gsap from 'gsap'
-import { useGSAP } from '@gsap/react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Laptop from './Laptop'
 import CodeTyper from './CodeTyper'
-import { SKETCH } from './program'
-import { runSketch } from './sketch'
-import { fx, FX_FINAL } from '../fx/store'
+import type { DemoKind } from './demos'
 
-gsap.registerPlugin(useGSAP)
+const START_MS = 900
+const INTRO_HOLD_MS = 900
+// travel + course switching only where there is room and motion is welcome; elsewhere the laptop stays put
+const TRAVEL = '(min-width: 900px) and (prefers-reduced-motion: no-preference)'
 
-const CHAR_S = 0.032
-const START_S = 0.9
-const POSE = 0.3
-const REST = { glow: 'violet', streaks: 1, intensity: 0.4 } as const
-const FULL = SKETCH.map((l) => l.length)
-const EMPTY = SKETCH.map(() => 0)
-const doneLines = (c: number[]) => SKETCH.filter((l, i) => c[i] >= l.length).length
-
-// The laptop types the sketch once, by itself, after the hero entrance. Not tied to scroll.
+// The hero laptop types a hello line, then runs the 'code' demo. On desktop it then rides the scroll into the
+// sticky slot in #courses (.course-lap-slot) and shows each course group's demo as it crosses the viewport middle.
 export default function StoryStage() {
-  const root = useRef<HTMLDivElement>(null)
-  const [counts, setCounts] = useState(FULL)
+  const fly = useRef<HTMLDivElement>(null)
+  const [kind, setKind] = useState<DemoKind | null>(null)
+  const [t, setT] = useState(0)
+  const introDone = useCallback(() => setTimeout(() => setKind((k) => k ?? 'code'), INTRO_HOLD_MS), [])
 
-  useGSAP(
-    () => {
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
-      let lines = -1
-      const show = (c: number[]) => {
-        setCounts(c)
-        const n = doneLines(c)
-        if (n === lines) return
-        lines = n
-        // living first frame: a faint violet ribbon until `glow = "purple"` lands
-        const { glow, streaks, speed, sparkle, followMouse } = runSketch(SKETCH, n)
-        fx.set({ glow: glow ?? REST.glow, streaks: Math.max(streaks, REST.streaks), speed, sparkle, followMouse, intensity: n >= 2 ? 1 : REST.intensity })
+  useEffect(() => {
+    const el = fly.current!
+    const home = el.parentElement!
+    const mq = matchMedia(TRAVEL)
+    let raf = 0
+    // FLIP by transform: lerp the laptop's rect from its hero slot to the sticky slot, both measured live.
+    // Past the end of travel the slot is stuck, so the laptop rides alongside; after #courses it scrolls away with it.
+    const update = () => {
+      raf = 0
+      const slot = document.querySelector<HTMLElement>('.course-lap-slot')
+      if (!mq.matches || !slot) {
+        el.style.transform = ''
+        setT(0)
+        return
       }
-      const end = () => { setCounts(FULL); fx.set(FX_FINAL) }
-
-      const c = [...EMPTY]
-      show(EMPTY)
-      const tl = gsap.timeline({ delay: START_S, onComplete: end })
-      let t = 0
-      SKETCH.forEach((l, i) => {
-        if (reduce) return tl.call(() => { c[i] = l.length; show([...c]) }, [], i * 0.5)
-        const o = { n: 0 }
-        tl.to(o, { n: l.length, duration: l.length * CHAR_S, ease: 'none', onUpdate: () => { c[i] = Math.round(o.n); show([...c]) } }, t)
-        t += l.length * CHAR_S
-      })
-      // scrolled away before it ends: finish instantly
-      const io = new IntersectionObserver(([e]) => { if (!e.isIntersecting && tl.progress() < 1) { tl.kill(); end() } })
-      io.observe(root.current!)
-      return () => { io.disconnect(); tl.kill() }
-    },
-    { scope: root },
-  )
+      const h = home.getBoundingClientRect()
+      const s = slot.getBoundingClientRect()
+      const rest = slot.parentElement!.getBoundingClientRect().top - parseFloat(getComputedStyle(slot).top)
+      const raw = rest <= 0 ? 1 : Math.min(1, scrollY / (scrollY + rest))
+      const e = raw * raw * (3 - 2 * raw)
+      const k = s.width / h.width
+      el.style.transform = `translate3d(${(s.left - h.left) * e}px, ${(s.top - h.top) * e}px, 0) scale(${1 + (k - 1) * e})`
+      setT(Math.round(raw * 100) / 100)
+    }
+    const req = () => { raf ||= requestAnimationFrame(update) }
+    const io = new IntersectionObserver(
+      (es) => es.forEach((x) => mq.matches && x.isIntersecting && setKind((x.target as HTMLElement).dataset.group as DemoKind)),
+      { rootMargin: '-50% 0px -50% 0px' },
+    )
+    document.querySelectorAll('[data-group]').forEach((g) => io.observe(g))
+    addEventListener('scroll', req, { passive: true })
+    addEventListener('resize', req)
+    mq.addEventListener('change', req)
+    req()
+    return () => {
+      cancelAnimationFrame(raf)
+      io.disconnect()
+      removeEventListener('scroll', req)
+      removeEventListener('resize', req)
+      mq.removeEventListener('change', req)
+    }
+  }, [])
 
   return (
-    <div ref={root} className="stage">
+    <div className="stage">
       <div id="story" className="stage-laptop">
-        <Laptop progress={POSE}>
-          <CodeTyper counts={counts} />
-        </Laptop>
+        <div ref={fly} className="lap-fly">
+          <Laptop progress={t}>
+            <CodeTyper kind={kind} delay={kind ? 0 : START_MS} onDone={kind ? undefined : introDone} />
+          </Laptop>
+        </div>
       </div>
     </div>
   )

@@ -5,7 +5,6 @@ import { Environment, Lightformer } from '@react-three/drei'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { MathUtils, Object3D, Vector3, type Group, type InstancedMesh, type PointLight } from 'three'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
-import { fx } from '../fx/store'
 
 const D2R = Math.PI / 180
 const SCREEN_W = 2.8
@@ -20,7 +19,6 @@ const RIM = '#ffd60a'
 type Props = { progress: number; host: HTMLElement; onReady: () => void; onFail: () => void }
 
 const lerp = MathUtils.lerp
-const sm = (a: number, b: number, x: number) => MathUtils.clamp((x - a) / (b - a), 0, 1)
 
 // Homography taking the (0,0)(W,0)(W,H)(0,H) rectangle onto four screen points, as a CSS matrix3d.
 // Own projection instead of drei <Html transform>: that one painted ~60px off its layout box here.
@@ -75,7 +73,6 @@ function Rig({ progress, host, onReady, onFail, visible, reduce, screenEl }: Rig
       kick()
     }
     if (!reduce) window.addEventListener('pointermove', move, { passive: true })
-    const un = fx.subscribe(kick)
     const lost = (e: Event) => {
       e.preventDefault()
       onFail()
@@ -84,7 +81,6 @@ function Rig({ progress, host, onReady, onFail, visible, reduce, screenEl }: Rig
     invalidate()
     return () => {
       window.removeEventListener('pointermove', move)
-      un()
       gl.domElement.removeEventListener('webglcontextlost', lost)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -92,20 +88,11 @@ function Rig({ progress, host, onReady, onFail, visible, reduce, screenEl }: Rig
   useFrame((state, dt) => {
     const c = cur.current
     const p = prog.current
-    // spec section 3 scroll table: 0-12% yaw -22 -> -6 and scale 1 -> 1.12; 12-84% held; 84-100% scale -> .92, drop 8%
-    const a = sm(0, 0.12, p)
-    const b = sm(0.84, 1, p)
-    const f = fx.get()
+    // progress = travel from the hero into the courses column: a gentle tilt that peaks mid-flight and settles
+    const bump = Math.sin(Math.PI * MathUtils.clamp(p, 0, 1))
     const t = reduce
-      ? { yaw: -22, pitch: 3.5, scale: 1, y: 0, glow: f.glow ? 1 : 0 }
-      : {
-          // gentle until the sketch's follow_mouse line lands, then clearly visible
-          yaw: lerp(-22, -6, a) + ptr.current.x * (f.followMouse ? 6 : 2),
-          pitch: 3.5 + ptr.current.y * (f.followMouse ? 3 : 1),
-          scale: lerp(lerp(1, 1.12, a), 0.92, b),
-          y: -0.29 * b,
-          glow: f.glow ? 1 : 0,
-        }
+      ? { yaw: -6, pitch: 3.5, scale: 1.12, y: 0, glow: 1 }
+      : { yaw: -6 - 10 * bump + ptr.current.x * 6, pitch: 3.5 + 6 * bump + ptr.current.y * 3, scale: 1.12, y: 0, glow: 1 }
     const d = Math.min(dt, 0.05)
     let moving = false
     for (const k of ['yaw', 'pitch', 'scale', 'y'] as const) {

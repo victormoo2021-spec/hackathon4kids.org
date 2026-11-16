@@ -1,12 +1,13 @@
 /* Hero: one viewport, copy left, laptop right (stacked on mobile). */
 
-.hero { position: relative; overflow: clip; min-height: max(100svh, 40rem); display: grid; align-items: center; padding-block: 6.5rem 3.5rem; }
+.hero { position: relative; overflow-x: clip; /* y visible: the laptop travels out (StoryStage) */ min-height: max(100svh, 40rem); display: grid; align-items: center; padding-block: 6.5rem 3.5rem; }
 .hero-grid { display: grid; gap: 2.5rem; align-items: center; width: 100%; }
 .stage, .stage-laptop { min-width: 0; }
 @media (min-width: 900px) {
   .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 2rem; }
   /* sized by width, not transform: a scale would double-count in the 3D canvas measure */
   .stage-laptop { width: 120%; margin-left: -6%; }
+  .lap-fly { position: relative; z-index: 3; transform-origin: 0 0; }
 }
 
 .hero-h1 { font-size: clamp(3rem, 7.2vw, 6.5rem); line-height: 0.98; font-weight: 600; letter-spacing: -0.03em; color: var(--color-text); max-width: 11ch; text-wrap: balance; }
@@ -30,25 +31,29 @@
 @keyframes h-cta { from { opacity: 0; transform: scale(calc(1 - 0.04 * var(--m, 1))); } to { opacity: 1; transform: scale(1); } }
 @keyframes h-fade { from { opacity: 0; } to { opacity: 1; } }
 
-/* editor window (children of <Laptop>); sized in cqw of the screen so it scales without CLS */
-.win { position: absolute; inset: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; font-family: var(--font-mono); font-size: 3.1cqw; line-height: 1.55; color: var(--color-text); background: var(--color-editor); }
-.bar { display: flex; align-items: center; gap: 1cqw; height: 6.4cqw; padding-inline: 2cqw; background: var(--color-card); border-bottom: 1px solid var(--color-line); font-size: 2.3cqw; line-height: 1; }
-.file { padding: 1cqw 1.9cqw; border-radius: 1cqw 1cqw 0 0; background: var(--color-editor); color: var(--color-text); }
-.run-btn { margin-left: auto; padding: 0.8cqw 2.6cqw; border-radius: 99px; border: 1px solid var(--color-line-strong); color: var(--color-text); background: var(--color-raised); font-family: var(--font-sans); font-weight: 600; letter-spacing: 0; }
-.code-typer { margin: 0; padding: 2cqw 0; font: inherit; white-space: pre; overflow: hidden; }
-.ln { display: flex; min-height: 1.55em; padding-right: 2cqw; }
-.ln.on { background: rgb(255 255 255 / 0.05); }
-.no { width: 3cqw; flex: none; box-sizing: content-box; padding-inline: 2cqw 0; margin-right: 2.4cqw; text-align: right; color: var(--color-text-dim); }
-.ln.on .tx::after { content: ''; display: inline-block; width: 0.28cqw; height: 1.15em; margin-left: 0.2cqw; vertical-align: text-bottom; background: var(--color-yellow); }
-.t-c { color: var(--color-text-dim); } .t-eq { color: var(--color-text-dim); } .t-s { color: var(--color-text); } .t-n { color: var(--color-yellow); }
-.term { display: flex; gap: 1.2cqw; margin: 0; padding: 1.3cqw 2cqw; border-top: 1px solid var(--color-line); background: var(--color-editor); color: var(--color-text-body); font-size: 2.4cqw; line-height: 1.4; white-space: nowrap; overflow: hidden; }
-.term em { font-style: normal; }
-.term span { color: var(--color-yellow); }
-
-
-
+/* editor window (children of <Laptop>, and .demo-card): compact code header, demo canvas below. Sized in cqw, no CLS */
+.win { position: absolute; inset: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); font-family: var(--font-mono); font-size: 3.4cqw; line-height: 1.7; color: var(--color-text); background: var(--color-editor); }
+.bar { display: flex; align-items: stretch; height: 6.4cqw; padding-inline: 2cqw; border-bottom: 1px solid var(--color-line); font-size: 2.5cqw; line-height: 1; }
+.file { display: flex; align-items: center; padding-inline: 1.6cqw; color: var(--color-text); box-shadow: inset 0 -1px 0 var(--color-yellow); }
+.run { margin-left: auto; display: flex; align-items: center; gap: 0.9cqw; color: var(--color-text-dim); font-family: var(--font-sans); letter-spacing: 0.02em; }
+.run::before { content: ''; width: 1.1cqw; height: 1.1cqw; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--color-text-dim); transition: background-color 200ms var(--hero-apple), box-shadow 200ms var(--hero-apple); }
+.run[data-on] { color: var(--color-text); }
+.run[data-on]::before { background: var(--color-yellow); box-shadow: none; }
+.win-body { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; animation: win-wipe 420ms var(--hero-out) both; }
+@keyframes win-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } }
+.code-typer { margin: 0; padding: 1.8cqw 0; font: inherit; white-space: pre; overflow: hidden; border-bottom: 1px solid var(--color-line); }
+.ln { display: flex; padding-right: 2cqw; }
+.no { width: 2.4cqw; flex: none; box-sizing: content-box; padding-inline: 2cqw 0; margin-right: 2.4cqw; text-align: right; color: var(--color-text-dim); }
+.ln.on .tx::after { content: ''; display: inline-block; width: 0.22cqw; height: 1.1em; margin-left: 0.15cqw; vertical-align: -0.15em; background: var(--color-yellow); animation: caret 1s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+.t-c { color: var(--color-text-dim); } .t-s, .t-n { color: var(--color-yellow); }
+.demo-cv { display: block; width: 100%; height: 100%; min-height: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .win-body { animation-name: h-fade; animation-duration: 200ms; }
+  .ln.on .tx::after { animation: none; }
+}
 @media (max-width: 639px) {
-  .win { font-size: 4.6cqw; }
-  .bar { height: 9cqw; font-size: 3.4cqw; }
-  .term { font-size: 3.6cqw; }
+  .win { font-size: 3.6cqw; }
+  .bar { height: 8cqw; font-size: 3cqw; }
+  .run::before { width: 1.4cqw; height: 1.4cqw; }
 }
