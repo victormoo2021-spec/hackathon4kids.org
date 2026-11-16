@@ -2,10 +2,10 @@
 
 import { useEffect, useRef } from 'react'
 
-// Screen-blended ink-of-light layer above the page (under the nav). The sim itself is a separate
+// Ink-of-light layer behind the page content (above the background canvas); it also draws stirred headings. The sim itself is a separate
 // chunk fetched on the first pointer/scroll interaction, so page load never pays for it.
 const INTENTS = ['pointermove', 'pointerdown', 'touchstart', 'scroll', 'wheel'] as const
-const style = { position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: 39, pointerEvents: 'none', mixBlendMode: 'screen', visibility: 'hidden' } as const
+const style = { position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: -1, pointerEvents: 'none', visibility: 'hidden' } as const
 
 export default function Fluid() {
   const ref = useRef<HTMLCanvasElement>(null)

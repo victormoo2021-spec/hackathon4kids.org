@@ -163,3 +163,12 @@
   .link-arrow svg { transition: transform 300ms var(--ease-out); }
   .link-arrow:hover svg, .link-arrow:focus-visible svg { transform: translateX(calc(4px * var(--m))); }
 }
+
+/* Slit-glass headings: while the fluid canvas (behind the page) draws a stirred heading, its DOM glyphs
+   go clear and crossfade back once the canvas copy has settled. Unlayered so it beats component colours;
+   the text stays in the DOM: selectable, readable by assistive tech. */
+/* no DOM text-shadow over the canvas copy */
+.is-prism { text-shadow: none; }
+.is-prism, .is-prism * { transition: color 150ms linear; }
+.is-prism:not(.is-prism-out), .is-prism:not(.is-prism-out) * { color: transparent; }
+@media (prefers-reduced-motion: reduce) { .is-prism, .is-prism * { transition: none; } }

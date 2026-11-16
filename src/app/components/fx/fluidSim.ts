@@ -1,6 +1,8 @@
 // Pointer fluid: a small stable-fluids sim (velocity + one-channel dye) stirred by the pointer and,
-// lightly, by scrolling. The dye is drawn as yellow light ink with purple edges on a screen-blended
-// canvas above the page; [data-spectral] headings get a prism fringe smeared along the flow.
+// lightly, by scrolling. The dye is drawn as yellow light ink with purple edges on a canvas BEHIND
+// the page content. A [data-spectral] heading the pointer stirs is handed over to the canvas for a
+// moment (class is-prism clears its DOM glyphs) and drawn through vertical glass slits that bend it
+// along the flow with six-band dispersion, then settles back onto the exact DOM glyphs.
 // Raw WebGL2, loaded on first interaction, zero frames when idle.
 
 const VS = `#version 300 es
@@ -30,46 +32,60 @@ const GRAD = `${H}uniform sampler2D uT,uV;uniform vec2 uTx;
 void main(){${NB}o=vec4(texture(uV,v).xy-.5*vec2(R-L,T-B),0,1);}`
 const BLOOM = `${H}uniform sampler2D uT;uniform vec2 uTx;
 void main(){o=.25*(texture(uT,v+uTx*vec2(1.5,.5))+texture(uT,v+uTx*vec2(-.5,1.5))+texture(uT,v+uTx*vec2(-1.5,-.5))+texture(uT,v+uTx*vec2(.5,-1.5)));}`
-// uTm maps screen uv to the text texture (it covers the viewport plus a scroll margin).
-// Text texture: r = [data-spectral] glyphs, b = "there is text here" shield.
-const COMP = `${H}uniform sampler2D uD,uB,uV,uT;uniform vec2 uTm;uniform float uAsp,uTxt;
+// uTm maps screen uv to the text textures (they cover the viewport plus a scroll margin).
+// uS: b = "there is text here" shield (low res, mipmapped). uG: premultiplied glyphs of the headings
+// currently handed to the canvas, at device resolution. uHr/uHs: their boxes (css px) and (bend, opacity).
+const COMP = `${H}uniform sampler2D uD,uB,uV,uS,uG;uniform vec2 uTm,uRes;uniform float uAsp,uSlit,uMax;uniform vec4 uHr[4];uniform vec2 uHs[4];
 const vec3 P=vec3(.486,.361,1.),Y=vec3(1.,.839,.039),W=vec3(1.,.97,.86);
 float lum(vec3 c){return dot(c*c,vec3(.2126,.7152,.0722));}
-float tap(vec2 p,vec2 d,float k,float t0){float l=.8+1.6*k;return max(textureLod(uT,p-d*k,l).r-max(textureLod(uT,p,l).r,t0),0.);}
 void main(){
 float h=texture(uD,v).r,g=texture(uB,v).r;
 vec2 tp=vec2(v.x,(1.-v.y)*uTm.x+uTm.y);
-float s=textureLod(uT,tp,3.).b*uTxt,ot=smoothstep(.1,.5,s);
-// wispier over any text, a touch stronger in empty space
-h*=mix(1.12,.6,ot);g*=mix(1.12,.45,ot);
+float s=textureLod(uS,tp,5.3).b,ot=smoothstep(.12,.6,s);
+// wispier behind any text, stronger in empty space
+h*=mix(1.25,.6,ot);g*=mix(1.25,.45,ot);
 vec3 c=mix(P,Y,smoothstep(.03,.2,h)*(1.-.85*smoothstep(.75,1.,s)));c=mix(c,W,smoothstep(.5,1.,h));
 c=c*(1.-exp(-h*h*9.))+mix(P,Y,.6)*g*.7;
-
-// keep text readable: over text blocks the added light is clamped to a low luminance
+// keep text readable: behind text blocks the light is clamped to a low luminance
 float cap=mix(2.,mix(.16,.055,smoothstep(.65,1.,s)),ot);
 c*=min(1.,sqrt(cap/max(lum(c),1e-5)));
-if(uTxt>0.){
-vec2 d=texture(uV,v).xy*.05;float mv=smoothstep(.005,.022,length(d));d*=min(1.,.045/(length(d)+1e-5))*mv;d=vec2(d.x/uAsp,-d.y*uTm.x);
-float t0=texture(uT,tp).r;
-// prism smear: violet travels furthest, yellow in the middle (and strongest), red hugs the glyph
-// displaced minus the equally blurred original, so the blur adds no halo of its own: zero flow, zero fringe
-// only the outer fringe: nothing is added where the glyph itself is, so it can never read as a second copy
-c+=(vec3(.655,.545,1.)*tap(tp,d,1.,t0)*.7+Y*tap(tp,d,.62,t0)*1.35+vec3(1.,.32,.18)*tap(tp,d,.3,t0)*.6)*(1.-smoothstep(0.,.35,t0))*mv*.44;}
-c+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.;
-o=vec4(c,1);}`
+c+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.*min(1.,(h+g)*40.);
+vec2 px=vec2(v.x,1.-v.y)*uRes;float e=0.,op=0.;
+for(int i=0;i<4;i++){vec2 q=min(px-uHr[i].xy,uHr[i].zw-px);float ins=min(q.x,q.y);if(ins>0.){e=uHs[i].x*smoothstep(0.,14.,ins);op=uHs[i].y;}}
+vec4 t=vec4(0);
+if(op>0.){
+vec2 d=texture(uV,v).xy*.8*uMax*e;float m=length(d);
+if(m>2e-4){
+// glass slits: inside each vertical slit the bend ramps from nothing to full, ramping with the flow on each axis
+d*=min(1.,uMax/m);float f=fract(px.x/uSlit);
+vec2 D=d*vec2(d.x<0.?1.-f:f,d.y<0.?1.-f:f);D=vec2(D.x/uAsp,-D.y*uTm.x);
+// six bands, red bends least and purple most, two taps each for a soft glassy edge;
+// the weights add back up to the untouched glyph. Only coverage disperses: the glyph keeps its own colour,
+// and a saturated one (the yellow words) barely splits at all.
+#define S(k) (texture(uG,tp-D*k)+texture(uG,tp-D*(k+.07)))*.5
+vec4 r=S(.68),y=S(.8),gr=S(.92),cy=S(1.04),b=S(1.17),p=S(1.32),sum=r+y+gr+cy+b+p;
+vec3 col=sum.rgb/max(sum.a,1e-4),a=vec3(.42*r.a+.3*y.a+.28*p.a,.3*y.a+.4*gr.a+.3*cy.a,.3*cy.a+.42*b.a+.28*p.a);
+float hi=max(col.r,max(col.g,col.b)),lo=min(col.r,min(col.g,col.b));
+a=mix(a,vec3(sum.a/6.),(hi-lo)/max(hi,1e-4));
+t=vec4(col*a,max(a.r,max(a.g,a.b)));
+}else t=texture(uG,tp);
+t*=op;}
+o=vec4(c*(1.-t.a)+t.rgb,t.a);}`
 
 type Target = { tex: WebGLTexture; fbo: WebGLFramebuffer; w: number; h: number }
 type Prog = { p: WebGLProgram; u: Record<string, WebGLUniformLocation | null> }
 
 const SHIELD = 'p,li,h1,h2,h3,h4,dt,dd,label,blockquote,figcaption,a,button,input,textarea,summary,[data-spectral]'
-const SIM = 128, DYE = 512, MARGIN = 0.25
+const SIM = 128, DYE = 512, MARGIN = 0.25, PAD = 72
+// identity transform: a heading still animating into place is left to the DOM
+const IDENT = /^(none|matrix\(1, 0, 0, 1, 0, 0\))$/, CLEAR = /^(transparent|rgba\(0, 0, 0, 0\))$/
 
 declare global {
-  interface Window { __fluid?: { active: () => boolean; frames: () => number } }
+  interface Window { __fluid?: { active: () => boolean; frames: () => number; prisms: () => number } }
 }
 
 export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
-  const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, depth: false, stencil: false, powerPreference: 'high-performance' })
+  const gl = canvas.getContext('webgl2', { antialias: false, alpha: true, premultipliedAlpha: true, depth: false, stencil: false, powerPreference: 'high-performance' })
   if (!gl) return null
   const dbg = gl.getExtension('WEBGL_debug_renderer_info')
   if (/swiftshader|llvmpipe|software/i.test(dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '')) return null
@@ -107,7 +123,7 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
   const size = () => {
     if (vw === innerWidth && vh === innerHeight) return
     vw = innerWidth; vh = innerHeight; asp = vw / vh
-    const dpr = Math.min(devicePixelRatio || 1, 1.25)
+    const dpr = Math.min(devicePixelRatio || 1, 2, 4096 / vw) // device resolution: settled glyphs have to match the DOM's
     canvas.width = Math.round(vw * dpr); canvas.height = Math.round(vh * dpr)
     targets.forEach((t) => { gl.deleteTexture(t.tex); gl.deleteFramebuffer(t.fbo) })
     const sw = Math.max(8, Math.round(SIM * asp)), dw = Math.max(8, Math.round(DYE * asp))
@@ -136,64 +152,106 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     swap(t)
   }
 
-  // --- text texture: spectral glyphs (red) + text shield (blue), in viewport space with a scroll margin
-  const tcan = document.createElement('canvas')
-  const ctx = tcan.getContext('2d')!
-  const ttex = gl.createTexture()!
-  let sig = '', rasterY = 0, hasText = false
-  type Word = { s: string; x: number; y: number; h: number; font: string; ls: string; clip: number[] }
+  // --- text textures, in viewport space with a scroll margin: shield (low res) + prism glyphs (device res)
+  const tcan = document.createElement('canvas'), gcan = document.createElement('canvas')
+  const ctx = tcan.getContext('2d')!, gctx = gcan.getContext('2d')!
+  const ttex = gl.createTexture()!, gtex = gl.createTexture()!
+  let sig = '', rasterY = 0
+  type Word = { s: string; x: number; y: number; h: number; font: string; ls: string; col: string; clip: number[] }
+  // a heading the canvas is drawing instead of the DOM: e = bend envelope, op = canvas glyph opacity,
+  // out = when the DOM glyphs started fading back in, cols = real colours (the DOM's are transparent meanwhile)
+  type Prism = { e: number; op: number; hot: number; out: number; cols: Map<Element, string>; words: Word[] }
+  const prisms = new Map<HTMLElement, Prism>()
+  const hr = new Float32Array(16), hs = new Float32Array(8)
   const range = document.createRange()
   const re = /\S+/g
-  // Every active frame: where is each visible word right now, and what clips it? Headings animate
-  // (scroll-scrubbed line masks, reveals), so a stale raster would show as a ghost copy of the text.
-  const measure = (m: number): Word[] => {
-    const seen = new Map<Element, { op: number; clip: number[] }>()
-    // opacity product and overflow-clip rect accumulated from the element up to <body>
-    const chain = (el: Element): { op: number; clip: number[] } => {
-      const hit = seen.get(el)
-      if (hit) return hit
-      const up = el.parentElement && el !== document.body ? chain(el.parentElement) : { op: 1, clip: [-1e5, -1e5, 1e5, 1e5] }
-      const cs = getComputedStyle(el)
-      let clip = up.clip
-      if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible' || cs.clip !== 'auto') {
-        const r = el.getBoundingClientRect()
-        clip = [Math.max(clip[0], r.left), Math.max(clip[1], r.top), Math.min(clip[2], r.right), Math.min(clip[3], r.bottom)]
-      }
-      const out = { op: cs.visibility === 'hidden' ? 0 : up.op * +cs.opacity, clip }
-      seen.set(el, out)
-      return out
+  type Chain = { op: number; clip: number[]; bg: boolean }
+  const seen = new Map<Element, Chain>()
+  // opacity product, overflow-clip rect and "something is painted behind this" accumulated up to <body>
+  const chain = (el: Element): Chain => {
+    const hit = seen.get(el)
+    if (hit) return hit
+    const up = el.parentElement && el !== document.body ? chain(el.parentElement) : { op: 1, clip: [-1e5, -1e5, 1e5, 1e5], bg: false }
+    const cs = getComputedStyle(el)
+    let clip = up.clip
+    if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible' || cs.clip !== 'auto') {
+      const r = el.getBoundingClientRect()
+      clip = [Math.max(clip[0], r.left), Math.max(clip[1], r.top), Math.min(clip[2], r.right), Math.min(clip[3], r.bottom)]
     }
+    const out = { op: cs.visibility === 'hidden' ? 0 : up.op * +cs.opacity, clip, bg: up.bg || cs.backgroundImage !== 'none' || !CLEAR.test(cs.backgroundColor) }
+    seen.set(el, out)
+    return out
+  }
+  // Where is each word of this heading right now, and what clips it? Run every frame the heading is
+  // on the canvas (headings move), so the canvas copy never lags the DOM. null = leave it to the DOM:
+  // mid-fade or mid-reveal, hidden, or on a painted surface the canvas (behind everything) can't show through.
+  const measure = (el: HTMLElement, cols: Map<Element, string>): Word[] | null => {
     const words: Word[] = []
-    document.querySelectorAll<HTMLElement>('[data-spectral]').forEach((el) => {
-      const b = el.getBoundingClientRect()
-      if (b.bottom < -m || b.top > vh + m) return
-      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
-      for (let n = walker.nextNode() as Text | null; n; n = walker.nextNode() as Text | null) {
-        const p = n.parentElement
-        if (!p) continue
-        const { op, clip } = chain(p)
-        // mid-fade text is left alone: a fringe is only honest around fully shown glyphs
-        if (op < 0.99 || clip[2] - clip[0] < 2 || clip[3] - clip[1] < 2) continue
-        const cs = getComputedStyle(p)
-        const font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, ls = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing
-        const tt = cs.textTransform
-        // ponytail: one rect per word, so a word broken across lines (hyphenation) is drawn unbroken; go per-character if that ever shows
-        for (let w = re.exec(n.data); w; w = re.exec(n.data)) {
-          range.setStart(n, w.index); range.setEnd(n, w.index + w[0].length)
-          const r = range.getClientRects()[0]
-          if (!r || r.bottom <= clip[1] || r.top >= clip[3] || r.right <= clip[0] || r.left >= clip[2]) continue
-          words.push({ s: tt === 'uppercase' ? w[0].toUpperCase() : tt === 'lowercase' ? w[0].toLowerCase() : w[0], x: r.left, y: r.top, h: r.height, font, ls, clip })
-        }
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+    for (let n = walker.nextNode() as Text | null; n; n = walker.nextNode() as Text | null) {
+      const p = n.parentElement
+      if (!p || !/\S/.test(n.data)) continue
+      const { op, clip, bg } = chain(p)
+      if (op < 0.99 || bg) return null
+      for (let a: Element | null = p; a; a = a === el ? null : a.parentElement) if (!IDENT.test(getComputedStyle(a).transform)) return null
+      const cs = getComputedStyle(p)
+      let col = cols.get(p)
+      if (!col) cols.set(p, (col = cs.color))
+      const font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, ls = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing
+      const tt = cs.textTransform
+      // ponytail: one rect per word, so a word broken across lines (hyphenation) is drawn unbroken; go per-character if that ever shows
+      for (let w = re.exec(n.data); w; w = re.exec(n.data)) {
+        range.setStart(n, w.index); range.setEnd(n, w.index + w[0].length)
+        const r = range.getClientRects()[0]
+        if (!r) continue
+        if (r.bottom <= clip[1] || r.top >= clip[3] || r.right <= clip[0] || r.left >= clip[2]) { re.lastIndex = 0; return null }
+        words.push({ s: tt === 'uppercase' ? w[0].toUpperCase() : tt === 'lowercase' ? w[0].toLowerCase() : w[0], x: r.left, y: r.top, h: r.height, font, ls, col, clip })
       }
+    }
+    return words.length ? words : null
+  }
+  const drop = (el: HTMLElement) => { el.classList.remove('is-prism', 'is-prism-out'); prisms.delete(el) }
+  const dropAll = () => { prisms.forEach((_, el) => drop(el)) }
+  // Hand headings to the canvas while the pointer stirs them, and back once the bend has died away.
+  // ponytail: at most 4 headings at once (uniform slots); the pointer can't reach more
+  const prism = (t: number, dt: number, stirred: boolean) => {
+    seen.clear()
+    if (stirred) document.querySelectorAll<HTMLElement>('[data-spectral]').forEach((el) => {
+      const r = el.getBoundingClientRect()
+      if (cx < r.left - 28 || cx > r.right + 28 || cy < r.top - 28 || cy > r.bottom + 28) return
+      const st = prisms.get(el)
+      if (st) { st.hot = t; if (st.out) { st.out = 0; el.classList.remove('is-prism-out') } return }
+      if (prisms.size >= 4) return
+      const cols = new Map<Element, string>(), words = measure(el, cols)
+      if (!words) return
+      prisms.set(el, { e: 0, op: 0, hot: t, out: 0, cols, words })
+      el.classList.add('is-prism') // css fades the DOM glyphs out over 150ms
     })
-    return words
+    hr.fill(0); hs.fill(0)
+    let i = 0
+    prisms.forEach((st, el) => {
+      const words = el.isConnected ? measure(el, st.cols) : null
+      if (!words) return drop(el)
+      st.words = words
+      if (st.out) {
+        // the DOM glyphs are opaque again after 150ms; only then does the identical canvas copy leave
+        if (t - st.out > 150) st.op = Math.max(0, st.op - dt / 0.08)
+        if (st.op === 0) return drop(el)
+      } else {
+        st.op = Math.min(1, st.op + dt / 0.08)
+        if (t - st.hot < 140) st.e += (1 - st.e) * (1 - Math.exp(-dt * 9))
+        else if ((st.e *= Math.exp(-dt * 8)) < 0.004) { st.e = 0; st.out = t; el.classList.add('is-prism-out') }
+      }
+      const r = el.getBoundingClientRect()
+      hr.set([r.left - PAD, r.top - PAD, r.right + PAD, r.bottom + PAD], i * 4); hs.set([st.e, st.op], i * 2)
+      i++
+    })
   }
   const raster = () => {
-    const m = Math.round(vh * MARGIN), k = Math.min(1, 2048 / vw)
-    const words = measure(m)
+    const m = Math.round(vh * MARGIN), k = Math.min(1, 2048 / vw), kd = canvas.width / vw
     const q = (n: number) => Math.round(n * 2) // half-pixel steps
     let s = `${vw}x${vh}`
-    for (const w of words) s += `|${w.s},${q(w.x)},${q(w.y + scrollY)},${q(w.h)},${q(w.clip[1] + scrollY)},${q(w.clip[3] + scrollY)},${w.font}`
+    prisms.forEach((st) => { for (const w of st.words) s += `|${w.s},${q(w.x)},${q(w.y + scrollY)},${q(w.h)},${q(w.clip[1] + scrollY)},${q(w.clip[3] + scrollY)},${w.font},${w.col}` })
     if (s === sig && Math.abs(scrollY - rasterY) < vh * MARGIN * 0.6) return
     sig = s; rasterY = scrollY
     tcan.width = Math.round(vw * k); tcan.height = Math.round((vh + 2 * m) * k)
@@ -206,29 +264,38 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
       if (r.width < 2 || r.height < 2 || r.bottom < -m || r.top > vh + m) return
       // large headings only need 3:1, so they tolerate more light than body copy
       ctx.globalAlpha = el.matches("h1,h2,[data-spectral],[data-spectral] *") ? 0.6 : 1
-      ctx.fillRect(r.left - 8, r.top - 8, r.width + 16, r.height + 16)
+      ctx.fillRect(r.left - 28, r.top - 28, r.width + 56, r.height + 56)
     })
-    ctx.globalAlpha = 1; ctx.fillStyle = '#f00'; ctx.textBaseline = 'alphabetic'
-    hasText = words.length > 0
-    for (const w of words) {
-      ctx.save()
-      ctx.beginPath(); ctx.rect(w.clip[0], w.clip[1], w.clip[2] - w.clip[0], w.clip[3] - w.clip[1]); ctx.clip()
-      ctx.font = w.font; ctx.letterSpacing = w.ls
-      const mt = ctx.measureText(w.s)
-      ctx.fillText(w.s, w.x, w.y + (w.h - mt.fontBoundingBoxAscent - mt.fontBoundingBoxDescent) / 2 + mt.fontBoundingBoxAscent)
-      ctx.restore()
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'
+    const wrap = (min: number) => {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, min)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
     }
-    ctx.globalCompositeOperation = 'source-over'
     gl.bindTexture(gl.TEXTURE_2D, ttex)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tcan)
     gl.generateMipmap(gl.TEXTURE_2D)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    wrap(gl.LINEAR_MIPMAP_LINEAR)
+    // glyphs exactly as the DOM draws them: same font, tracking, colour, clip, at device pixels
+    gl.bindTexture(gl.TEXTURE_2D, gtex)
+    if (!prisms.size) return void gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4))
+    gcan.width = canvas.width; gcan.height = Math.round((vh + 2 * m) * kd) // resizing also clears it
+    gctx.setTransform(kd, 0, 0, kd, 0, m * kd)
+    gctx.textBaseline = 'alphabetic'; gctx.textRendering = 'optimizeLegibility'
+    prisms.forEach((st) => st.words.forEach((w) => {
+      gctx.save()
+      gctx.beginPath(); gctx.rect(w.clip[0], w.clip[1], w.clip[2] - w.clip[0], w.clip[3] - w.clip[1]); gctx.clip()
+      gctx.font = w.font; gctx.letterSpacing = w.ls; gctx.fillStyle = w.col
+      const mt = gctx.measureText(w.s)
+      gctx.fillText(w.s, w.x, w.y + (w.h - mt.fontBoundingBoxAscent - mt.fontBoundingBoxDescent) / 2 + mt.fontBoundingBoxAscent)
+      gctx.restore()
+    }))
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, gcan)
+    wrap(gl.LINEAR)
   }
 
   // --- input
-  let px = 0.5, py = 0.5, lx = 0.5, ly = 0.5, moved = false, fresh = true, sdy = 0, lastScroll = scrollY
+  let cx = -1e5, cy = -1e5, px = 0.5, py = 0.5, lx = 0.5, ly = 0.5, moved = false, fresh = true, sdy = 0, lastScroll = scrollY
   let lastInput = -1e9, raf = 0, last = 0, ready = false, dead = false, frames = 0
   const wake = () => {
     lastInput = performance.now()
@@ -238,6 +305,7 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     raf = requestAnimationFrame(frame)
   }
   const point = (x: number, y: number) => {
+    cx = x; cy = y
     px = x / innerWidth; py = 1 - y / innerHeight
     // a new stroke (first move, or first after the sim went to sleep) starts where the pointer is
     if (fresh || !raf) { lx = px; ly = py; fresh = false }
@@ -249,15 +317,16 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
   const onTouch = (e: TouchEvent) => { const t = e.touches[0]; if (t) point(t.clientX, t.clientY) }
   const onScroll = () => {
     sdy += scrollY - lastScroll; lastScroll = scrollY
-    // scrolling alone paints no ink, so it only needs frames when a heading can show the fringe (or ink is still live)
-    if (raf || document.querySelector('[data-spectral]')) wake()
+    // scrolling alone paints no ink, so it only stirs what is already live
+    if (raf) wake()
   }
-  const onVis = () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0 } else if (performance.now() - lastInput < 400) wake() }
+  const onVis = () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0; dropAll() } else if (performance.now() - lastInput < 400) wake() }
 
   const sleep = () => {
-    gl.clearColor(0, 0, 0, 1)
+    dropAll()
+    gl.clearColor(0, 0, 0, 0)
     for (const t of [...targets, null]) { gl.bindFramebuffer(gl.FRAMEBUFFER, t ? t.fbo : null); gl.clear(gl.COLOR_BUFFER_BIT) }
-    canvas.style.visibility = 'hidden' // no blend layer to composite while idle
+    canvas.style.visibility = 'hidden' // no layer to composite while idle
     sdy = 0
   }
 
@@ -267,12 +336,13 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     const rm = mq.matches
     // ponytail: idle is decided by time since the last input rather than by reading velocity energy back
     // from the GPU (readPixels stalls); decay is exponential, so by then the field is below 1/255.
-    if (t - lastInput > (rm ? 1200 : 2200)) return sleep()
+    if (t - lastInput > (rm ? 1200 : 2200) && !prisms.size) return sleep()
     raf = requestAnimationFrame(frame)
     frames++
     size()
     const dt = last ? Math.min((t - last) / 1000, 1 / 30) : 1 / 60
     last = t
+    prism(t, dt, moved)
     raster()
     const k = rm ? 0.3 : 1 // reduced motion: same response, gentler and shorter-lived
     const tx = (u: Prog['u']) => gl.uniform2f(u.uTx, 1 / vel[0].w, 1 / vel[0].h)
@@ -304,9 +374,13 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     swap(dye)
     pass(progs.bloom, bloom, [['uT', dye[0].tex]], (u) => gl.uniform2f(u.uTx, 1 / dye[0].w, 1 / dye[0].h))
     const span = vh * (1 + 2 * MARGIN)
-    pass(progs.comp, null, [['uD', dye[0].tex], ['uB', bloom.tex], ['uV', vel[0].tex], ['uT', ttex]], (u) => {
-      gl.uniform2f(u.uTm, vh / span, (scrollY - rasterY + vh * MARGIN) / span)
-      gl.uniform1f(u.uAsp, asp); gl.uniform1f(u.uTxt, hasText ? 1 : 0)
+    // whole device pixels, so settled glyphs land on the same pixels the DOM's do
+    const off = Math.round((scrollY - rasterY) * canvas.width / vw) * vw / canvas.width
+    pass(progs.comp, null, [['uD', dye[0].tex], ['uB', bloom.tex], ['uV', vel[0].tex], ['uS', ttex], ['uG', gtex]], (u) => {
+      gl.uniform2f(u.uTm, vh / span, (off + Math.round(vh * MARGIN)) / span)
+      gl.uniform2f(u.uRes, vw, vh); gl.uniform1f(u.uAsp, asp); gl.uniform1f(u.uSlit, Math.max(9, Math.min(18, vw / 90)))
+      gl.uniform1f(u.uMax, Math.max(12, Math.min(30, vw * 0.021)) / vh) // furthest a glyph may bend, so small headings stay legible
+      gl.uniform4fv(u['uHr[0]'], hr); gl.uniform2fv(u['uHs[0]'], hs)
     })
   }
 
@@ -321,13 +395,13 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     }
     gl.disable(gl.BLEND); gl.disable(gl.DEPTH_TEST)
     size()
-    gl.bindTexture(gl.TEXTURE_2D, ttex)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4))
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true)
+    for (const tx of [ttex, gtex]) { gl.bindTexture(gl.TEXTURE_2D, tx); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4)) }
     ready = true
     if (performance.now() - lastInput < 400) wake()
   }
   // ponytail: a lost GL context just ends the effect until the next page load; rebuild targets/programs if that ever matters
-  const onLost = (e: Event) => { e.preventDefault(); dead = true; cancelAnimationFrame(raf); raf = 0; canvas.style.visibility = 'hidden' }
+  const onLost = (e: Event) => { e.preventDefault(); dead = true; cancelAnimationFrame(raf); raf = 0; dropAll(); canvas.style.visibility = 'hidden' }
 
   const opt = { passive: true } as const
   addEventListener('pointermove', onPointer, opt)
@@ -336,12 +410,13 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
   addEventListener('scroll', onScroll, opt)
   document.addEventListener('visibilitychange', onVis)
   canvas.addEventListener('webglcontextlost', onLost)
-  window.__fluid = { active: () => !!raf, frames: () => frames }
+  window.__fluid = { active: () => !!raf, frames: () => frames, prisms: () => prisms.size }
   poll()
 
   return () => {
     dead = true
     cancelAnimationFrame(raf)
+    dropAll()
     removeEventListener('pointermove', onPointer)
     removeEventListener('touchstart', onTouchStart)
     removeEventListener('touchmove', onTouch)
