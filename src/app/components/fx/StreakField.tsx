@@ -69,38 +69,40 @@ export default function StreakField() {
     const soft = /swiftshader|llvmpipe|software/i.test(dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '')
     const mqRm = matchMedia('(prefers-reduced-motion: reduce)')
     const mqCoarse = matchMedia('(pointer: coarse)')
-    const names = ['uRes', 'uOrigin', 'uScreenHalf', 'uMouse', 'uShield', 'uColA', 'uColB', 'uPts', 'uVis', 'uT', 'uFlow', 'uGlow', 'uIntensity', 'uPage', 'uSparkle', 'uBend', 'uHeadY', 'uCalm', 'uStatic', 'uFlare', 'uMax']
+    const names = ['uRes', 'uOrigin', 'uScreenHalf', 'uMouse', 'uShield', 'uShield2', 'uColA', 'uColB', 'uPts', 'uVis', 'uT', 'uFlow', 'uGlow', 'uIntensity', 'uPage', 'uSparkle', 'uBend', 'uHeadY', 'uCalm', 'uStatic', 'uFlare', 'uMax', 'uParallax']
     let loc: Record<string, WebGLUniformLocation | null> = {}
 
+    const par = gl.getExtension('KHR_parallel_shader_compile')
+    let prog: WebGLProgram | null = null
+    let shaders: WebGLShader[] = []
     const init = () => {
       const g = gl!
       const sh = (type: number, src: string) => {
         const s = g.createShader(type)!
         g.shaderSource(s, src)
         g.compileShader(s)
-        if (!g.getShaderParameter(s, g.COMPILE_STATUS)) throw new Error(g.getShaderInfoLog(s) ?? 'shader')
         return s
       }
-      const prog = g.createProgram()!
-      g.attachShader(prog, sh(g.VERTEX_SHADER, VERT))
-      g.attachShader(prog, sh(g.FRAGMENT_SHADER, FRAG))
+      prog = g.createProgram()!
+      shaders = [sh(g.VERTEX_SHADER, VERT), sh(g.FRAGMENT_SHADER, FRAG)]
+      shaders.forEach((s) => g.attachShader(prog!, s))
       g.bindAttribLocation(prog, 0, 'a')
       g.linkProgram(prog)
-      if (!g.getProgramParameter(prog, g.LINK_STATUS)) throw new Error(g.getProgramInfoLog(prog) ?? 'link')
-      g.useProgram(prog)
       const buf = g.createBuffer()
       g.bindBuffer(g.ARRAY_BUFFER, buf)
       g.bufferData(g.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), g.STATIC_DRAW)
       g.enableVertexAttribArray(0)
       g.vertexAttribPointer(0, 2, g.FLOAT, false, 0, 0)
-      loc = Object.fromEntries(names.map((n) => [n, g.getUniformLocation(prog, n)]))
     }
-    try {
-      init()
-    } catch (e) {
-      console.error(e)
-      setFallback(true)
-      return
+    // status queries force a synchronous wait, so they only run once the driver reports completion
+    const finish = () => {
+      const g = gl!
+      if (!g.getProgramParameter(prog!, g.LINK_STATUS)) {
+        const log = shaders.map((s) => g.getShaderInfoLog(s)).join('') + (g.getProgramInfoLog(prog!) ?? '')
+        throw new Error(log || 'link')
+      }
+      g.useProgram(prog)
+      loc = Object.fromEntries(names.map((n) => [n, g.getUniformLocation(prog!, n)]))
     }
 
     const S = {
@@ -114,21 +116,35 @@ export default function StreakField() {
     let ptr = false
     const pts = new Float32Array(32)
     const vis = new Float32Array(8)
-    const mark = () => { dirty = true }
+    let mdirty = true
+    let measuredAt = 0
+    const mark = () => { dirty = true; mdirty = true }
     const unsub = fx.subscribe(mark)
+    type Cached = { el: Element | null; sel: string }
+    const cEl = (c: Cached) => (c.el?.isConnected ? c.el : (c.el = document.querySelector(c.sel)))
+    const cOrigin: Cached = { el: null, sel: '[data-fx-origin]' }
+    const cHero: Cached = { el: null, sel: '.hero' }
+    const cShield: Cached = { el: null, sel: '[data-fx-shield]' }
+    const cShield2: Cached = { el: null, sel: '[data-fx-shield-2]' }
+    const cEnd: Cached = { el: null, sel: '[data-streak-end]' }
+    type RP = ReturnType<typeof rectP>
+    let rOrigin: RP = null, rShield: RP = null, rShield2: RP = null, heroBottom = 0, hasHero = false
 
     const onMove = (e: PointerEvent) => {
       if (e.pointerType === 'touch') return
       ptr = true
+      if (fx.get().followMouse) dirty = true
       S.pointer = [(e.clientX - innerWidth / 2) / innerHeight, (innerHeight / 2 - e.clientY) / innerHeight]
     }
     addEventListener('pointermove', onMove, { passive: true })
     addEventListener('scroll', mark, { passive: true })
     addEventListener('resize', mark)
+    // entrance / laptop transitions move measured nodes without scroll or resize
+    addEventListener('transitionend', mark, true)
+    addEventListener('animationend', mark, true)
 
-    const rectP = (sel: string, vw: number, vh: number) => {
-      const el = document.querySelector(sel)
-      const r = el?.getBoundingClientRect()
+    function rectP(c: Cached, vw: number, vh: number) {
+      const r = cEl(c)?.getBoundingClientRect()
       if (!r || !r.width) return null
       return { cx: (r.left + r.width / 2 - vw / 2) / vh, cy: (vh / 2 - (r.top + r.height / 2)) / vh, hx: r.width / 2 / vh, hy: r.height / 2 / vh, bottom: r.bottom }
     }
@@ -142,13 +158,23 @@ export default function StreakField() {
       const vw = innerWidth, vh = innerHeight
       const mobile = mqCoarse.matches || vw < 900
       const f = fx.get()
-      const dtRaw = Math.min(0.1, (now - last) / 1000)
       if (!last) { last = now; return }
+      const dtRaw = Math.min(0.1, (now - last) / 1000)
       const delta = now - last
 
-      const origin = rectP('[data-fx-origin]', vw, vh)
-      const hero = document.querySelector('.hero') ?? document.querySelector('[data-fx-origin]')?.closest('section')
-      const auto = !origin || (hero ? hero.getBoundingClientRect().bottom < 0 : false)
+      // re-measure only when something moved (scroll/resize/store/transition) and for the first seconds (entrances)
+      if (!measuredAt) measuredAt = now
+      if (mdirty || now - measuredAt < 4000) {
+        mdirty = false
+        rOrigin = rectP(cOrigin, vw, vh)
+        const hero = cEl(cHero) ?? cEl(cOrigin)?.closest('section') ?? null
+        hasHero = !!hero
+        heroBottom = hero ? hero.getBoundingClientRect().bottom : 0
+        rShield = rectP(cShield, vw, vh)
+        rShield2 = rectP(cShield2, vw, vh)
+      }
+      const origin = rOrigin
+      const auto = !origin || (hasHero ? heroBottom < 0 : false)
       const pageTarget = Math.max(f.pageMode, auto ? 1 : 0)
       const glowTarget = f.glow !== null || pageTarget > 0.5 ? 1 : 0
       const busy = glowTarget > 0 || S.glowP > 0
@@ -213,7 +239,8 @@ export default function StreakField() {
       S.mouse[1] += (tgt[1] - S.mouse[1]) * km
 
       // --- DOM-derived uniforms ---
-      const shield = rectP('[data-fx-shield]', vw, vh)
+      const shield = rShield
+      const shield2 = rShield2
 
       // guide window (8 points around the head), converted to p-space
       const gp = guide.current
@@ -231,7 +258,7 @@ export default function StreakField() {
           const pad = start + k >= gp.length ? start + k - gp.length + 1 : 0
           pts.set([(p.x - vw / 2) / vh, (vh / 2 - (p.y - sy)) / vh - pad * 0.002, p.w, p.b], k * 4)
         }
-        const end = document.querySelector('[data-streak-end]') ? gp[gp.length - 1] : null
+        const end = cEl(cEnd) ? gp[gp.length - 1] : null
         const endY = end ? (vh / 2 - (end.y - sy)) / vh : -9
         const headLine = 0.5 - HEAD_FRAC
         headY = rm ? endY : Math.max(headLine, endY)
@@ -246,6 +273,8 @@ export default function StreakField() {
       g.uniform2f(loc.uOrigin, origin ? origin.cx : 9, origin ? origin.cy : 9)
       g.uniform2f(loc.uScreenHalf, origin ? origin.hx : 0.01, origin ? origin.hy : 0.01)
       g.uniform4f(loc.uShield, shield ? shield.cx : 9, shield ? shield.cy : 9, shield ? shield.hx : 0, shield ? shield.hy : 0)
+      g.uniform4f(loc.uShield2, shield2 ? shield2.cx : 9, shield2 ? shield2.cy : 9, shield2 ? shield2.hx : 0, shield2 ? shield2.hy : 0)
+      g.uniform1f(loc.uParallax, rm || mobile ? 0 : scrollY * 0.0003)
       g.uniform2f(loc.uMouse, S.mouse[0], S.mouse[1])
       g.uniform3f(loc.uColA, S.colA[0], S.colA[1], S.colA[2])
       g.uniform3f(loc.uColB, S.colB[0], S.colB[1], S.colB[2])
@@ -275,14 +304,42 @@ export default function StreakField() {
     const onVis = () => (document.hidden ? (cancelAnimationFrame(raf), (raf = 0)) : start())
     const onLost = (e: Event) => { e.preventDefault(); lostCtx = true; cancelAnimationFrame(raf); raf = 0 }
     const onRestored = () => {
-      try { init(); lostCtx = false; W = H = 0; dirty = true; start() } catch { setFallback(true) }
+      try { init(); lostCtx = false; W = H = 0; dirty = mdirty = true; whenReady(start) } catch { setFallback(true) }
     }
+    let dead = false
+    const whenReady = (go: () => void) => {
+      const poll = () => {
+        if (dead) return
+        try {
+          if (par && !gl!.getProgramParameter(prog!, par.COMPLETION_STATUS_KHR)) return void setTimeout(poll, 16)
+          finish()
+        } catch (e) {
+          console.error(e)
+          setFallback(true)
+          return
+        }
+        go()
+      }
+      poll()
+    }
+    const launch = () => {
+      try { init() } catch (e) { console.error(e); setFallback(true); return }
+      whenReady(start)
+    }
+    const intents = ['scroll', 'pointerdown', 'keydown', 'wheel', 'touchstart']
+    const onIntent = () => { intents.forEach((t) => removeEventListener(t, onIntent)); launch() }
     canvas.addEventListener('webglcontextlost', onLost)
     canvas.addEventListener('webglcontextrestored', onRestored)
     document.addEventListener('visibilitychange', onVis)
-    start()
+    // software GL: compile only after the first sign of life, so a never-interacting visitor pays nothing
+    if (soft) intents.forEach((t) => addEventListener(t, onIntent, { passive: true }))
+    else launch()
 
     return () => {
+      dead = true
+      intents.forEach((t) => removeEventListener(t, onIntent))
+      removeEventListener('transitionend', mark, true)
+      removeEventListener('animationend', mark, true)
       cancelAnimationFrame(raf)
       unsub()
       removeEventListener('pointermove', onMove)
@@ -307,7 +364,7 @@ export default function StreakField() {
     }
   }, [])
 
-  const style = { position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', width: '100%', height: '100%' } as const
+  const style = { position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', background: '#0a0710', width: '100%', height: '100%' } as const
   return fallback ? (
     <div
       aria-hidden

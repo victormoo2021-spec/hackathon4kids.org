@@ -7,11 +7,11 @@ export const FRAG = `#version 300 es
 precision highp float;
 out vec4 o;
 uniform vec2 uRes, uOrigin, uScreenHalf, uMouse;
-uniform vec4 uShield;
+uniform vec4 uShield, uShield2;
 uniform vec3 uColA, uColB;
 uniform vec4 uPts[8];          // guide path in p-space: x, y, width, brightness (y descending)
 uniform float uVis[8];
-uniform float uT, uFlow, uGlow, uIntensity, uPage, uSparkle, uBend, uHeadY, uCalm, uStatic, uFlare, uMax;
+uniform float uT, uFlow, uGlow, uIntensity, uPage, uSparkle, uBend, uHeadY, uCalm, uStatic, uFlare, uMax, uParallax;
 
 float hash(vec2 p){ p = fract(p*vec2(123.34,456.21)); p += dot(p,p+45.32); return fract(p.x*p.y); }
 float vnoise(vec2 p){
@@ -75,7 +75,7 @@ vec3 gAt(float y){
 }
 vec3 guide(vec2 p, vec3 base, vec3 hot){
   vec3 g = gAt(p.y); float e = .004;
-  float dx = (gAt(p.y+e).x - gAt(p.y-e).x)/(2.*e);
+  float dx = clamp((gAt(p.y+e).x - gAt(p.y-e).x)/(2.*e), -5., 5.);
   float u = (p.x-g.x)/sqrt(1.+dx*dx)/g.y;
   if (abs(u) > 9.) return vec3(0.);
   float above = max(p.y-uHeadY, 0.);
@@ -109,17 +109,17 @@ void main(){
   float halo = dot(col, vec3(.33));
   // screen spill (not a blob): hugs the laptop screen and falls off fast
   float sd = sdBox(p-uOrigin, uScreenHalf);
-  col += uColA*.22*exp(-max(sd,0.)*max(sd,0.)*70.)*(1.-uPage*.7) + uColA*.012;
+  col += uColA*.22*exp(-max(sd,0.)*max(sd,0.)*70.)*(1.-uPage*.7);
   // sparks only near existing light
-  vec2 cell = floor(p/.06); float h = hash(cell);
+  vec2 pq = p+vec2(0.,uParallax); vec2 cell = floor(pq/.06); float h = hash(cell);
   vec2 sp = (cell+.2+.6*vec2(hash(cell+7.3),hash(cell+3.1)))*.06;
-  float sparkle = exp(-dot(p-sp,p-sp)*9000.)*pow(max(0.,sin(uT*3.*(1.-.8*uCalm)+h*6.28)),16.)*min(halo*4.,1.);
+  float sparkle = exp(-dot(pq-sp,pq-sp)*9000.)*pow(max(0.,sin(uT*3.*(1.-.8*uCalm)+h*6.28)),16.)*min(halo*4.,1.);
   col += vec3(1.,.9,.7)*sparkle*uSparkle*1.4;
   col *= 1.-.82*(1.-smoothstep(0.,.22,sdBox(p-uShield.xy,uShield.zw)));
+  col *= 1.-.82*(1.-smoothstep(0.,.22,sdBox(p-uShield2.xy,uShield2.zw)));
   col *= uGlow*uIntensity;
   col = 1.-exp(-col*1.25);
-  col += pow(vec3(10.,7.,16.)/255., vec3(2.2));
-  col = enc(col);
+  col = enc(col) + vec3(10.,7.,16.)/255.; // true ground: exact #0a0710 where there is no light
   col += (hash(gl_FragCoord.xy+fract(uT)*61.)-.5)*(.022+1./255.);
   o = vec4(col,1.);
 }`
