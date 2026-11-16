@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation'
 import { Cross2Icon, HamburgerMenuIcon } from '@radix-ui/react-icons'
 import logo from 'public/logo.png'
 import EmailCta from './components/EmailCta'
-import { contest } from './content/contest'
+import { contest, MAILING_LIST } from './content/contest'
 
 const EMAIL = 'hackathon4kidsevent@gmail.com'
 
@@ -51,15 +51,15 @@ export default function Navigation() {
   const current = (href: string) => (pathname.startsWith(href) ? 'page' : undefined)
 
   return (
-    <header className="site-header glass" data-scrolled={scrolled} data-open={open}>
-      <div className="container-x flex h-14 items-center justify-between gap-4 md:h-16">
-        <Link href="/" className="flex items-center gap-2 rounded-md text-[1.0625rem] font-semibold tracking-tight text-text">
+    <header className="site-header" data-scrolled={scrolled} data-open={open}>
+      <div className="container-x flex h-12 items-center justify-between gap-4">
+        <Link href="/" className="flex items-center gap-2 rounded-md text-[1rem] font-semibold text-text">
           <Image src={logo} alt="" sizes="24px" priority className="logo-mark h-6 w-6" />
           Hackathon4Kids
         </Link>
 
         <nav aria-label="Main" className="hidden md:block">
-          <ul className="flex items-center gap-7">
+          <ul className="flex items-center gap-6">
             {links.map((l) => (
               <li key={l.href}>
                 <Link href={l.href} aria-current={current(l.href)} className="nav-link-d">
@@ -71,13 +71,14 @@ export default function Navigation() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <div className="hidden md:block">
-            <EmailCta compact />
-          </div>
+          <a href={MAILING_LIST} target="_blank" rel="noopener noreferrer" className="nav-cta hidden md:inline-flex">
+            Get class dates
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
           <button
             ref={btn}
             type="button"
-            className="-mr-2 flex h-11 w-11 items-center justify-center rounded-full md:hidden"
+            className="-mr-2.5 flex h-11 w-11 items-center justify-center rounded-full md:hidden"
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? 'Close menu' : 'Open menu'}

@@ -8,7 +8,7 @@ export default function NotFound() {
   return (
     <section className="container-x page-hero flex flex-col items-start gap-8">
       <div aria-hidden className="card w-full max-w-md overflow-hidden">
-        <div className="flex gap-1.5 border-b border-hairline px-4 py-3">
+        <div className="flex gap-1.5 border-b border-line px-4 py-3">
           <span className="h-3 w-3 rounded-full bg-raised" />
           <span className="h-3 w-3 rounded-full bg-raised" />
           <span className="h-3 w-3 rounded-full bg-raised" />
