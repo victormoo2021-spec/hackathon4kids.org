@@ -10,7 +10,7 @@ import Fluid from './components/fx/Fluid'
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0a0710',
+  themeColor: '#0e0e11',
   colorScheme: 'dark',
 }
 
