@@ -21,7 +21,7 @@ export default function CourseGrid() {
   return (
     <Reveal as="section" id="courses" aria-labelledby="courses-title" className="container-x section-y">
       <div className="max-w-2xl">
-        <h2 id="courses-title" data-streak-anchor="l" data-spectral data-reveal className="t-headline"><span className="hl">Courses</span></h2>
+        <h2 id="courses-title" data-spectral data-reveal className="t-headline"><span className="hl">Courses</span></h2>
       </div>
       <div className="mt-12 border-t border-line">
         {categories.map((c) => (

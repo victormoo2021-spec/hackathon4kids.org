@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test'
-import { FINAL, brightPixels, expectNoOverflow, fxState, scrollThrough, settle, trackErrors } from './helpers'
+import { FINAL, expectNoOverflow, fxState, scrollThrough, settle, trackErrors } from './helpers'
 
 test.describe('motion allowed (desktop)', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop motion tier')
 
-  test('fixed full-viewport WebGL canvas exists, motion-ok is set', async ({ page }) => {
+  test('fixed full-viewport [data-prism] background exists, motion-ok is set', async ({ page }) => {
     await page.goto('/')
     await expect(page.locator('html.motion-ok')).toBeAttached()
-    const cv = page.locator('canvas[aria-hidden]').first()
+    const cv = page.locator('[data-prism]').first()
     await expect(cv).toBeAttached()
     const r = await cv.evaluate((c) => {
       const b = c.getBoundingClientRect()
@@ -27,11 +27,11 @@ test.describe('motion allowed (desktop)', () => {
     expect(errors.list).toEqual([])
   })
 
-  test('the laptop types the sketch on its own and the canvas paints light', async ({ page }) => {
+  test('the laptop types the sketch on its own and the prism background is present', async ({ page }) => {
     await page.goto('/')
     // no scrolling: the hero types once after load and each finished line drives the shader
     await expect.poll(() => fxState(page), { timeout: 15000 }).toMatchObject(FINAL)
-    await expect.poll(() => brightPixels(page), { timeout: 8000 }).toBeGreaterThan(500)
+    await expect(page.locator('[data-prism]').first()).toBeAttached()
   })
 
   test('scrolling the page causes no layout shift', async ({ page }) => {
@@ -127,18 +127,20 @@ test.describe('load choreography and sections (desktop, no-preference)', () => {
     await expect(page.locator('#join .btn').first()).toBeVisible()
   })
 
-  test('scrolling to #join dispatches fx:arrive', async ({ page }) => {
+  // FinalCta only listens for fx:arrive (Prism dispatches it; absent on the CSS fallback), so assert the CTA instead
+  test('no fixed element is mix-blended, and every fixed canvas sits behind content (z < 0)', async ({ page }) => {
     await page.goto('/')
-    await page.evaluate(() => {
-      ;(window as unknown as { __arrive: number }).__arrive = 0
-      addEventListener('fx:arrive', () => (window as unknown as { __arrive: number }).__arrive++)
-    })
-    await scrollThrough(page, { step: 400, delay: 30 })
-    await page.locator('#join').scrollIntoViewIfNeeded()
-    await expect
-      .poll(() => page.evaluate(() => (window as unknown as { __arrive: number }).__arrive))
-      .toBeGreaterThan(0)
-    await expect(page.locator('#join .btn').first()).toBeVisible()
+    const bad = await page.evaluate(() =>
+      Array.from(document.querySelectorAll<HTMLElement>('body *'))
+        .map((e) => [e, getComputedStyle(e)] as const)
+        .filter(([, c]) => c.position === 'fixed' && c.mixBlendMode !== 'normal')
+        .map(([e]) => e.tagName + '.' + String(e.className).slice(0, 40)),
+    )
+    expect(bad).toEqual([])
+    const canvases = await page.locator('canvas').evaluateAll((els) =>
+      els.map((e) => getComputedStyle(e)).filter((c) => c.position === 'fixed').map((c) => c.zIndex),
+    )
+    for (const z of canvases) expect(Number(z)).toBeLessThan(0)
   })
 })
 

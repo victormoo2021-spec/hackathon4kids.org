@@ -73,27 +73,3 @@ type FxWin = { __fx: { get(): Record<string, unknown> } }
 export const fxState = (page: Page) => page.evaluate(() => (window as unknown as FxWin).__fx?.get())
 
 export const FINAL = { glow: 'purple', streaks: 5, sparkle: true, followMouse: true }
-
-/** Count of sampled pixels in a viewport screenshot clearly brighter than black, canvas only. */
-export async function brightPixels(page: Page): Promise<number> {
-  // hide everything but the canvas so text does not count
-  const style = await page.addStyleTag({
-    content: 'html{background:#000!important}*:not(canvas){color:transparent!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important;text-shadow:none!important}img,svg,video{visibility:hidden!important}',
-  })
-  const png = await page.screenshot()
-  await style.evaluate((e) => (e as Element).remove())
-  return page.evaluate(async (b64) => {
-    const img = new Image()
-    img.src = `data:image/png;base64,${b64}`
-    await img.decode()
-    const c = document.createElement('canvas')
-    c.width = img.width
-    c.height = img.height
-    const g = c.getContext('2d')!
-    g.drawImage(img, 0, 0)
-    const d = g.getImageData(0, 0, c.width, c.height).data
-    let n = 0
-    for (let i = 0; i < d.length; i += 16) if (d[i] + d[i + 1] + d[i + 2] > 60) n++
-    return n
-  }, png.toString('base64'))
-}

@@ -92,7 +92,7 @@
 
   @media (min-width: 48rem) { body { font-size: 1.125rem; } }
   h1, h2, h3 { color: var(--color-text); }
-  h2[data-streak-anchor] { text-shadow: 0 0 28px rgb(10 7 16 / 0.9); }
+  h2[data-spectral] { text-shadow: 0 0 28px rgb(10 7 16 / 0.9); }
   p { text-wrap: pretty; }
 
   a {
