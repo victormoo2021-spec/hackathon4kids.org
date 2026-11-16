@@ -23,7 +23,7 @@ export default function Faq({ headingId }: { headingId?: string }) {
           <details key={q} data-reveal="fade" className="faq-item">
             <summary className="flex min-h-[72px] cursor-pointer items-center justify-between gap-6 py-4 text-[1.25rem] font-semibold text-text">
               {q}
-              <svg aria-hidden viewBox="0 0 18 18" width="18" height="18" fill="none" stroke="#9a93ad" strokeWidth="1.5" strokeLinecap="round" className="faq-icon">
+              <svg aria-hidden viewBox="0 0 18 18" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="faq-icon text-yellow">
                 <path d="M9 2v14M2 9h14" />
               </svg>
             </summary>

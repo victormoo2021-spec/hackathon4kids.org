@@ -12,7 +12,12 @@
 .faq-list { interpolate-size: allow-keywords; }
 .faq-item { border-top: 1px solid var(--color-line); }
 .faq-item:last-child { border-bottom: 1px solid var(--color-line); }
-.faq-item summary { list-style: none; }
+.faq-item summary { list-style: none; transition: color 200ms var(--ease-apple), padding-left 300ms var(--ease-out); }
+.faq-item:hover summary, .faq-item[open] summary { padding-left: calc(1rem * var(--m)); }
+.faq-item { position: relative; }
+.faq-item::before { content: ""; position: absolute; left: 0; top: -1px; bottom: 0; width: 2px; background: var(--color-yellow); transform: scaleY(0); transform-origin: top; transition: transform 300ms var(--ease-out); pointer-events: none; }
+.faq-item:hover::before, .faq-item[open]::before { transform: scaleY(1); }
+.faq-item summary:hover, .faq-item[open] summary { color: var(--color-yellow); }
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item::details-content {
   block-size: 0;

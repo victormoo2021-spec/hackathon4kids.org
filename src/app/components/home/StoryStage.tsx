@@ -12,7 +12,7 @@ import { fx, FX_FINAL } from '../fx/store'
 gsap.registerPlugin(useGSAP)
 
 const CHAR_S = 0.032
-const START_S = 1.4
+const START_S = 0.9
 const POSE = 0.3
 const REST = { glow: 'violet', streaks: 1, intensity: 0.4 } as const
 const FULL = SKETCH.map((l) => l.length)

@@ -19,7 +19,7 @@ const blurbs: Record<Course, string> = {
 
 export default function CourseGrid() {
   return (
-    <Reveal as="section" id="courses" aria-labelledby="courses-title" className="container-x section-y">
+    <Reveal as="section" stagger={0.07} id="courses" aria-labelledby="courses-title" className="container-x section-y">
       <div className="max-w-2xl">
         <h2 id="courses-title" data-spectral data-reveal className="t-headline"><span className="hl">Courses</span></h2>
       </div>
@@ -29,7 +29,7 @@ export default function CourseGrid() {
             <h3 data-reveal className="t-title text-text">{c.name}</h3>
             <ul>
               {c.courses.map((n) => (
-                <li key={n} data-reveal className="border-t border-line py-4 first:border-t-0 first:pt-0 md:py-5 md:first:pt-0">
+                <li key={n} data-reveal="clip" className="border-t border-line py-4 first:border-t-0 first:pt-0 md:py-5 md:first:pt-0">
                   <p className="text-xl font-semibold text-text">{n}</p>
                   <p className="mt-1 text-base text-text-dim">{blurbs[n]}</p>
                 </li>
