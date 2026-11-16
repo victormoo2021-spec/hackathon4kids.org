@@ -33,8 +33,8 @@ export default function CourseGrid() {
             <ul>
               {c.courses.map((n) => (
                 <li key={n} data-reveal className="border-t border-line py-4 first:border-t-0 first:pt-0 md:py-5 md:first:pt-0">
-                  <p className="text-base font-medium text-text">{n}</p>
-                  <p className="mt-1 text-text-body">{blurbs[n]}</p>
+                  <p className="text-xl font-semibold text-text">{n}</p>
+                  <p className="mt-1 text-base text-text-dim">{blurbs[n]}</p>
                 </li>
               ))}
             </ul>
@@ -42,7 +42,7 @@ export default function CourseGrid() {
         ))}
       </div>
       <p data-reveal className="mt-6">
-        <Link href="/programs" className="link inline-flex min-h-11 items-center gap-2 font-semibold">
+        <Link href="/programs" className="link link-arrow inline-flex min-h-11 items-center gap-2 font-semibold">
           See all programs <ArrowRightIcon aria-hidden />
         </Link>
       </p>

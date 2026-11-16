@@ -66,7 +66,13 @@ export default function Reveal({ children, className, as: Tag = 'div', stagger =
         }
         ref.current?.addEventListener('focusin', onFocus)
         ScrollTrigger.batch(items, { start: 'top 88%', once: true, onEnter: (batch) => show(batch) })
-        return () => ref.current?.removeEventListener('focusin', onFocus)
+        // safety: print / PDF / full-page capture never scrolls, so reveal everything then
+        const showAll = () => items.forEach((el) => (kind(el) === 'rule' ? gsap.set(el, { '--rule': 1 }) : gsap.set(el, { opacity: 1, y: 0 })))
+        window.addEventListener('beforeprint', showAll)
+        return () => {
+          ref.current?.removeEventListener('focusin', onFocus)
+          window.removeEventListener('beforeprint', showAll)
+        }
       })
       return () => mm.revert()
     },

@@ -75,8 +75,8 @@ export default function Programs() {
               <ul className="divide-y divide-line">
                 {c.courses.map((name) => (
                   <li key={name} data-reveal className="py-4 first:pt-0 last:pb-0">
-                    <span className="block text-base font-medium text-text">{name}</span>
-                    <span className="block text-text-body">{blurbs[name]}</span>
+                    <span className="block text-xl font-semibold text-text">{name}</span>
+                    <span className="mt-1 block text-base text-text-dim">{blurbs[name]}</span>
                   </li>
                 ))}
               </ul>
@@ -87,32 +87,32 @@ export default function Programs() {
 
       <Reveal as="section" className="container-x page-section" aria-labelledby="past">
         <h2 id="past" data-reveal className="t-headline">Past programs</h2>
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          <div data-reveal className="card p-7 md:col-span-3 md:p-9">
-            <h3 className="t-title">Summer 2021</h3>
-            <p className="mt-3 max-w-[60ch] text-lg text-text-body">Our summer program in 2021.</p>
+        <div className="mt-12 border-t border-line">
+          <div data-reveal className="grid gap-4 border-b border-line py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-10 md:py-10">
+            <h3 className="t-title text-text">Summer 2021</h3>
+            <p className="text-base text-text-dim">Our summer program in 2021.</p>
           </div>
-          <div data-reveal className="card flex flex-col gap-6 p-7 md:p-9">
-            <div>
-              <h3 className="t-title text-text">Summer 2023</h3>
-              <p className="mt-3 text-lg text-text-body">
+          <div data-reveal className="grid gap-4 border-b border-line py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-10 md:py-10">
+            <h3 className="t-title text-text">Summer 2023</h3>
+            <div className="flex flex-col gap-6">
+              <p className="max-w-[60ch] text-base text-text-dim">
                 Free STEM camps across the summer: AMC 10, AP Physics 1, AP CSA, Programming for Robotics, and Modern React.
               </p>
-            </div>
-            <div className="flex flex-wrap items-start gap-6">
-              <Flyer src={flyerSummer2023} file="flyer-summer-2023.png" caption="Past program flyer" alt="Flyer: Free STEM Camps, join Hackathon4Kids this summer. July 3-7, 3-5pm PT, AMC 10. July 10-14, 1-3pm PT, AP Physics 1. July 17-21, 1-3pm PT, AP CSA. July 26-29, 2-4pm PT, Programming for Robotics. July 31-Aug 4, 2-4pm PT, Modern React." />
+              <div className="flex flex-wrap items-start gap-6">
+                <Flyer src={flyerSummer2023} file="flyer-summer-2023.png" caption="Past program flyer" alt="Flyer: Free STEM Camps, join Hackathon4Kids this summer. July 3-7, 3-5pm PT, AMC 10. July 10-14, 1-3pm PT, AP Physics 1. July 17-21, 1-3pm PT, AP CSA. July 26-29, 2-4pm PT, Programming for Robotics. July 31-Aug 4, 2-4pm PT, Modern React." />
+              </div>
             </div>
           </div>
-          <div data-reveal className="card flex flex-col gap-6 p-7 md:col-span-2 md:p-9">
-            <div>
-              <h3 className="t-title">Past coding contests</h3>
-              <p className="mt-3 text-lg text-text-body">
+          <div data-reveal className="grid gap-4 border-b border-line py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-10 md:py-10">
+            <h3 className="t-title text-text">Past coding contests</h3>
+            <div className="flex flex-col gap-6">
+              <p className="max-w-[60ch] text-base text-text-dim">
                 A coding competition for grades K to 8 on Code.org, where students worked at their own pace and competed for awards.
               </p>
-            </div>
-            <div className="flex flex-wrap items-start gap-6">
-              <Flyer src={flyerContestWinter24} file="H4K_Coding_Competition_Flyer_Winter_24.jpg" caption="Past contest flyer" alt="Flyer: Hackathon4Kids coding competition, K-8th grade, Oct 12th to Nov 8th. Learn coding through code.org at your own pace and compete for awards; winners awarded November 16th, 2024 at the Bascom Community Room, Bascom Library. Prize pool up to $2,000." />
-              <Flyer src={flyerContest} file="H4K_Coding_Competition_Flyer.png" caption="Past contest flyer" alt="Flyer: Hackathon4Kids Coding Competition, K-8th grade, January 10th to February 7th. Learn coding through code.org at your own pace and compete for awards; winners awarded February 10th at Educational Park Library. Prize pool up to $2,000." />
+              <div className="flex flex-wrap items-start gap-6">
+                <Flyer src={flyerContestWinter24} file="H4K_Coding_Competition_Flyer_Winter_24.jpg" caption="Past contest flyer" alt="Flyer: Hackathon4Kids coding competition, K-8th grade, Oct 12th to Nov 8th. Learn coding through code.org at your own pace and compete for awards; winners awarded November 16th, 2024 at the Bascom Community Room, Bascom Library. Prize pool up to $2,000." />
+                <Flyer src={flyerContest} file="H4K_Coding_Competition_Flyer.png" caption="Past contest flyer" alt="Flyer: Hackathon4Kids Coding Competition, K-8th grade, January 10th to February 7th. Learn coding through code.org at your own pace and compete for awards; winners awarded February 10th at Educational Park Library. Prize pool up to $2,000." />
+              </div>
             </div>
           </div>
         </div>

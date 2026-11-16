@@ -1,9 +1,7 @@
 /* Home sections. Transforms/opacity only for motion; reduced-motion safe. */
 
-/* Courses: divider scales in via --rule (set by Reveal); hover dims sibling items */
+/* Courses: divider scales in via --rule (set by Reveal) */
 .spec::after { content: ""; position: absolute; inset: auto 0 0 0; height: 1px; background: var(--color-line); transform: scaleX(var(--rule, 1)); transform-origin: left; }
-.spec li > p { transition: opacity 200ms var(--ease-apple); }
-@media (hover: hover) { .spec:hover li:not(:hover) > p { opacity: 0.6; } }
 
 /* Formats: vertical divider scales down from the top */
 @media (min-width: 768px) {

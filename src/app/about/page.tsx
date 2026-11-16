@@ -32,7 +32,7 @@ export default function About() {
             The students, alumni, and advisors who teach our classes and keep Hackathon4Kids running.
           </p>
         </Reveal>
-        <Reveal className="mt-12 flex flex-wrap items-start justify-center gap-6">
+        <Reveal className="mt-12 flex flex-wrap items-start justify-start gap-6">
           {team
             .filter((p) => !p.hidden)
             .map((p) => (
@@ -42,7 +42,8 @@ export default function About() {
       </section>
 
       <Reveal as="section" className="container-x page-section pb-28">
-        <div data-reveal className="flex flex-wrap items-center gap-4">
+        <h2 data-reveal className="t-headline">Get class dates</h2>
+        <div data-reveal className="mt-8 flex flex-wrap items-center gap-4">
           <EmailCta size="lg" />
           <a href="/programs" className="btn btn-secondary btn-lg">See our programs</a>
         </div>

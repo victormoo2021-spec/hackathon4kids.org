@@ -7,7 +7,7 @@ const items = [
 
 export default function Formats() {
   return (
-    <Reveal as="section" id="formats" aria-labelledby="formats-title" className="container-x py-16 md:py-20">
+    <Reveal as="section" id="formats" aria-labelledby="formats-title" className="container-x section-y">
       <h2 id="formats-title" className="sr-only">In person and online</h2>
       <div data-reveal="rule" data-streak-anchor="r" className="formats-grid relative grid md:grid-cols-2">
         {items.map((it, i) => (

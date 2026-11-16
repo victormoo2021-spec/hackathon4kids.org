@@ -6,7 +6,7 @@
   text #f6f4fb, body #e4dff0, lede #cfc9de, dim #b9b2cc, purple-soft #a78bff: all >= 7:1 on page #0a0710 and card #15101f
   purple #7c5cff is for glows, borders and large text only (4.3:1 on card)
   page ink #0a0710 on yellow #ffd60a: 14.2:1 (primary button)
-  Yellow is the eye path: primary button, the program's drawing, the scroll trail. Nothing else.
+  Yellow is the eye path: primary button, the program's drawing, the guiding light streak. Nothing else.
 */
 @theme {
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -26,7 +26,7 @@
   --color-yellow: #ffd60a;
   --color-yellow-deep: #f5c400;
 
-  --text-display: clamp(3.25rem, 9vw, 9rem);
+  --text-display: clamp(2.25rem, 6.2vw, 6.25rem);
   --text-headline: clamp(2.5rem, 6vw, 5.5rem);
   --text-title: clamp(1.5rem, 2.4vw, 2.25rem);
   --text-lede: clamp(1.1875rem, 1.5vw, 1.375rem);
@@ -40,7 +40,7 @@
   --color-line-strong: rgb(255 255 255 / 0.24);
   --shadow-float: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 30px 80px -30px rgb(0 0 0 / 0.8);
   --shadow-lift: 0 1px 0 rgb(255 255 255 / 0.08) inset, 0 40px 90px -30px rgb(0 0 0 / 0.9);
-  --shadow-yellow: 0 1px 0 rgb(255 255 255 / 0.5) inset, 0 8px 24px -10px rgb(255 214 10 / 0.35);
+  --shadow-yellow: 0 1px 0 rgb(255 255 255 / 0.5) inset;
 
   --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -117,12 +117,6 @@
   .t-title { font-size: var(--text-title); line-height: 1.15; font-weight: 650; letter-spacing: -0.022em; }
   .t-lede { font-size: var(--text-lede); line-height: 1.45; font-weight: 450; color: var(--color-text-lede); }
 
-  .glass {
-    background: color-mix(in oklab, var(--color-page) 72%, transparent);
-    backdrop-filter: saturate(160%) blur(20px);
-    -webkit-backdrop-filter: saturate(160%) blur(20px);
-  }
-
   .btn {
     display: inline-flex;
     align-items: center;
@@ -165,6 +159,6 @@
     }
     .link:hover, .link:focus-visible { text-decoration-color: currentColor; }
   }
-  .nudge { display: inline-block; transition: transform 300ms var(--ease-out); }
-  :hover > .nudge, .nudge:hover { transform: translateX(calc(4px * var(--m))); }
+  .link-arrow svg { transition: transform 300ms var(--ease-out); }
+  .link-arrow:hover svg, .link-arrow:focus-visible svg { transform: translateX(calc(4px * var(--m))); }
 }
