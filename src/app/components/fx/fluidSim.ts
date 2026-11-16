@@ -1,5 +1,5 @@
 // Pointer fluid: a small stable-fluids sim (velocity + one-channel dye) stirred by the pointer and,
-// lightly, by scrolling. The dye is drawn as yellow light ink with purple edges on a canvas BEHIND
+// lightly, by scrolling. The dye is drawn as yellow light ink with warm grey edges on a canvas BEHIND
 // the page content. A [data-spectral] heading the pointer stirs is handed over to the canvas for a
 // moment (class is-prism clears its DOM glyphs) and drawn through softly rippled glass that waves it
 // sideways near the pointer's path (not under reduced motion), then settles back onto the exact DOM glyphs.
@@ -37,7 +37,7 @@ void main(){o=.25*(texture(uT,v+uTx*vec2(1.5,.5))+texture(uT,v+uTx*vec2(-.5,1.5)
 // currently handed to the canvas, at device resolution. uHr/uHs: their boxes (css px) and (bend, opacity, font px).
 // uPt: the pointer and a point trailing it (css px); the bend lives around that segment.
 const COMP = `${H}uniform sampler2D uD,uB,uV,uS,uG;uniform vec2 uTm,uRes;uniform vec4 uPt,uHr[4],uHs[4];
-const vec3 P=vec3(.486,.361,1.),Y=vec3(1.,.87,.48),W=vec3(1.,.97,.9),V=vec3(.62,.5,1.);
+const vec3 P=vec3(.55,.5,.38),Y=vec3(1.,.87,.48),W=vec3(1.,.97,.9),V=vec3(1.,.98,.94);
 float lum(vec3 c){return dot(c*c,vec3(.2126,.7152,.0722));}
 void main(){
 float h=texture(uD,v).r,g=texture(uB,v).r;
@@ -45,7 +45,7 @@ vec2 tp=vec2(v.x,(1.-v.y)*uTm.x+uTm.y);
 float s=textureLod(uS,tp,5.3).b,ot=smoothstep(.12,.6,s);
 // wispier behind any text, stronger in empty space
 h*=mix(1.,.6,ot);g*=mix(1.,.45,ot);
-// pale gold core thinning out to violet, no hard edge
+// pale gold core thinning out to warm grey, no hard edge
 vec3 c=mix(P,Y,smoothstep(.04,.32,h)*(1.-.85*smoothstep(.75,1.,s)));c=mix(c,W,smoothstep(.6,1.1,h));
 c=c*(1.-exp(-h*2.))+mix(P,Y,.4)*g*.6;
 // keep text readable: behind text blocks the light is clamped to a low luminance
@@ -67,7 +67,7 @@ if(m>.04){
 float A=.04*em*(1.-exp(-m/(.04*em)))*d.x/(abs(d.x)+.15*m+.3);
 vec2 D=vec2(A*sin(px.x*6.2832/(.3*em))/uRes.x,0);
 t=texture(uG,tp-D);
-// no colour split in the glyph itself: just a faint violet glow on one edge and gold on the other
+// no colour split in the glyph itself: just a faint white glow on one edge and gold on the other
 t.rgb+=(V*max(texture(uG,tp-D*1.7).a-t.a,0.)+Y*max(texture(uG,tp-D*.3).a-t.a,0.))*.22;
 }else t=texture(uG,tp);
 t*=op;}

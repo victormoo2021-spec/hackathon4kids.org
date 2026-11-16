@@ -7,7 +7,7 @@ import { useGSAP } from '@gsap/react'
 import Reveal from '../motion/Reveal'
 import EmailCta from '../EmailCta'
 
-/** The guide streak curls into the button; it appears on `fx:arrive` or as soon as it is on screen. Visible without JS. */
+/** The guide streak curls into the button; it appears as soon as it is on screen. Visible without JS. */
 function CtaButton() {
   const ref = useRef<HTMLDivElement>(null)
   useGSAP(
@@ -29,13 +29,10 @@ function CtaButton() {
         }
         gsap.set(btn, { opacity: 0, scale: calm ? 1 : 0.94 })
         root.addEventListener('focusin', onFocus)
-        window.addEventListener('fx:arrive', showBtn)
-        // safety: the main button must appear as soon as it is on screen, even if the streak
-        // can't arrive (tall viewports, short pages, no WebGL)
+        // the main button appears as soon as it is on screen
         ScrollTrigger.create({ trigger: btn, start: 'top 92%', once: true, onEnter: showBtn })
         return () => {
           root.removeEventListener('focusin', onFocus)
-          window.removeEventListener('fx:arrive', showBtn)
           gsap.set(btn, { clearProps: 'all' })
         }
       })

@@ -3,7 +3,7 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Environment, Lightformer } from '@react-three/drei'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import { Color, MathUtils, Object3D, Vector3, type Group, type InstancedMesh, type PointLight } from 'three'
+import { MathUtils, Object3D, Vector3, type Group, type InstancedMesh, type PointLight } from 'three'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 import { fx } from '../fx/store'
 
@@ -15,7 +15,7 @@ const LID_Z = 1.06 // lid centre, measured from the hinge along the lid
 // final scale, so text stays crisp as long as this is >= the projected size (~500px at 1440 wide).
 const PX_W = 1000
 const PX_H = Math.round((PX_W * SCREEN_H) / SCREEN_W)
-const GLOW = { purple: '#6d5cff', violet: '#a78bff', gold: '#ffaa05' } as const
+const RIM = '#ffd60a'
 
 type Props = { progress: number; host: HTMLElement; onReady: () => void; onFail: () => void }
 
@@ -57,8 +57,6 @@ function Rig({ progress, host, onReady, onFail, visible, reduce, screenEl }: Rig
   const prog = useRef(progress)
   const ptr = useRef({ x: 0, y: 0 })
   const cur = useRef({ yaw: -22, pitch: 3.5, scale: 1, y: 0, glow: 0 })
-  const lightColor = useRef(new Color(GLOW.purple))
-  const target = useRef(new Color())
   const v = useRef(new Vector3())
   const frames = useRef(0)
   const attached = useRef(false)
@@ -125,8 +123,7 @@ function Rig({ progress, host, onReady, onFail, visible, reduce, screenEl }: Rig
       g.updateMatrixWorld(true)
     }
     if (light.current) {
-      lightColor.current.lerp(target.current.set(GLOW[f.glow ?? 'purple']), 1 - Math.exp(-6 * d))
-      light.current.color.copy(lightColor.current)
+      light.current.color.set(RIM)
       light.current.intensity = 5 * c.glow
     }
 
@@ -199,7 +196,7 @@ function Keys() {
   return (
     <instancedMesh ref={ref} args={[undefined, undefined, KEY_ROWS * KEY_COLS]}>
       <boxGeometry args={[2.4 / KEY_COLS - 0.03, 0.014, 0.115]} />
-      <meshPhysicalMaterial color="#09090b" roughness={0.8} metalness={0} />
+      <meshPhysicalMaterial color="#111114" roughness={0.8} metalness={0} />
     </instancedMesh>
   )
 }
@@ -219,7 +216,7 @@ function Model({ lid }: { lid: React.RefObject<Group | null> }) {
       {/* keyboard well: inset recess + key grid */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0505, -0.4]}>
         <planeGeometry args={[2.6, 0.9]} />
-        <meshStandardMaterial color="#060608" roughness={0.9} metalness={0} />
+        <meshStandardMaterial color="#0b0b0e" roughness={0.9} metalness={0} />
       </mesh>
       <Keys />
       {/* trackpad */}
@@ -238,11 +235,11 @@ function Model({ lid }: { lid: React.RefObject<Group | null> }) {
         </Rounded>
         <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, -0.001, LID_Z]}>
           <planeGeometry args={[2.94, 2.02]} />
-          <meshPhysicalMaterial color="#050408" metalness={0} roughness={0.08} clearcoat={1} clearcoatRoughness={0.03} />
+          <meshPhysicalMaterial color="#050506" metalness={0} roughness={0.08} clearcoat={1} clearcoatRoughness={0.03} />
         </mesh>
         <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, -0.002, LID_Z]}>
           <planeGeometry args={[SCREEN_W, SCREEN_H]} />
-          <meshBasicMaterial color="#0d0916" />
+          <meshBasicMaterial color="#0b0b0e" />
         </mesh>
       </group>
     </>
@@ -278,9 +275,9 @@ export default function Laptop3D(props: Props) {
       >
         <Environment resolution={256} frames={1}>
           <Lightformer form="rect" intensity={4} color="#ffffff" position={[-3, 3, 2]} scale={[5, 3, 1]} />
-          <Lightformer form="rect" intensity={3} color="#f4f2ff" position={[0, 6, 1]} scale={[12, 8, 1]} />
-          <Lightformer form="rect" intensity={4} color="#a78bff" position={[3.5, 1.5, -3]} scale={[0.6, 4, 1]} />
-          <Lightformer form="rect" intensity={2.2} color="#e8e6f2" position={[0, 2, 5]} scale={[8, 3, 1]} />
+          <Lightformer form="rect" intensity={3} color="#f4f4f6" position={[0, 6, 1]} scale={[12, 8, 1]} />
+          <Lightformer form="rect" intensity={4} color="#ffd60a" position={[3.5, 1.5, -3]} scale={[0.6, 4, 1]} />
+          <Lightformer form="rect" intensity={2.2} color="#ececef" position={[0, 2, 5]} scale={[8, 3, 1]} />
         </Environment>
         <directionalLight position={[-2, 4, 3]} intensity={1.6} />
         <Rig {...props} visible={visible} reduce={reduce} screenEl={screenEl} />

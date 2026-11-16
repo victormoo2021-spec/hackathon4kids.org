@@ -4,18 +4,9 @@ import { FINAL, expectNoOverflow, fxState, scrollThrough, settle, trackErrors } 
 test.describe('motion allowed (desktop)', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop motion tier')
 
-  test('fixed full-viewport [data-prism] background exists, motion-ok is set', async ({ page }) => {
+  test('motion-ok is set', async ({ page }) => {
     await page.goto('/')
     await expect(page.locator('html.motion-ok')).toBeAttached()
-    const cv = page.locator('[data-prism]').first()
-    await expect(cv).toBeAttached()
-    const r = await cv.evaluate((c) => {
-      const b = c.getBoundingClientRect()
-      return { pos: getComputedStyle(c).position, w: b.width, h: b.height, vw: innerWidth, vh: innerHeight }
-    })
-    expect(r.pos).toBe('fixed')
-    expect(r.w).toBeGreaterThanOrEqual(r.vw - 1)
-    expect(r.h).toBeGreaterThanOrEqual(r.vh - 1)
   })
 
   test('page scrolls without pinning, overflow or errors', async ({ page }) => {
@@ -27,11 +18,10 @@ test.describe('motion allowed (desktop)', () => {
     expect(errors.list).toEqual([])
   })
 
-  test('the laptop types the sketch on its own and the prism background is present', async ({ page }) => {
+  test('the laptop types the sketch on its own', async ({ page }) => {
     await page.goto('/')
     // no scrolling: the hero types once after load and each finished line drives the shader
     await expect.poll(() => fxState(page), { timeout: 15000 }).toMatchObject(FINAL)
-    await expect(page.locator('[data-prism]').first()).toBeAttached()
   })
 
   test('scrolling the page causes no layout shift', async ({ page }) => {
@@ -136,7 +126,6 @@ test.describe('load choreography and sections (desktop, no-preference)', () => {
     await expect(page.locator('#join .btn').first()).toBeVisible()
   })
 
-  // FinalCta only listens for fx:arrive (Prism dispatches it; absent on the CSS fallback), so assert the CTA instead
   test('no fixed element is mix-blended, and every fixed canvas sits behind content (z < 0)', async ({ page }) => {
     await page.goto('/')
     const bad = await page.evaluate(() =>
