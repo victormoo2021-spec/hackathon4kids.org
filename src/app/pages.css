@@ -1,0 +1,15 @@
+/* Shared by Programs, About and contest instructions. */
+.lift {
+  transition: transform 420ms var(--ease-spring), box-shadow 320ms var(--ease-apple);
+}
+@media (hover: hover) and (pointer: fine) {
+  .lift:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.04), 0 24px 48px -12px rgb(0 0 0 / 0.18);
+  }
+}
+.page-hero { padding-top: 8rem; padding-bottom: 3rem; }
+@media (min-width: 64rem) { .page-hero { padding-top: 10rem; padding-bottom: 5rem; } }
+.page-section { padding-block: 3.5rem; }
+@media (min-width: 64rem) { .page-section { padding-block: 5.5rem; } }
+.bio-clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }

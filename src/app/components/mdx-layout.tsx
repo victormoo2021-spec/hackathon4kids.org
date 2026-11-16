@@ -1,12 +1,14 @@
-import CtaPair from './CtaPair'
+import EmailCta from './EmailCta'
+import '../pages.css'
 
-// Shared layout for .mdx pages: readable measure on the stage, ends in the mailing list.
+// Shared layout for .mdx pages: Apple-docs reading column, ends in the mailing list.
 export default function MdxLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto w-full max-w-[75ch] px-4 sm:px-6 page-top page-bottom text-ink">
-      <article>{children}</article>
-      <div className="mt-12">
-        <CtaPair secondary={{ label: 'See our programs', href: '/programs' }} />
+    <div className="container-x page-hero pb-28 text-ink">
+      <article className="mx-auto max-w-[68ch]">{children}</article>
+      <div className="mx-auto mt-16 flex max-w-[68ch] flex-wrap items-center gap-4">
+        <EmailCta size="lg" />
+        <a href="/programs" className="btn btn-secondary btn-lg">See our programs</a>
       </div>
     </div>
   )
