@@ -3,12 +3,16 @@
 /* Final CTA trail: own rules, not the hero's .trail. Draws in as it enters view where supported. */
 .cta-trail { display: block; margin-inline: auto; width: 2px; height: 96px; overflow: visible; }
 .cta-trail path { fill: none; stroke: var(--color-yellow); stroke-width: 2px; stroke-linecap: round; vector-effect: non-scaling-stroke; stroke-dasharray: 1; }
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .cta-trail path { stroke-dashoffset: 1; animation: cta-trail-draw linear both; animation-timeline: view(); animation-range: entry 0% cover 45%; }
-  }
+
+/* Courses: divider scales in via --rule (set by Reveal); hover dims sibling items */
+.spec::after { content: ""; position: absolute; inset: auto 0 0 0; height: 1px; background: var(--color-line); transform: scaleX(var(--rule, 1)); transform-origin: left; }
+.spec li > p { transition: opacity 200ms var(--ease-apple); }
+@media (hover: hover) { .spec:hover li:not(:hover) > p { opacity: 0.5; } }
+
+/* Formats: vertical divider scales down from the top */
+@media (min-width: 768px) {
+  .formats-grid::before { content: ""; position: absolute; inset: 0 auto 0 50%; width: 1px; background: var(--color-line); transform: scaleY(var(--rule, 1)); transform-origin: top; }
 }
-@keyframes cta-trail-draw { to { stroke-dashoffset: 0; } }
 
 /* FAQ */
 .faq-list { interpolate-size: allow-keywords; }
@@ -20,12 +24,14 @@
   block-size: 0;
   overflow: clip;
   opacity: 0;
-  transition: block-size 400ms var(--ease-out-expo), opacity 300ms var(--ease-apple), content-visibility 400ms allow-discrete;
+  transition: block-size 400ms var(--ease-out), opacity 300ms var(--ease-apple), content-visibility 400ms allow-discrete;
 }
 .faq-item[open]::details-content { block-size: auto; opacity: 1; }
-.faq-icon { flex-shrink: 0; transition: transform 200ms cubic-bezier(0.28, 0.11, 0.32, 1); }
+.faq-ans { transform: translateY(calc(-6px * var(--m))); transition: transform 400ms var(--ease-out); }
+.faq-item[open] .faq-ans { transform: none; }
+.faq-icon { flex-shrink: 0; transition: transform 300ms var(--ease-out); }
 .faq-item[open] .faq-icon { transform: rotate(45deg); }
 @media (prefers-reduced-motion: reduce) {
-  .faq-item::details-content,
-  .faq-icon { transition: none; }
+  .faq-item::details-content { transition: opacity 200ms var(--ease-apple), content-visibility 200ms allow-discrete; }
+  .faq-ans, .faq-icon { transition: none; }
 }

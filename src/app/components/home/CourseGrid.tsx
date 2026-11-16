@@ -28,11 +28,11 @@ export default function CourseGrid() {
       </div>
       <div className="mt-14 border-t border-line">
         {categories.map((c) => (
-          <div key={c.name} data-reveal className="grid gap-4 border-b border-line py-8 md:grid-cols-[1fr_2fr] md:gap-12 md:py-10">
-            <h3 className="t-title text-text">{c.name}</h3>
+          <div key={c.name} data-reveal="rule" className="spec relative grid gap-4 py-8 md:grid-cols-[1fr_2fr] md:gap-12 md:py-10">
+            <h3 data-reveal className="t-title text-text">{c.name}</h3>
             <ul>
               {c.courses.map((n) => (
-                <li key={n} className="border-t border-line py-4 first:border-t-0 first:pt-0 md:py-5 md:first:pt-0">
+                <li key={n} data-reveal className="border-t border-line py-4 first:border-t-0 first:pt-0 md:py-5 md:first:pt-0">
                   <p className="text-base font-medium text-text">{n}</p>
                   <p className="mt-1 text-text-dim">{blurbs[n]}</p>
                 </li>

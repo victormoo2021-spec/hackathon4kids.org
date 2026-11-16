@@ -18,9 +18,7 @@ export default function Home() {
       <Formats />
       <section id="faq" aria-labelledby="faq-title">
         <Reveal className="container-x section-y">
-          <div data-reveal>
-            <Faq headingId="faq-title" />
-          </div>
+          <Faq headingId="faq-title" />
         </Reveal>
       </section>
       <FinalCta />
