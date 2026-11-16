@@ -1,28 +1,21 @@
 import { expect, test } from '@playwright/test'
-// Counts drawn pixels on the program's visible output canvas in the hero
-// (laptop screen on desktop, the separate card on small phones).
-const drawnPixels = (page: import('@playwright/test').Page) =>
-  page.evaluate(() => {
-    const visible = Array.from(document.querySelectorAll<HTMLCanvasElement>('#hero canvas')).filter(
-      (c) => c.getBoundingClientRect().width > 0,
-    )
-    let n = 0
-    for (const cv of visible) {
-      const d = cv.getContext('2d')!.getImageData(0, 0, cv.width, cv.height).data
-      for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++
-    }
-    return n
-  })
-
-import { expectNoOverflow, scrollThrough, settle, trackErrors } from './helpers'
+import { FINAL, brightPixels, expectNoOverflow, fxState, scrollThrough, settle, trackErrors } from './helpers'
 
 test.describe('motion allowed (desktop)', () => {
   test.skip(({ isMobile }) => isMobile, 'pinned motion is desktop only')
 
-  test('Lenis smooth scroll is active', async ({ page }) => {
+  test('fixed full-viewport WebGL canvas exists, motion-ok is set', async ({ page }) => {
     await page.goto('/')
-    await expect(page.locator('html.lenis')).toBeAttached()
     await expect(page.locator('html.motion-ok')).toBeAttached()
+    const cv = page.locator('canvas[aria-hidden]').first()
+    await expect(cv).toBeAttached()
+    const r = await cv.evaluate((c) => {
+      const b = c.getBoundingClientRect()
+      return { pos: getComputedStyle(c).position, w: b.width, h: b.height, vw: innerWidth, vh: innerHeight }
+    })
+    expect(r.pos).toBe('fixed')
+    expect(r.w).toBeGreaterThanOrEqual(r.vw - 1)
+    expect(r.h).toBeGreaterThanOrEqual(r.vh - 1)
   })
 
   test('story section pins while scrolling without overflow or errors', async ({ page }) => {
@@ -35,12 +28,17 @@ test.describe('motion allowed (desktop)', () => {
     expect(errors.list).toEqual([])
   })
 
-  test('story canvas has drawn pixels after scrolling through the hero', async ({ page }) => {
+  test('fx reaches the final state and the canvas paints light after the hero', async ({ page }) => {
     await page.goto('/')
-    await expect(page.locator('#hero canvas').first()).toBeAttached()
     await scrollThrough(page, { step: 300 })
-    await page.locator('#story').scrollIntoViewIfNeeded()
-    await expect.poll(() => drawnPixels(page)).toBeGreaterThan(500)
+    await page.locator('#hero').scrollIntoViewIfNeeded()
+    // scroll back is reversible, so read the state while at the bottom of the hero story
+    await page.evaluate(() => {
+      const h = document.querySelector('#hero')!.getBoundingClientRect()
+      window.scrollTo(0, scrollY + h.bottom - innerHeight - 50)
+    })
+    await expect.poll(() => fxState(page)).toMatchObject(FINAL)
+    await expect.poll(() => brightPixels(page), { timeout: 8000 }).toBeGreaterThan(500)
   })
 
   test('scrolling through the story causes no layout shift', async ({ page }) => {
@@ -64,18 +62,17 @@ const heroPinPosition = (page: import('@playwright/test').Page) =>
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' })
 
-  test('no pinning, no Lenis, no motion-ok class', async ({ page }) => {
+  test('no pinning, no motion-ok class', async ({ page }) => {
     await page.goto('/')
     await scrollThrough(page, { step: 600, delay: 20 })
     expect(await heroPinPosition(page)).not.toBe('sticky')
-    await expect(page.locator('html.lenis')).toHaveCount(0)
     await expect(page.locator('html.motion-ok')).toHaveCount(0)
   })
 
-  test('story canvas shows the final drawing without scrolling', async ({ page }) => {
+  test('fx autoplays to the final state without scrolling', async ({ page }) => {
     await page.goto('/')
-    await expect(page.locator('#hero canvas').first()).toBeAttached()
-    await expect.poll(() => drawnPixels(page)).toBeGreaterThan(500)
+    await page.waitForTimeout(9000)
+    expect(await fxState(page)).toMatchObject(FINAL)
   })
 
   test('every [data-reveal] ends visible after scrolling through', async ({ page }) => {
@@ -85,12 +82,6 @@ test.describe('reduced motion', () => {
     const opacities = await page.locator('[data-reveal]').evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity))
     expect(opacities.length).toBeGreaterThan(0)
     for (const o of opacities) expect(o).toBe('1')
-  })
-
-  test('canvas is drawn after autoplay without scrolling (calm)', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForTimeout(4000)
-    expect(await drawnPixels(page)).toBeGreaterThan(500)
   })
 
   // Calm tier is opacity-only: after settling, nothing keeps a transform.
@@ -141,6 +132,20 @@ test.describe('load choreography and sections (desktop, no-preference)', () => {
     await page.waitForTimeout(1500)
     await expect(page.locator('#join .btn').first()).toBeVisible()
   })
+
+  test('scrolling to #join dispatches fx:arrive', async ({ page }) => {
+    await page.goto('/')
+    await page.evaluate(() => {
+      ;(window as unknown as { __arrive: number }).__arrive = 0
+      addEventListener('fx:arrive', () => (window as unknown as { __arrive: number }).__arrive++)
+    })
+    await scrollThrough(page, { step: 400, delay: 30 })
+    await page.locator('#join').scrollIntoViewIfNeeded()
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as { __arrive: number }).__arrive))
+      .toBeGreaterThan(0)
+    await expect(page.locator('#join .btn').first()).toBeVisible()
+  })
 })
 
 test.describe('mobile', () => {
@@ -152,9 +157,9 @@ test.describe('mobile', () => {
     expect(await heroPinPosition(page)).not.toBe('sticky')
   })
 
-  test('canvas is drawn after autoplay', async ({ page }) => {
+  test('fx autoplays to the final state', async ({ page }) => {
     await page.goto('/')
-    await page.locator('#story').scrollIntoViewIfNeeded()
-    await expect.poll(() => drawnPixels(page), { timeout: 8000 }).toBeGreaterThan(500)
+    await page.waitForTimeout(9000)
+    expect(await fxState(page)).toMatchObject(FINAL)
   })
 })
