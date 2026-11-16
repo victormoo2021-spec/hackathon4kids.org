@@ -36,11 +36,6 @@ export default function DarkBand() {
           stagger: 0.06,
           scrollTrigger: { trigger: '[data-rise]', start: 'top 90%', once: true },
         })
-        gsap.to('[data-glyphs]', {
-          yPercent: -30,
-          ease: 'none',
-          scrollTrigger: { trigger: ref.current, start: 'top bottom', end: 'bottom top', scrub: true },
-        })
       })
       return () => mm.revert()
     },
@@ -48,9 +43,8 @@ export default function DarkBand() {
   )
 
   return (
-    <section ref={ref} id="run-by-students" aria-labelledby="students-title" className="relative isolate overflow-hidden bg-night text-white">
-      <div aria-hidden className="band-ribbon" />
-      <div aria-hidden data-glyphs className="band-glyphs" />
+    <section ref={ref} id="run-by-students" aria-labelledby="students-title" className="relative isolate overflow-hidden border-y border-hairline text-ink">
+      <div aria-hidden className="band-glow" />
       <div className="container-x relative py-24 lg:py-36">
         <h2 id="students-title" className="t-display max-w-5xl">
           {lines.map((l) => (
@@ -62,13 +56,13 @@ export default function DarkBand() {
         <dl className="mt-20 grid gap-12 md:grid-cols-3 md:gap-10">
           {claims.map(([big, cap]) => (
             <div key={big} data-rise>
-              <dt className="text-[2.5rem] font-semibold leading-none tracking-tight text-white">{big}</dt>
-              <dd className="mt-4 max-w-[18rem] text-[0.9375rem] leading-relaxed text-white/[0.62]">{cap}</dd>
+              <dt className="text-[2.5rem] font-semibold leading-none tracking-tight text-ink">{big}</dt>
+              <dd className="mt-4 max-w-[18rem] text-[0.9375rem] leading-relaxed text-ink-soft">{cap}</dd>
             </div>
           ))}
         </dl>
         <p data-rise className="mt-16">
-          <Link href="/about#instructors" className="group inline-flex items-center gap-2 font-semibold text-white underline-offset-4 hover:underline">
+          <Link href="/about#instructors" className="group inline-flex items-center gap-2 font-semibold text-ink underline-offset-4 hover:underline">
             Meet the team <ArrowRightIcon aria-hidden className="transition-transform group-hover:translate-x-1" />
           </Link>
         </p>

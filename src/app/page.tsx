@@ -1,6 +1,6 @@
 import Hero from './components/home/Hero'
 import CourseGrid from './components/home/CourseGrid'
-import ClassSize from './components/home/ClassSize'
+import Statement from './components/home/Statement'
 import DarkBand from './components/home/DarkBand'
 import Formats from './components/home/Formats'
 import FinalCta from './components/home/FinalCta'
@@ -13,10 +13,10 @@ export default function Home() {
     <>
       <Hero />
       <CourseGrid />
-      <ClassSize />
+      <Statement />
       <DarkBand />
       <Formats />
-      <section id="faq" className="bg-mist">
+      <section id="faq" aria-labelledby="faq-title">
         <Reveal className="container-x section-y">
           <div data-reveal>
             <Faq headingId="faq-title" />

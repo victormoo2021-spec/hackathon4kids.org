@@ -1,61 +1,26 @@
 /* Home sections. Transforms/opacity only for motion; reduced-motion safe. */
-.tile {
-  --rx: 0deg;
-  --ry: 0deg;
-  position: relative;
-  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
-  transition: transform 350ms var(--ease-out-expo), box-shadow 350ms var(--ease-apple);
-  background: linear-gradient(160deg, color-mix(in oklab, var(--hue) 9%, white), white 60%);
-}
-.tile:hover { box-shadow: var(--shadow-lift); }
-.tile-visual {
-  height: 8rem;
-  aspect-ratio: 5 / 3;
-  flex-shrink: 0;
-  border-radius: var(--radius-tile);
-  background: color-mix(in oklab, currentColor 14%, white);
-  padding: 0.5rem;
-}
-@media (prefers-reduced-motion: reduce) { .tile { transform: none; } }
-
-.band-glyphs {
-  position: absolute;
-  inset: -20% 0;
-  z-index: -1;
-  opacity: 0.5;
-  background-image:
-    radial-gradient(circle at 20% 30%, rgb(124 140 255 / 0.5) 0 1.5px, transparent 2px),
-    radial-gradient(circle at 70% 60%, rgb(255 255 255 / 0.4) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 45% 85%, rgb(124 140 255 / 0.35) 0 1px, transparent 1.5px);
-  background-size: 180px 180px, 130px 130px, 220px 220px;
-  will-change: transform;
+.course-card { transition: box-shadow 350ms var(--ease-apple); }
+@media (hover: hover) and (pointer: fine) {
+  .course-card:hover {
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 0 0 1px var(--color-purple), 0 30px 80px -30px rgb(124 92 255 / 0.5);
+  }
 }
 
-.final-cta { background: var(--color-mist); }
-/* Pre-baked soft gradients: no filter, no animation, so nothing repaints per frame. */
-/* Illustration-only ribbon colors */
-.final-ribbon, .band-ribbon { --ribbon-blue: rgb(122 162 255 / 0.65); --ribbon-violet: rgb(169 139 255 / 0.55); --ribbon-coral: rgb(255 157 138 / 0.55); --ribbon-violet-solid: #a98bff; }
-.faq-icon::before, .faq-icon::after { --r-bar: 2px; }
-.final-ribbon {
+.band-glow {
   position: absolute;
   inset: 0;
   z-index: -1;
-  opacity: 0.6;
-  background:
-    radial-gradient(45% 60% at 22% 40%, var(--ribbon-blue), transparent 100%),
-    radial-gradient(45% 60% at 55% 62%, var(--ribbon-violet), transparent 100%),
-    radial-gradient(45% 60% at 82% 40%, var(--ribbon-coral), transparent 100%);
+  background: radial-gradient(50% 60% at 80% 0%, rgb(124 92 255 / 0.22), transparent 100%);
 }
 
-.band-ribbon {
+.final-cta::before {
+  content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  opacity: 0.2;
-  background:
-    radial-gradient(40% 55% at 15% 85%, var(--color-accent-dark), transparent 100%),
-    radial-gradient(35% 50% at 85% 20%, var(--ribbon-violet-solid), transparent 100%);
+  background: radial-gradient(50% 40% at 50% 100%, rgb(124 92 255 / 0.18), transparent 100%);
 }
+.trail { filter: drop-shadow(0 0 6px rgb(255 214 10 / 0.7)); overflow: visible; }
 
 /* FAQ */
 .faq-list { interpolate-size: allow-keywords; }
@@ -81,7 +46,7 @@
   height: 2px;
   margin-top: -1px;
   background: currentColor;
-  border-radius: var(--r-bar);
+  border-radius: 2px;
   transition: transform 350ms var(--ease-out-expo);
 }
 .faq-icon::after { transform: rotate(90deg); }
@@ -92,6 +57,3 @@
   .faq-icon::before,
   .faq-icon::after { transition: none; }
 }
-
-/* Idle class-size dot color (read by ClassSize.tsx) */
-:root { --dot-idle: #d2d2d7; }
