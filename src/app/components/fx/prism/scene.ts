@@ -24,7 +24,7 @@ const mix = (a: number, b: number, t: number) => a + (b - a) * t
 
 type U = Record<string, IUniform>
 
-export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () => void {
+export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onReady: () => void): () => void {
   let renderer: WebGLRenderer
   try {
     renderer = new WebGLRenderer({ canvas, antialias: false, alpha: false, depth: false, stencil: false, powerPreference: 'high-performance' })
@@ -41,14 +41,14 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
 
   const mqRm = matchMedia('(prefers-reduced-motion: reduce)')
   const isMobile = () => innerWidth < 900
-  const backPass = !isMobile()
 
   const mat = (fragmentShader: string, uniforms: U, vertexShader = FS_VERT, extra = {}) =>
     new RawShaderMaterial({ glslVersion: GLSL3, vertexShader, fragmentShader, uniforms, depthTest: false, depthWrite: false, ...extra })
 
   const col = { a: { value: [...GLOW.purple[0]] }, b: { value: [...GLOW.purple[1]] } }
+  const cA = [...GLOW.purple[0]], cB = [...GLOW.purple[1]]
   const uT = { value: 0 }, uAsp = { value: 1 }, uRes = { value: [2, 2] }
-  const bgU: U = { uT, uAsp, uR: { value: 0.3 }, uGlow: { value: 0 }, uC: { value: [0.5, 0.5] }, uColA: col.a, uColB: col.b }
+  const bgU: U = { uT, uAsp, uR: { value: 0.3 }, uGlow: { value: 0 }, uC: { value: [0.5, 0.5] }, uColA: col.a, uColB: col.b, uPage: { value: 0 }, uScroll: { value: 0 }, uF: { value: [0.5, 0.5, 0] } }
   const glassShared: U = {
     tBg: { value: rtBg.texture }, tBack: { value: rtBack.texture }, uRes, uT, uAsp, uRefr: { value: 0.1 },
     uGlow: { value: 0 }, uSat: { value: 0 }, uSparkle: { value: 0 }, uColA: col.a, uColB: col.b,
@@ -81,7 +81,7 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
   const barGeo = new RoundedBoxGeometry(1, 0.14, 0.085, 5, 0.034)
   const bars = Array.from({ length: N }, (_, i) => {
     const m = mat(GLASS_FRAG, { ...glassShared, uVis: { value: 0 }, uSeed: { value: i * 1.7 } }, BAR_VERT, {
-      depthTest: true, depthWrite: true, defines: backPass ? { BACK: 1 } : {},
+      depthTest: true, depthWrite: true,
     })
     const mesh = new Mesh(barGeo, m)
     mesh.visible = false
@@ -98,6 +98,8 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
   const S = {
     t: 0, spin: 0, speed: fx.get().speed, glow: 0, sat: 0, sparkle: 0, burst: 0, wasSparkle: false,
     n: 5, tx: 0, ty: 0, px: 0, py: 0, dock: 0, arrived: false,
+    // one-shot responses to a typed line / arrival, each 1 -> 0
+    pulse: 0, kick: 0, pop: 0, arr: 0, hover: 0, hoverT: 0, hasPtr: false, lastGlow: fx.get().glow, lastSpeed: fx.get().speed, shown: false,
   }
   let level = 0, ema = 16, slow = 0, fast = 0, raf = 0, last = 0, lastDraw = 0, W = 0, H = 0
   let dirtyUntil = Infinity, mdirty = true, measuredAt = 0, lost = false, dead = false, ready = false
@@ -107,7 +109,10 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
     if (e.pointerType === 'touch') return
     S.px = (e.clientX / innerWidth) * 2 - 1
     S.py = (e.clientY / innerHeight) * 2 - 1
-    if (fx.get().followMouse) dirtyUntil = performance.now() + 1500
+    S.hasPtr = true
+    const over = (e.target as Element | null)?.closest?.('[data-streak-end] a') ? 1 : 0
+    if (fx.get().followMouse || over !== S.hoverT) dirtyUntil = performance.now() + 1500
+    S.hoverT = over
   }
   type Cached = { el: Element | null; sel: string }
   const cEl = (c: Cached) => (c.el?.isConnected ? c.el : (c.el = document.querySelector(c.sel)))
@@ -124,8 +129,8 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
   let rOrigin: DOMRect | null = null, rEnd: DOMRect | null = null, rShield: DOMRect | null = null, rTitle: DOMRect | null = null, rFoot: DOMRect | null = null, heroBottom = 0, hasHero = false
 
   const resize = (vw: number, vh: number, scale: number) => {
-    // phones: scale is relative to the real DPR (0.5 x 2..3), otherwise half of a clamped 1.5 aliases the bar edges
-    const dpr = Math.min(devicePixelRatio || 1, scale === 0.5 && isMobile() ? 3 : 1.5)
+    // phones are small: full DPR (up to 2) keeps the bar edges clean
+    const dpr = Math.min(devicePixelRatio || 1, isMobile() ? 2 : 1.5)
     const w = Math.max(2, Math.round(vw * dpr * scale)), h = Math.max(2, Math.round(vh * dpr * scale))
     if (w === W && h === H) return
     W = w; H = h
@@ -161,13 +166,20 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
       heroBottom = hero ? hero.getBoundingClientRect().bottom : 0
       rEnd = rect(cEnd)
       rShield = rect(cShield)
-      rTitle = rect(cTitle)
+      const tEl = cEl(cTitle)
+      if (tEl) {
+        // the glyphs, not the (wider) heading block
+        const rg = document.createRange()
+        rg.selectNodeContents(tEl)
+        rTitle = rg.getBoundingClientRect()
+      } else rTitle = null
       rFoot = rect(cFoot)
     }
     // 0 = hero (ring frames the laptop), 1 = page (ring rides the right gutter)
-    const page = rOrigin && hasHero ? ss((0.92 * vh - heroBottom) / (0.6 * vh)) : 1
+    const page = hasHero ? ss((0.92 * vh - heroBottom) / (0.6 * vh)) : 1
     const lit = f.glow !== null || page > 0.5
-    const want = Math.min(f.streaks || (page > 0.5 ? 5 : 0), mobile ? 4 : N)
+    // in the hero one bar is not a ring (the resting stage asks for 1): wait for the typed count
+    const want = Math.min(page > 0.5 ? f.streaks || 5 : f.streaks > 1 ? f.streaks : 0, mobile ? 3 : N)
     const spinning = lit && want > 0 && !rm && f.intensity > 0
     if (!spinning && now > dirtyUntil) return
     // the hero runs at display rate; the gutter ring is a slow object, 30fps is plenty
@@ -183,20 +195,29 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
       else if (ema < 12) { slow = 0; if (++fast > 240 && level > 0) { level--; fast = 0 } }
       else { slow = 0; fast = 0 }
     }
-    resize(vw, vh, mobile ? 0.5 : LEVELS[level])
+    resize(vw, vh, mobile ? 1 : LEVELS[level])
 
     // --- state smoothing ---
     S.glow += ((lit ? 1 : 0.22) - S.glow) * damp(dt, 3)
     S.sat += ((lit ? 1 : 0) - S.sat) * damp(dt, 3)
     const [a, b] = GLOW[f.glow ?? 'purple'], kc = damp(dt, 5)
+    // each typed line answers at once: glow = hue/brightness pulse, speed = spin kick, sparkle = glints + a pop
+    if (f.glow !== S.lastGlow) { if (f.glow && !rm) S.pulse = 1; S.lastGlow = f.glow }
+    if (f.speed !== S.lastSpeed) { if (!rm) S.kick = 1; S.lastSpeed = f.speed }
+    if (f.sparkle && !S.wasSparkle && !rm) S.burst = S.pop = 1
+    S.pulse = Math.max(0, S.pulse - dt / 0.45)
+    S.kick = Math.max(0, S.kick - dt / 0.6)
+    S.pop = Math.max(0, S.pop - dt / 0.6)
+    S.arr = Math.max(0, S.arr - dt / 0.6)
+    S.hover += (S.hoverT - S.hover) * damp(dt, 12)
     for (let i = 0; i < 3; i++) {
-      col.a.value[i] += (a[i] - col.a.value[i]) * kc
-      col.b.value[i] += (b[i] - col.b.value[i]) * kc
+      cA[i] += (a[i] - cA[i]) * kc
+      cB[i] += (b[i] - cB[i]) * kc
+      col.a.value[i] = mix(cA[i], cB[i], 0.6 * S.pulse)
+      col.b.value[i] = cB[i]
     }
     S.speed += (f.speed - S.speed) * damp(dt, 4)
-    if (!rm) S.spin += dt * S.speed * mix(0.11, 0.06, page)
     S.sparkle += ((f.sparkle ? 1 : 0) - S.sparkle) * damp(dt, 6)
-    if (f.sparkle && !S.wasSparkle && !rm) S.burst = 1
     S.wasSparkle = f.sparkle
     S.burst = Math.max(0, S.burst - dt / 0.5)
     S.n += (Math.max(want, 3) - S.n) * (rm ? 1 : damp(dt, 5))
@@ -206,37 +227,46 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
     S.dock = rm ? (endIn ? 1 : 0) : S.dock + ((endIn ? 1 : 0) - S.dock) * damp(dt, 3.2)
     if (!S.arrived && (S.dock > 0.9 || (mobile && rEnd && rEnd.top < vh * 0.9 && rEnd.bottom > 0))) {
       S.arrived = true
-      S.burst = rm ? 0 : 1
+      S.burst = S.arr = rm ? 0 : 1
       dispatchEvent(new CustomEvent('fx:arrive'))
     }
     const gR = (mobile ? 0.16 : 0.175) * vh
-    let cx = vw - (mobile ? gR * 0.15 : gR * 0.55 + 20), cy = vh * 0.5, R = gR
+    let cx = vw - (mobile ? gR * 0.15 : gR * 1.15 + 24), cy = vh * 0.5, R = gR
     if (rOrigin && page < 1) {
       const ox = rOrigin.left + rOrigin.width / 2
-      let hR = Math.min(rOrigin.width * 0.9, vh * 0.4, vw * (mobile ? 0.62 : 0.5))
+      let hR = Math.min(rOrigin.width * 0.9, vh * (mobile ? 0.3 : 0.4), vw * 0.5)
+      let oy = rOrigin.top + rOrigin.height / 2
+      // phones: the ring sits around the laptop, never behind the copy or its button
+      if (mobile && rShield) oy = Math.max(oy, rShield.bottom + 16 + hR * 1.25)
       // bars stay right of the hero copy column (tilted toward the pointer a bar's far end reaches ~1.38 R)
       if (!mobile && rShield) hR = Math.max(rOrigin.width * 0.55, Math.min(hR, (ox - rShield.right - 24) / 1.38))
       cx = mix(ox, cx, page)
-      cy = mix(rOrigin.top + rOrigin.height / 2, cy, page)
+      cy = mix(oy, cy, page)
       R = mix(hR, R, page)
     }
-    // dock: a flattened halo hugging the button, below the heading and clear of the footer
+    // dock: one ring around the whole call to action (heading glyphs + button), so no bar crosses either
     const d = ss(S.dock)
-    let ey = 1
+    let ey = 1, bx = 0.5, by = 0.5
     if (rEnd && d > 0) {
-      const dR = rEnd.width * 0.75
-      let dy = rEnd.top + rEnd.height / 2
-      let ry = dR * 0.5
-      if (rTitle) ry = Math.min(ry, dy - rTitle.bottom - dR * 0.12)
-      ry = Math.max(ry, rEnd.height / 2 + 10)
-      if (rFoot) dy = Math.min(dy, rFoot.top - 24 - ry - dR * 0.1)
-      cx = mix(cx, rEnd.left + rEnd.width / 2, d)
+      const t = rTitle && rTitle.width ? rTitle : rEnd
+      const top = Math.min(t.top, rEnd.top), left = Math.min(t.left, rEnd.left), right = Math.max(t.right, rEnd.right)
+      const dy = (top + rEnd.bottom) / 2
+      // an ellipse through sqrt(2) x the padded half-box clears its corners
+      const rx = Math.max(rEnd.width / 2 + 64, ((right - left) / 2 + 26) * 1.42)
+      let ry = Math.max(rx * 0.42, ((rEnd.bottom - top) / 2 + 26) * 1.42)
+      if (rFoot) ry = Math.max(rx * 0.42, Math.min(ry, rFoot.top - 24 - dy - 14))
+      cx = mix(cx, (left + right) / 2, d)
       cy = mix(cy, dy, d)
-      R = mix(R, dR, d)
-      ey = mix(1, ry / dR, d)
+      R = mix(R, rx, d)
+      ey = mix(1, ry / rx, d)
+      bx = (rEnd.left + rEnd.width / 2) / vw
+      by = 1 - (rEnd.top + rEnd.height / 2) / vh
     }
-    const fade = mobile ? mix(0.8, 0.3, page) : mix(1, 0.72, page)
-    const gain = S.glow * f.intensity * fade
+    if (!rm) S.spin += dt * (mix(S.speed * mix(0.11, 0.06, page), 0.15, d) + 0.6 * S.kick)
+    const fade = mobile ? mix(1, 0.3, page) : mix(mix(1, 0.72, page), 1, d)
+    const gain = S.glow * f.intensity * fade * (1 + 0.7 * Math.sin(Math.PI * S.pulse)) * (1 + 0.25 * S.hover * d)
+    const bump = (x: number) => Math.sin(Math.PI * (1 - x)) * (x > 0 ? 1 : 0)
+    R *= 1 + 0.04 * bump(S.pop) + 0.05 * bump(S.arr)
 
     const dist = vh / 2 / Math.tan((FOV * Math.PI) / 360)
     camera.aspect = vw / vh
@@ -247,9 +277,11 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
     ring.position.set(cx - vw / 2, vh / 2 - cy, 0)
     ring.scale.setScalar(R)
     const follow = f.followMouse ? (rm ? 0.06 : 0.25) : 0
-    const kt = rm ? 1 : damp(dt, 4)
-    S.tx += (S.py * follow - S.tx) * kt
-    S.ty += (S.px * follow - S.ty) * kt
+    const kt = rm ? 1 : damp(dt, 7)
+    // no pointer yet (or touch): a small wobble shows that the ring is listening
+    const wob = !S.hasPtr && !rm
+    S.tx += ((wob ? Math.sin(S.t * 0.9) * 0.55 : S.py) * follow - S.tx) * kt
+    S.ty += ((wob ? Math.cos(S.t * 0.7) * 0.7 : S.px) * follow - S.ty) * kt
     ring.rotation.set(mix(-0.3, 0, d) + S.tx * (1 - d), mix(0.12, 0, d) + S.ty * (1 - d), 0)
 
     let any = false
@@ -272,7 +304,7 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
       bar.mesh.rotation.set(S.spin * 1.6 + i * 0.7, mix(0.42, 0.06, d), Math.atan2(ey * ca, -sa), 'ZYX')
       // bars span most of the chord between neighbours, so any count still closes into a ring
       const k = Math.max(0.001, mix(0.6, 1, bar.x))
-      bar.mesh.scale.set(k * Math.min(1.5, 2 * Math.sin(Math.PI / S.n) * 0.94) * Math.hypot(sa, ey * ca), k * mix(1, 0.6, d), k * mix(1, 0.6, d))
+      bar.mesh.scale.set(k * Math.min(1.5, 2 * Math.sin(Math.PI / S.n) * 0.94) * Math.hypot(sa, ey * ca) * mix(1, 0.62, d), k * mix(1, 0.4, d), k * mix(1, 0.4, d))
       bar.u.uVis.value = bar.x
     }
 
@@ -281,15 +313,18 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
     bgU.uC.value = [cx / vw, 1 - cy / vh]
     bgU.uR.value = Math.min(R / vh, 0.42)
     bgU.uGlow.value = gain * (lit ? 1 : 0.15) * mix(1, 0.6, d)
+    bgU.uPage.value = page
+    bgU.uScroll.value = scrollY / vh
+    bgU.uF.value = [bx, by, d * (bump(S.arr) + 0.25 * S.hover)]
     glassShared.uRefr.value = (R / vh) * 0.8
     glassShared.uGlow.value = gain
     glassShared.uSat.value = S.sat
     glassShared.uSparkle.value = rm ? S.sparkle * 0.6 : S.sparkle * (1 + 1.5 * S.burst)
-    compU.uBloom.value = (0.4 + 0.3 * S.sparkle + 0.8 * S.burst) * (0.3 + 0.7 * S.sat)
+    compU.uBloom.value = (0.4 + 0.3 * S.sparkle + 0.8 * S.burst + 0.5 * S.pulse) * (0.3 + 0.7 * S.sat)
 
     // --- passes ---
     pass(mBg, rtBg)
-    if (backPass && any) {
+    if (any) {
       backdrop.visible = false
       scene.overrideMaterial = mBack
       renderer.setClearColor(0, 0)
@@ -315,6 +350,7 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
       renderer.clear()
     }
     pass(mComp, null)
+    if (!S.shown) { S.shown = true; onReady() }
   }
 
   const start = () => { if (!raf && !document.hidden && !dead) { last = 0; mark(); raf = requestAnimationFrame(frame) } }
@@ -332,7 +368,7 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
   canvas.addEventListener('webglcontextrestored', onRestored)
 
   // compile every program off the main thread (KHR_parallel_shader_compile) before the first frame
-  resize(innerWidth, innerHeight, isMobile() ? 0.5 : 1)
+  resize(innerWidth, innerHeight, 1)
   const warm = new Scene()
   ;[mBg, mBright, mBlur, mComp, mCopy].forEach((m) => {
     const q = new Mesh(tri, m)

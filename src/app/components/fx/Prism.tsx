@@ -16,6 +16,7 @@ export default function Prism() {
   const ref = useRef<HTMLCanvasElement>(null)
   // null until load + idle, so nothing here competes with the hero entrance
   const [mode, setMode] = useState<'gl' | 'css' | null>(null)
+  const [on, setOn] = useState(false)
 
   useEffect(() => {
     window.__fx = fx
@@ -42,7 +43,7 @@ export default function Prism() {
     let stop: (() => void) | undefined, dead = false
     const fail = () => setMode('css')
     import('./prism/scene')
-      .then((m) => { if (!dead) stop = m.createPrism(ref.current!, fail) })
+      .then((m) => { if (!dead) stop = m.createPrism(ref.current!, fail, () => setOn(true)) })
       .catch(fail)
     return () => {
       dead = true
@@ -50,7 +51,7 @@ export default function Prism() {
     }
   }, [mode])
 
-  if (mode === 'gl') return <canvas ref={ref} aria-hidden data-prism="" style={{ ...base, background: '#0a0710' }} />
+  if (mode === 'gl') return <canvas ref={ref} aria-hidden data-prism="" style={{ ...base, background: '#0a0710', opacity: on ? 1 : 0, transition: 'opacity 900ms cubic-bezier(0.16, 1, 0.3, 1)' }} />
   return (
     <div
       aria-hidden

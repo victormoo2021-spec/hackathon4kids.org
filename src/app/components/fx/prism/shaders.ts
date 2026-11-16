@@ -17,8 +17,9 @@ void main() {
 export const BG_FRAG = /* glsl */ `${HEAD}
 in vec2 vUv;
 out vec4 o;
-uniform float uT, uAsp, uR, uGlow;
+uniform float uT, uAsp, uR, uGlow, uPage, uScroll;
 uniform vec2 uC;
+uniform vec3 uF;
 uniform vec3 uColA, uColB;
 const vec3 BASE = vec3(0.00304, 0.00214, 0.00518);
 void main() {
@@ -38,7 +39,15 @@ void main() {
          + uColB * (0.04 * lobeB * band + 0.07 * lobeB * halo + 0.12 * hint * band);
   // a breath of colour across the whole page so the ground is not dead flat
   c += uColA * 0.0012 * (0.5 + 0.5 * sin(vUv.x * 2.1 + vUv.y * 1.4 + uT * 0.03));
-  o = vec4(BASE + c * uGlow, 1.0);
+  // page mode: a very dim violet / warm wash that drifts with the scroll, so long sections are not flat black
+  vec2 s = vUv * vec2(uAsp, 1.0) + vec2(0.0, uScroll * 0.25);
+  float n1 = 0.5 + 0.5 * sin(s.x * 1.7 + sin(s.y * 1.3 + uT * 0.04) * 1.5);
+  float n2 = 0.5 + 0.5 * sin(s.y * 2.1 - s.x * 0.8 + uT * 0.03 + 1.7);
+  c += uPage * (uColA * 0.012 * n1 * n2 + vec3(1.0, 0.6, 0.1) * 0.006 * (1.0 - n1) * n2 * n2);
+  // soft gold flash behind the final button
+  vec2 pf = (vUv - uF.xy) * vec2(uAsp, 1.0) / 0.17;
+  vec3 flash = vec3(1.0, 0.67, 0.02) * uF.z * exp(-dot(pf, pf)) * 0.22;
+  o = vec4(BASE + c * uGlow + flash, 1.0);
 }`
 
 export const BAR_VERT = /* glsl */ `${HEAD}
@@ -68,9 +77,7 @@ export const GLASS_FRAG = /* glsl */ `${HEAD}
 in vec3 vN, vP, vO, vNb;
 out vec4 o;
 uniform sampler2D tBg;
-#ifdef BACK
 uniform sampler2D tBack;
-#endif
 uniform vec2 uRes;
 uniform float uT, uAsp, uRefr, uGlow, uSat, uSparkle, uVis, uSeed;
 uniform vec3 uColA, uColB;
@@ -95,12 +102,8 @@ void main() {
   vec3 N = normalize(vN);
   vec3 V = normalize(-vP);
   vec2 uv = gl_FragCoord.xy / uRes;
-#ifdef BACK
   vec4 b = texture(tBack, uv);
   vec3 Nr = b.a > 0.5 ? normalize(N - normalize(b.rgb * 2.0 - 1.0) * 0.6) : N;
-#else
-  vec3 Nr = N;
-#endif
   float ndv = clamp(dot(N, V), 0.0, 1.0);
   float edge = 1.0 - ndv;
   float fres = 0.04 + 0.96 * pow(edge, 5.0);
