@@ -20,9 +20,8 @@ import rohanGulati from 'public/rohan_gulati.jpg'
 import srinidhiRaghavendran from 'public/srinidhi_raghavendran.jpg'
 import ojusGarg from 'public/ojus_garg.jpg'
 
-// Course colors live in content/courses.ts (shared with Home and Programs).
-import { courseHue, type Course } from '../content/courses'
-export { courseHue, type Course }
+import type { Course } from '../content/courses'
+export type { Course }
 
 export type Person = {
   name: string

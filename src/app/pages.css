@@ -1,11 +1,12 @@
-/* Shared by Programs, About and contest instructions. */
+/* Shared by Programs, About and contest instructions. Deep night: hairline cards, no hues. */
 .lift {
-  transition: transform 420ms var(--ease-spring), box-shadow 320ms var(--ease-apple);
+  transition: transform 420ms var(--ease-spring), box-shadow 320ms var(--ease-apple), border-color 200ms var(--ease-apple);
 }
 @media (hover: hover) and (pointer: fine) {
   .lift:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 2px 4px rgb(0 0 0 / 0.04), 0 24px 48px -12px rgb(0 0 0 / 0.18);
+    transform: translateY(-4px);
+    border-color: var(--color-purple);
+    box-shadow: var(--shadow-lift);
   }
 }
 .page-hero { padding-top: clamp(7rem, 14vh, 9rem); padding-bottom: 2.5rem; }
@@ -14,6 +15,3 @@
 .page-section { padding-block: 3.5rem; }
 @media (min-width: 64rem) { .page-section { padding-block: 5.5rem; } }
 .bio-clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-
-.course-tile { background: linear-gradient(160deg, color-mix(in oklab, var(--hue) 9%, white), white 60%); }
-.course-visual { width: 100%; max-width: 9rem; aspect-ratio: 5 / 3; flex-shrink: 0; border-radius: var(--radius-tile); background: color-mix(in oklab, currentColor 14%, white); padding: 0.4rem; }

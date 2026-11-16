@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function About() {
   return (
-    <div className="text-ink">
+    <div className="text-text">
       <Reveal className="container-x page-hero">
         <h1 data-reveal className="t-headline max-w-[20ch]">Built and run by students</h1>
         <div data-reveal className="t-lede mt-6 space-y-5">
