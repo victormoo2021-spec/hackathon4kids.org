@@ -18,7 +18,8 @@
 .mobile-sheet .m-contact{margin-top:auto;padding-top:2rem;font-size:.875rem;color:var(--color-text-dim);opacity:0;transition:opacity .4s var(--ease-apple) .3s}
 .mobile-sheet[data-open="true"] .m-contact{opacity:1}
 .mobile-sheet .m-contact a{text-decoration:underline;text-underline-offset:3px}
-.logo-mark{border-radius:999px;box-shadow:0 0 0 1px rgb(255 255 255/.15)}
+/* the logo is dark blue: sit it on a light disc so it reads on black */
+.logo-mark{border-radius:999px;background:#f4f1fa;padding:1px;box-shadow:0 0 0 1px rgb(255 255 255/.15)}
 
 .site-footer{background:var(--color-page);border-top:1px solid var(--color-line);color:var(--color-text-dim);font-size:.875rem;line-height:1.5}
 .footer-grid{display:grid;gap:2rem}

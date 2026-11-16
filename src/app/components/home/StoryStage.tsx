@@ -98,7 +98,7 @@ export default function StoryStage() {
         // a) copy leaves, laptop glides to center, the trail runs to it
         tl.to($('.hero-copy'), { autoAlpha: 0, x: -90, duration: 1.1, ease: 'power2.in' }, 0)
           .to(wrap, { x: () => hero.clientWidth / 2 - (wrap.offsetLeft + wrap.offsetWidth / 2), scale: SCALE, duration: 1.4, ease: 'power2.inOut' }, 0)
-          .fromTo($('.trail path'), { strokeDashoffset: () => buildTrail() - 36 }, { strokeDashoffset: 0, duration: 3, ease: 'power1.inOut' }, 0.3)
+          .fromTo($('.trail path'), { strokeDashoffset: () => buildTrail() }, { strokeDashoffset: 0, duration: 3, ease: 'power1.inOut' }, 0.3)
           .fromTo(caps[0], capFrom, capIn, 0.9)
           .to(caps[0], capOut, 3)
           // b) run: the pill presses
