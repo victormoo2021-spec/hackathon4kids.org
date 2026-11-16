@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-15T00:00:00Z",
+  "title": "Design System: Hackathon4Kids",
+  "extensions": {
+    "colorMeta": {
+      "ink": {"role": "neutral", "displayName": "Ink", "canonical": "#1b1a2b"},
+      "events": {"role": "secondary", "displayName": "Hat Yellow", "canonical": "#ffc21a"},
+      "operators": {"role": "primary", "displayName": "Go Green", "canonical": "#2bb673"},
+      "looks": {"role": "secondary", "displayName": "Looks Purple", "canonical": "#6f3fe8"},
+      "motion": {"role": "secondary", "displayName": "Link Blue", "canonical": "#2563eb"},
+      "control": {"role": "tertiary", "displayName": "Loop Orange", "canonical": "#ff8a1f"},
+      "sensing": {"role": "tertiary", "displayName": "Info Teal", "canonical": "#14a3a3"},
+      "pen": {"role": "tertiary", "displayName": "Highlight Pink", "canonical": "#e8457a"}
+    },
+    "typographyMeta": {
+      "display": {"displayName": "Display", "purpose": "h1-h3, block labels. Bricolage Grotesque 800."},
+      "body": {"displayName": "Body", "purpose": "All running text. Atkinson Hyperlegible."}
+    },
+    "shadows": [
+      {"name": "block-rest", "value": "drop-shadow(0 2px 2px rgb(27 26 43 / 0.14))", "purpose": "Every block."},
+      {"name": "block-lift", "value": "drop-shadow(0 10px 14px rgb(27 26 43 / 0.22))", "purpose": "Interactive block hover, hover:hover only."},
+      {"name": "block-edge", "value": "inset 0 -4px 0 rgb(0 0 0 / 0.14)", "purpose": "Inset bottom edge on block body."}
+    ],
+    "motion": [
+      {"name": "ease-snap", "value": "cubic-bezier(0.22, 1.25, 0.36, 1)", "purpose": "Hero snap-in and robot nudge."},
+      {"name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Lift, nav bar, pin wobble."}
+    ],
+    "breakpoints": [{"name": "sm", "value": "640px"}, {"name": "lg", "value": "1024px"}]
+  },
+  "components": [
+    {
+      "name": "Primary CTA Block", "kind": "button", "refersTo": "block-green",
+      "description": "Green cap block, the single primary action.",
+      "html": "<a class=\"ds-cta\" href=\"#\"><span class=\"ds-cta-body\">Get class dates by email</span></a>",
+      "css": ".ds-cta{display:inline-block;filter:drop-shadow(0 2px 2px rgb(27 26 43 / .14));transition:transform 220ms cubic-bezier(.16,1,.3,1),filter 220ms cubic-bezier(.16,1,.3,1);text-decoration:none}.ds-cta-body{display:block;background:var(--color-operators,#2bb673);color:var(--color-ink,#1b1a2b);border-radius:8px;box-shadow:inset 0 -4px 0 rgb(0 0 0 / .14);padding:16px 24px;font-family:var(--font-display,sans-serif);font-weight:800;font-size:1.25rem}@media (hover:hover){.ds-cta:hover{transform:translate(-2px,-3px) rotate(-.6deg);filter:drop-shadow(0 10px 14px rgb(27 26 43 / .22))}}.ds-cta:active{transform:translate(0,2px);transition-duration:70ms}.ds-cta:focus-visible{outline:none;filter:drop-shadow(0 0 3px #ffc21a) drop-shadow(0 0 6px #ffc21a)}"
+    },
+    {
+      "name": "Hat Block", "kind": "custom", "refersTo": "block-yellow",
+      "description": "Starts a script; rounded cap, no top notch.",
+      "html": "<div class=\"ds-hat\">when parent visits</div>",
+      "css": ".ds-hat{background:#ffc21a;color:#1b1a2b;border-radius:28px 28px 8px 8px;box-shadow:inset 0 -4px 0 rgb(0 0 0 / .14);padding:20px 24px 12px;font-family:var(--font-display,sans-serif);font-weight:700;font-size:1.125rem;width:fit-content}"
+    },
+    {
+      "name": "Value Slot", "kind": "chip", "refersTo": "slot",
+      "description": "White inset pill holding a value inside a block.",
+      "html": "<span class=\"ds-slot\">grades 3-8</span>",
+      "css": ".ds-slot{display:inline-block;padding:.05em .6em;border-radius:999px;background:#fff;color:#1b1a2b;box-shadow:inset 0 1px 2px rgb(0 0 0 / .18);font-weight:700}"
+    },
+    {
+      "name": "Nav Link", "kind": "nav", "refersTo": "nav-link",
+      "description": "Blue bar slides in on hover; yellow when current.",
+      "html": "<a class=\"ds-nav\" href=\"#\">Programs</a>",
+      "css": ".ds-nav{color:#1b1a2b;text-decoration:none;background:linear-gradient(#2563eb,#2563eb) left bottom 4px / 0 3px no-repeat;transition:background-size 260ms cubic-bezier(.16,1,.3,1)}.ds-nav:hover,.ds-nav:focus-visible{background-size:100% 3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Script You Can Run",
+    "overview": "The site is a block-coding editor a parent happens to be reading. Every section is a snap-together code block on a bright white stage with a faint dot grid.",
+    "keyCharacteristics": ["White stage with dot grid", "Flat blocks with inset edge and drop shadow", "Hat, stack, cap, slot grammar", "One signature hero snap-in", "max-w-7xl with 16/24/40px gutters"],
+    "rules": [
+      {"name": "The AA Text Rule", "body": "Ink text on yellow, orange, green, teal, pink. White text on purple and blue.", "section": "colors"},
+      {"name": "The Meaning Rule", "body": "Yellow = hats/events/announcements. Green = primary action. Purple/blue/green/teal = Code/Build/Math/Physics.", "section": "colors"},
+      {"name": "The Op Word Rule", "body": "Op words are inline grammar inside a block, never eyebrow labels.", "section": "typography"},
+      {"name": "The Dragged-Block Rule", "body": "Only link/button blocks lift, only under hover:hover.", "section": "elevation"}
+    ],
+    "dos": ["Read course colors from content/courses.ts", "Keep the AA Text Rule", "Honor reduced motion", "Keep copy factual; minors first name plus grade only"],
+    "donts": ["Don't build the generic edtech page", "Don't use op words as eyebrows", "Don't hardcode new hexes or rgb shadows", "Don't add a second signature animation"]
+  }
+}
