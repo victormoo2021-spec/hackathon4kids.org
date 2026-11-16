@@ -14,7 +14,7 @@ const drawnPixels = (page: import('@playwright/test').Page) =>
     return n
   })
 
-import { expectNoOverflow, scrollThrough, trackErrors } from './helpers'
+import { expectNoOverflow, scrollThrough, settle, trackErrors } from './helpers'
 
 test.describe('motion allowed (desktop)', () => {
   test.skip(({ isMobile }) => isMobile, 'pinned motion is desktop only')
@@ -78,10 +78,68 @@ test.describe('reduced motion', () => {
     await expect.poll(() => drawnPixels(page)).toBeGreaterThan(500)
   })
 
-  test('all reveal elements are visible without scrolling', async ({ page }) => {
+  test('every [data-reveal] ends visible after scrolling through', async ({ page }) => {
     await page.goto('/')
+    await scrollThrough(page, { step: 600, delay: 20 })
+    await settle(page)
     const opacities = await page.locator('[data-reveal]').evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity))
+    expect(opacities.length).toBeGreaterThan(0)
     for (const o of opacities) expect(o).toBe('1')
+  })
+
+  test('canvas is drawn after autoplay without scrolling (calm)', async ({ page }) => {
+    await page.goto('/')
+    await page.waitForTimeout(4000)
+    expect(await drawnPixels(page)).toBeGreaterThan(500)
+  })
+
+  // Calm tier is opacity-only: after settling, nothing keeps a transform.
+  // Exclusion: descendants of <canvas> (none expected; canvas drawing is not CSS motion).
+  test('no element keeps a computed transform after settling', async ({ page }) => {
+    await page.goto('/')
+    await scrollThrough(page, { step: 600, delay: 20 })
+    await settle(page)
+    const bad = await page.evaluate(() =>
+      Array.from(document.querySelectorAll<HTMLElement>('body *'))
+        .filter((e) => !e.closest('canvas'))
+        .map((e) => [e, getComputedStyle(e).transform] as const)
+        .filter(([, t]) => t !== 'none' && t !== 'matrix(1, 0, 0, 1, 0, 0)')
+        .map(([e, t]) => `${e.tagName}.${String(e.className).slice(0, 40)} ${t}`),
+    )
+    expect(bad).toEqual([])
+  })
+})
+
+test.describe('load choreography and sections (desktop, no-preference)', () => {
+  test.skip(({ isMobile }) => isMobile)
+
+  test('hero h1 words rise in and end at identity', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'commit' })
+    await page.waitForSelector('#hero h1 .w > span', { state: 'attached' })
+    const ty = () =>
+      page.locator('#hero h1 .w > span').evaluateAll((els) =>
+        els.map((e) => new DOMMatrixReadOnly(getComputedStyle(e).transform).m42),
+      )
+    expect(Math.max(...(await ty()))).toBeGreaterThan(0)
+    await page.waitForTimeout(1500)
+    for (const y of await ty()) expect(Math.abs(y)).toBeLessThan(0.5)
+  })
+
+  test('FAQ answer is visible after opening', async ({ page }) => {
+    await page.goto('/')
+    const item = page.locator('details.faq-item').first()
+    await item.scrollIntoViewIfNeeded()
+    await item.locator('summary').click()
+    await page.waitForTimeout(500)
+    await expect(item.locator('p').first()).toBeVisible()
+  })
+
+  test('final CTA button is visible after scrolling to #join', async ({ page }) => {
+    await page.goto('/')
+    await scrollThrough(page, { step: 400, delay: 30 })
+    await page.locator('#join').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(1500)
+    await expect(page.locator('#join .btn').first()).toBeVisible()
   })
 })
 
@@ -92,5 +150,11 @@ test.describe('mobile', () => {
     await page.goto('/')
     await page.locator('#story').scrollIntoViewIfNeeded()
     expect(await heroPinPosition(page)).not.toBe('sticky')
+  })
+
+  test('canvas is drawn after autoplay', async ({ page }) => {
+    await page.goto('/')
+    await page.locator('#story').scrollIntoViewIfNeeded()
+    await expect.poll(() => drawnPixels(page), { timeout: 8000 }).toBeGreaterThan(500)
   })
 })

@@ -30,7 +30,7 @@ const facts = ['Grades 3-8', 'In person and online', 'Free', 'Up to 20 kids per 
 
 function Flyer({ src, file, alt, caption }: { src: StaticImageData; file: string; alt: string; caption: string }) {
   return (
-    <figure className="w-full max-w-[280px]">
+    <figure data-reveal data-delay="150" className="w-full max-w-[280px]">
       <a
         href={`/${file}`}
         target="_blank"
@@ -48,12 +48,12 @@ function Flyer({ src, file, alt, caption }: { src: StaticImageData; file: string
 export default function Programs() {
   return (
     <div className="text-text">
-      <Reveal className="container-x page-hero">
+      <Reveal stagger={0} className="container-x page-hero">
         <h1 data-reveal className="t-headline">Programs</h1>
-        <p data-reveal className="t-lede mt-5">
+        <p data-reveal data-delay="120" className="t-lede mt-5">
           Free computer science and STEM classes for kids in grades 3 to 8, taught by high-school students.
         </p>
-        <ul data-reveal aria-label="At a glance" className="mt-10 flex flex-wrap gap-x-3 gap-y-1 text-text-dim">
+        <ul data-reveal data-delay="200" aria-label="At a glance" className="mt-10 flex flex-wrap gap-x-3 gap-y-1 text-text-dim">
           {facts.map((f, i) => (
             <li key={f}>
               {i > 0 && <span aria-hidden className="mr-3">·</span>}
@@ -70,11 +70,11 @@ export default function Programs() {
         </p>
         <div className="mt-12 border-t border-line">
           {categories.map((c) => (
-            <section key={c.name} data-reveal className="grid gap-4 border-b border-line py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-10 md:py-10" aria-labelledby={`cat-${c.name}`}>
-              <h3 id={`cat-${c.name}`} className="t-title text-text">{c.name}</h3>
+            <section key={c.name} data-reveal="rule" className="relative grid gap-4 py-8 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:bg-line after:[transform:scaleX(var(--rule,1))] md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-10 md:py-10" aria-labelledby={`cat-${c.name}`}>
+              <h3 id={`cat-${c.name}`} data-reveal className="t-title text-text">{c.name}</h3>
               <ul className="divide-y divide-line">
                 {c.courses.map((name) => (
-                  <li key={name} className="py-4 first:pt-0 last:pb-0">
+                  <li key={name} data-reveal className="py-4 first:pt-0 last:pb-0">
                     <span className="block text-base font-medium text-text">{name}</span>
                     <span className="block text-text-dim">{blurbs[name]}</span>
                   </li>

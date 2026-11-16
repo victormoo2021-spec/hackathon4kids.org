@@ -13,9 +13,9 @@ export const metadata = {
 export default function About() {
   return (
     <div className="text-text">
-      <Reveal className="container-x page-hero">
+      <Reveal stagger={0} className="container-x page-hero">
         <h1 data-reveal className="t-headline max-w-[20ch]">Built and run by students</h1>
-        <div data-reveal className="t-lede mt-6 space-y-5">
+        <div data-reveal data-delay="120" className="t-lede mt-6 space-y-5">
           <p>
             Hackathon4Kids was founded in 2018 by two high-school students who wanted to help kids in their community by teaching programming.
           </p>
