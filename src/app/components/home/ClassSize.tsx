@@ -16,7 +16,7 @@ export default function ClassSize() {
         const dots = gsap.utils.toArray<HTMLElement>('[data-dot]', ref.current)
         gsap.fromTo(
           dots,
-          { scale: 0.7, backgroundColor: '#d2d2d7' },
+          { scale: 0.7, backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--dot-idle').trim() },
           {
             scale: 1,
             backgroundColor: '#1d1d1f',

@@ -33,15 +33,18 @@
 
 .final-cta { background: var(--color-mist); }
 /* Pre-baked soft gradients: no filter, no animation, so nothing repaints per frame. */
+/* Illustration-only ribbon colors */
+.final-ribbon, .band-ribbon { --ribbon-blue: rgb(122 162 255 / 0.65); --ribbon-violet: rgb(169 139 255 / 0.55); --ribbon-coral: rgb(255 157 138 / 0.55); --ribbon-violet-solid: #a98bff; }
+.faq-icon::before, .faq-icon::after { --r-bar: 2px; }
 .final-ribbon {
   position: absolute;
   inset: 0;
   z-index: -1;
   opacity: 0.6;
   background:
-    radial-gradient(45% 60% at 22% 40%, rgb(122 162 255 / 0.65), transparent 100%),
-    radial-gradient(45% 60% at 55% 62%, rgb(169 139 255 / 0.55), transparent 100%),
-    radial-gradient(45% 60% at 82% 40%, rgb(255 157 138 / 0.55), transparent 100%);
+    radial-gradient(45% 60% at 22% 40%, var(--ribbon-blue), transparent 100%),
+    radial-gradient(45% 60% at 55% 62%, var(--ribbon-violet), transparent 100%),
+    radial-gradient(45% 60% at 82% 40%, var(--ribbon-coral), transparent 100%);
 }
 
 .band-ribbon {
@@ -50,8 +53,8 @@
   z-index: -1;
   opacity: 0.2;
   background:
-    radial-gradient(40% 55% at 15% 85%, #7c8cff, transparent 100%),
-    radial-gradient(35% 50% at 85% 20%, #a98bff, transparent 100%);
+    radial-gradient(40% 55% at 15% 85%, var(--color-accent-dark), transparent 100%),
+    radial-gradient(35% 50% at 85% 20%, var(--ribbon-violet-solid), transparent 100%);
 }
 
 /* FAQ */
@@ -78,7 +81,7 @@
   height: 2px;
   margin-top: -1px;
   background: currentColor;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   transition: transform 350ms var(--ease-out-expo);
 }
 .faq-icon::after { transform: rotate(90deg); }
@@ -89,3 +92,6 @@
   .faq-icon::before,
   .faq-icon::after { transition: none; }
 }
+
+/* Idle class-size dot color (read by ClassSize.tsx) */
+:root { --dot-idle: #d2d2d7; }
