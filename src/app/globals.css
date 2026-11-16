@@ -26,19 +26,6 @@
   --color-yellow: #ffd60a;
   --color-yellow-deep: #f5c400;
 
-  /* legacy names mapped onto the dark world so nothing renders light-on-light mid-migration */
-  --color-ink: #f4f1fa;
-  --color-ink-soft: #9a93ad;
-  --color-paper: #0a0710;
-  --color-mist: #15101f;
-  --color-hairline: #2a1d47;
-  --color-accent: #a78bff;
-  --color-accent-strong: #7c5cff;
-  --color-night: #0a0710;
-  --color-night-2: #15101f;
-  --color-ink-dim: #9a93ad;
-  --color-accent-dark: #a78bff;
-
   --text-display: clamp(3rem, 8vw, 7.5rem);
   --text-headline: clamp(2.5rem, 5.4vw, 4.75rem);
   --text-title: clamp(1.5rem, 2.2vw, 2rem);
