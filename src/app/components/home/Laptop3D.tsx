@@ -1,9 +1,10 @@
 'use client'
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Environment, Lightformer, RoundedBox } from '@react-three/drei'
-import { useEffect, useRef } from 'react'
-import { Color, MathUtils, Vector3, type Group, type PointLight } from 'three'
+import { Environment, Lightformer } from '@react-three/drei'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { Color, MathUtils, Object3D, Vector3, type Group, type InstancedMesh, type PointLight } from 'three'
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 import { fx } from '../fx/store'
 
 const D2R = Math.PI / 180
@@ -100,8 +101,9 @@ function Rig({ progress, host, onReady, onFail, visible, reduce, screenEl }: Rig
     const t = reduce
       ? { yaw: -22, pitch: 3.5, scale: 1, y: 0, glow: f.glow ? 1 : 0 }
       : {
-          yaw: lerp(-22, -6, a) + ptr.current.x * 6,
-          pitch: 3.5 + ptr.current.y * 3,
+          // gentle until the sketch's follow_mouse line lands, then clearly visible
+          yaw: lerp(-22, -6, a) + ptr.current.x * (f.followMouse ? 6 : 2),
+          pitch: 3.5 + ptr.current.y * (f.followMouse ? 3 : 1),
           scale: lerp(lerp(1, 1.12, a), 0.92, b),
           y: -0.29 * b,
           glow: f.glow ? 1 : 0,
@@ -125,7 +127,7 @@ function Rig({ progress, host, onReady, onFail, visible, reduce, screenEl }: Rig
     if (light.current) {
       lightColor.current.lerp(target.current.set(GLOW[f.glow ?? 'purple']), 1 - Math.exp(-6 * d))
       light.current.color.copy(lightColor.current)
-      light.current.intensity = 14 * c.glow
+      light.current.intensity = 5 * c.glow
     }
 
     // pin the screen DOM onto the lid: project its four corners with the live camera
@@ -161,28 +163,69 @@ function Rig({ progress, host, onReady, onFail, visible, reduce, screenEl }: Rig
   return (
     <group ref={group}>
       <Model lid={lid} />
-      <pointLight ref={light} position={[0, 1.0, 2.8]} distance={6} decay={2} intensity={0} />
+      <pointLight ref={light} position={[0, 1.3, -0.3]} distance={5} decay={2} intensity={0} />
     </group>
   )
 }
 
-const alu = { color: '#5a5a63', metalness: 1, roughness: 0.42, clearcoat: 0.25, clearcoatRoughness: 0.5, envMapIntensity: 3.2 } as const
+const alu = { color: '#3a3a40', metalness: 1, roughness: 0.34, clearcoat: 0.2, clearcoatRoughness: 0.45, envMapIntensity: 3.4 } as const
+
+function Rounded({ size, radius, ...rest }: { size: [number, number, number]; radius: number } & React.ComponentProps<'mesh'>) {
+  const geo = useMemo(() => new RoundedBoxGeometry(...size, 4, radius), [size, radius])
+  useEffect(() => () => geo.dispose(), [geo])
+  return <mesh geometry={geo} {...rest} />
+}
+
+const KEY_ROWS = 6
+const KEY_COLS = 14
+const BASE_ARGS: [number, number, number] = [3.04, 0.1, 2.12]
+const LID_ARGS: [number, number, number] = [3.04, 0.045, 2.12]
+const PAD_ARGS: [number, number, number] = [1.2, 0.012, 0.75]
+
+function Keys() {
+  const ref = useRef<InstancedMesh>(null)
+  useLayoutEffect(() => {
+    const m = ref.current
+    if (!m) return
+    const o = new Object3D()
+    for (let r = 0; r < KEY_ROWS; r++)
+      for (let c = 0; c < KEY_COLS; c++) {
+        o.position.set(-1.2 + (c + 0.5) * (2.4 / KEY_COLS), 0.058, -0.78 + r * 0.14)
+        o.updateMatrix()
+        m.setMatrixAt(r * KEY_COLS + c, o.matrix)
+      }
+    m.instanceMatrix.needsUpdate = true
+  }, [])
+  return (
+    <instancedMesh ref={ref} args={[undefined, undefined, KEY_ROWS * KEY_COLS]}>
+      <boxGeometry args={[2.4 / KEY_COLS - 0.03, 0.014, 0.115]} />
+      <meshPhysicalMaterial color="#09090b" roughness={0.8} metalness={0} />
+    </instancedMesh>
+  )
+}
 
 function Model({ lid }: { lid: React.RefObject<Group | null> }) {
   return (
     <>
       {/* base */}
-      <RoundedBox args={[3.04, 0.1, 2.12]} radius={0.05} smoothness={4}>
+      <Rounded size={BASE_ARGS} radius={0.05}>
         <meshPhysicalMaterial {...alu} />
-      </RoundedBox>
+      </Rounded>
+      {/* front lip chamfer highlight */}
+      <mesh position={[0, 0.05, 1.045]}>
+        <boxGeometry args={[2.9, 0.008, 0.016]} />
+        <meshStandardMaterial color="#9a9aa2" metalness={1} roughness={0.35} />
+      </mesh>
+      {/* keyboard well: inset recess + key grid */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0505, -0.4]}>
         <planeGeometry args={[2.6, 0.9]} />
-        <meshPhysicalMaterial color="#0b0b0e" roughness={0.9} metalness={0} />
+        <meshStandardMaterial color="#060608" roughness={0.9} metalness={0} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0506, 0.58]}>
-        <planeGeometry args={[1.2, 0.75]} />
-        <meshPhysicalMaterial color="#1b1b20" roughness={0.35} metalness={0.6} />
-      </mesh>
+      <Keys />
+      {/* trackpad */}
+      <Rounded size={PAD_ARGS} radius={0.006} position={[0, 0.0505, 0.62]}>
+        <meshPhysicalMaterial color="#55555c" metalness={1} roughness={0.26} envMapIntensity={1.8} />
+      </Rounded>
       {/* hinge */}
       <mesh position={[0, 0.045, -1.06]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.04, 0.04, 2.3, 24]} />
@@ -190,9 +233,9 @@ function Model({ lid }: { lid: React.RefObject<Group | null> }) {
       </mesh>
       {/* lid, pivoted at the back edge of the base, open 105deg */}
       <group ref={lid} position={[0, 0.05, -1.06]} rotation={[-105 * D2R, 0, 0]}>
-        <RoundedBox args={[3.04, 0.045, 2.12]} radius={0.022} smoothness={4} position={[0, 0.0225, LID_Z]}>
+        <Rounded size={LID_ARGS} radius={0.022} position={[0, 0.0225, LID_Z]}>
           <meshPhysicalMaterial {...alu} />
-        </RoundedBox>
+        </Rounded>
         <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, -0.001, LID_Z]}>
           <planeGeometry args={[2.94, 2.02]} />
           <meshPhysicalMaterial color="#050408" metalness={0} roughness={0.08} clearcoat={1} clearcoatRoughness={0.03} />
@@ -232,10 +275,10 @@ export default function Laptop3D(props: Props) {
         onCreated={({ camera }) => camera.lookAt(0, 0.95, 0)}
       >
         <Environment resolution={256} frames={1}>
-          <Lightformer form="rect" intensity={5} color="#ffffff" position={[-3, 3, 2]} scale={[4, 1.2, 1]} />
-          <Lightformer form="rect" intensity={1.1} color="#d9d4ff" position={[0, 6, 1]} scale={[9, 6, 1]} />
-          <Lightformer form="rect" intensity={7} color="#a78bff" position={[3, 1.5, -3]} scale={[0.4, 4, 1]} />
-          <Lightformer form="rect" intensity={1.4} color="#cfc8ff" position={[0, -1, 4]} scale={[4, 1.5, 1]} />
+          <Lightformer form="rect" intensity={4} color="#ffffff" position={[-3, 3, 2]} scale={[5, 3, 1]} />
+          <Lightformer form="rect" intensity={3} color="#f4f2ff" position={[0, 6, 1]} scale={[12, 8, 1]} />
+          <Lightformer form="rect" intensity={4} color="#a78bff" position={[3.5, 1.5, -3]} scale={[0.6, 4, 1]} />
+          <Lightformer form="rect" intensity={2.2} color="#e8e6f2" position={[0, 2, 5]} scale={[8, 3, 1]} />
         </Environment>
         <directionalLight position={[-2, 4, 3]} intensity={1.6} />
         <Rig {...props} visible={visible} reduce={reduce} screenEl={screenEl} />
