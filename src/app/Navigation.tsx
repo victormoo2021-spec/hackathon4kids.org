@@ -10,14 +10,14 @@ const Navigation = () => (
     <NavigationMenu.List className="flex flex-row gap-4 text-lg">
       <NavigationMenu.Item>
         <NavigationMenu.Link asChild>
-          <a href="/" className="font-bold text-blue-950">
+          <Link href="/" className="font-bold text-blue-950">
             <Image
               src={logo}
               alt="Hackathon4Kids logo"
               className="w-8 h-8 inline-block mr-3"
             />
             Hackathon4Kids
-          </a>
+          </Link>
         </NavigationMenu.Link>
       </NavigationMenu.Item>
 
@@ -26,7 +26,7 @@ const Navigation = () => (
 
     <NavigationMenu.List className="flex flex-col mt-4 md:mt-0 md:flex-row gap-2 md:gap-8">
       <NavigationMenu.Item>
-        <NavigationMenu.Link asChild className="rounded-md px-3 py-1 bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100">
+        <NavigationMenu.Link asChild className="rounded-md px-3 py-1 bg-linear-to-r from-indigo-200 via-red-200 to-yellow-100">
           <Link href="/code.org" className="font-semibold">✍️ New: Winter Contest!</Link>
         </NavigationMenu.Link>
       </NavigationMenu.Item>

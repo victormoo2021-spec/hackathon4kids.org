@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import people from 'public/people.svg'
-import Balancer from 'react-wrap-balancer'
 import EricLanCard from './EricLan'
 import KartikBaluCard from './KartikBalu'
 import ChrisWangCard from './ChrisWang'
@@ -20,13 +19,13 @@ const About = () => {
         <div className="flex flex-col-reverse md:flex-row gap-10 items-center">
           <div>
             <h1 className="text-5xl font-bold mb-4">About Us!</h1>
-            <Balancer>
+            <div className="text-balance">
               Hackathon4Kids was founded in 2018 by two high-school students wanting to help
               students in their community by teaching programming. Now not only has that initial team has grown in size,
               but Hackathon4Kids has also grown by leaps and bounds, both in terms of outreach and offerings.
               This is a labor of love, built and run by students
               who are driven to create a <span>powerful impact</span> in their local community and beyond.
-            </Balancer>
+            </div>
           </div>
           <Image
             src={people}
