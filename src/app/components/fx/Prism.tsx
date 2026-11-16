@@ -62,14 +62,14 @@ export default function Prism() {
     }
   }, [mode])
 
-  if (mode === 'gl') return <canvas ref={ref} aria-hidden data-prism="" style={{ ...base, background: '#140a3a', opacity: on ? 1 : 0, transition: 'opacity 900ms cubic-bezier(0.16, 1, 0.3, 1)' }} />
+  if (mode === 'gl') return <canvas ref={ref} aria-hidden data-prism="" style={{ ...base, background: '#0a0710', opacity: on ? 1 : 0, transition: 'opacity 900ms cubic-bezier(0.16, 1, 0.3, 1)' }} />
   return (
     <div
       aria-hidden
       data-prism=""
       style={{
         ...base,
-        background: mode ? 'radial-gradient(60% 50% at 75% 35%, rgb(109 59 255 / .3), transparent 70%), #140a3a' : '#140a3a',
+        background: mode ? 'radial-gradient(60% 50% at 75% 35%, rgb(99 70 255 / .22), transparent 70%), #0a0710' : '#0a0710',
       }}
     />
   )
