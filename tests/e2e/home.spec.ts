@@ -10,7 +10,8 @@ test.beforeEach(async ({ page }) => {
 test.describe('home sections', () => {
   for (const id of ['hero', 'story', 'courses', 'class-size', 'run-by-students', 'formats', 'faq', 'join']) {
     test(`#${id} exists`, async ({ page }) => {
-      await expect(page.locator(`section#${id}`)).toBeAttached()
+      // #story is the scroll-story stage inside section#hero; the rest are sections
+      await expect(page.locator(id === 'story' ? '#hero #story' : `section#${id}`)).toBeAttached()
     })
   }
 
@@ -73,8 +74,8 @@ test.describe('FAQ', () => {
     await faq(page)
       .locator('details')
       .evaluateAll((els) => els.forEach((e) => ((e as HTMLDetailsElement).open = true)))
-    const text = (await faq(page).innerText()).toLowerCase()
-    expect(text).toContain('free')
-    expect(text).toContain('20')
+    // answers animate open (::details-content), so poll the rendered text
+    await expect.poll(async () => (await faq(page).innerText()).toLowerCase()).toContain('free')
+    await expect.poll(async () => (await faq(page).innerText()).toLowerCase()).toContain('20')
   })
 })

@@ -14,7 +14,8 @@ test.describe('motion allowed (desktop)', () => {
     const errors = trackErrors(page)
     await page.goto('/')
     await scrollThrough(page, { step: 300 })
-    await expect(page.locator('#story .pin-spacer').first()).toBeAttached()
+    // ScrollTrigger pins section#hero (which holds #story), wrapping it in a .pin-spacer
+    await expect(page.locator('.pin-spacer:has(#story)').first()).toBeAttached()
     await expectNoOverflow(page)
     expect(errors.list).toEqual([])
   })

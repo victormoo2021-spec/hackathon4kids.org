@@ -2,7 +2,15 @@ import { expect, type Page } from '@playwright/test'
 
 /** Wait for CSS/WAAPI animations and GSAP tweens to reach their resting state. */
 export async function settle(page: Page) {
-  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))))
+  // ignore infinite ambient loops (hero glow, robot idle); they never finish
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
+        .map((a) => a.finished.catch(() => {})),
+    ),
+  )
   await page.waitForTimeout(1500)
 }
 

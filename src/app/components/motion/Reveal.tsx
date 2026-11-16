@@ -30,13 +30,21 @@ export default function Reveal({ children, className, as: Tag = 'div', stagger =
       mm.add('(prefers-reduced-motion: no-preference)', () => {
         const items = gsap.utils.toArray<HTMLElement>('[data-reveal]', ref.current)
         if (!items.length) return
-        gsap.set(items, { autoAlpha: 0, y: 28 })
+        // opacity only (never visibility) so unrevealed content stays focusable for keyboard users
+        gsap.set(items, { opacity: 0, y: 28 })
+        const show = (els: Element[]) =>
+          gsap.to(els, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger, overwrite: true })
+        const onFocus = (e: FocusEvent) => {
+          const hit = items.filter((el) => el.contains(e.target as Node))
+          if (hit.length) gsap.set(hit, { opacity: 1, y: 0, overwrite: true })
+        }
+        ref.current?.addEventListener('focusin', onFocus)
         ScrollTrigger.batch(items, {
           start: 'top 88%',
           once: true,
-          onEnter: (batch) =>
-            gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger, overwrite: true }),
+          onEnter: (batch) => show(batch),
         })
+        return () => ref.current?.removeEventListener('focusin', onFocus)
       })
       return () => mm.revert()
     },

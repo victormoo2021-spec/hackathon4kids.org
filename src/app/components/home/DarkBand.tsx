@@ -22,7 +22,7 @@ export default function DarkBand() {
           { yPercent: 0, stagger: 0.25, ease: 'none', scrollTrigger: { trigger: ref.current, start: 'top 70%', end: 'top 20%', scrub: 0.6 } },
         )
         gsap.from('[data-rise]', {
-          autoAlpha: 0,
+          opacity: 0, // opacity only: keep links focusable
           y: 28,
           duration: 0.9,
           ease: 'expo.out',
