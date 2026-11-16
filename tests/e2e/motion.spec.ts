@@ -1,10 +1,16 @@
 import { expect, test } from '@playwright/test'
+// Counts drawn pixels on the program's visible output canvas in the hero
+// (laptop screen on desktop, the separate card on small phones).
 const drawnPixels = (page: import('@playwright/test').Page) =>
-  page.locator('#story canvas').evaluate((c) => {
-    const cv = c as HTMLCanvasElement
-    const d = cv.getContext('2d')!.getImageData(0, 0, cv.width, cv.height).data
+  page.evaluate(() => {
+    const visible = Array.from(document.querySelectorAll<HTMLCanvasElement>('#hero canvas')).filter(
+      (c) => c.getBoundingClientRect().width > 0,
+    )
     let n = 0
-    for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++
+    for (const cv of visible) {
+      const d = cv.getContext('2d')!.getImageData(0, 0, cv.width, cv.height).data
+      for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++
+    }
     return n
   })
 
@@ -31,7 +37,7 @@ test.describe('motion allowed (desktop)', () => {
 
   test('story canvas has drawn pixels after scrolling through the hero', async ({ page }) => {
     await page.goto('/')
-    await expect(page.locator('#story canvas')).toBeAttached()
+    await expect(page.locator('#hero canvas').first()).toBeAttached()
     await scrollThrough(page, { step: 300 })
     await page.locator('#story').scrollIntoViewIfNeeded()
     await expect.poll(() => drawnPixels(page)).toBeGreaterThan(500)
@@ -68,7 +74,7 @@ test.describe('reduced motion', () => {
 
   test('story canvas shows the final drawing without scrolling', async ({ page }) => {
     await page.goto('/')
-    await expect(page.locator('#story canvas')).toBeAttached()
+    await expect(page.locator('#hero canvas').first()).toBeAttached()
     await expect.poll(() => drawnPixels(page)).toBeGreaterThan(500)
   })
 
