@@ -1,8 +1,8 @@
 // Pointer fluid: a small stable-fluids sim (velocity + one-channel dye) stirred by the pointer and,
 // lightly, by scrolling. The dye is drawn as yellow light ink with purple edges on a canvas BEHIND
 // the page content. A [data-spectral] heading the pointer stirs is handed over to the canvas for a
-// moment (class is-prism clears its DOM glyphs) and drawn through fine vertical glass slits that bend it
-// along the flow near the pointer's path with six-band dispersion, then settles back onto the exact DOM glyphs.
+// moment (class is-prism clears its DOM glyphs) and drawn through softly rippled glass that waves it
+// sideways near the pointer's path (not under reduced motion), then settles back onto the exact DOM glyphs.
 // Raw WebGL2, loaded on first interaction, zero frames when idle.
 
 const VS = `#version 300 es
@@ -47,7 +47,7 @@ float s=textureLod(uS,tp,5.3).b,ot=smoothstep(.12,.6,s);
 h*=mix(1.,.6,ot);g*=mix(1.,.45,ot);
 // pale gold core thinning out to violet, no hard edge
 vec3 c=mix(P,Y,smoothstep(.04,.32,h)*(1.-.85*smoothstep(.75,1.,s)));c=mix(c,W,smoothstep(.6,1.1,h));
-c=c*(1.-exp(-h*h*4.5))+mix(P,Y,.4)*g*.6;
+c=c*(1.-exp(-h*2.))+mix(P,Y,.4)*g*.6;
 // keep text readable: behind text blocks the light is clamped to a low luminance
 float cap=mix(2.,mix(.16,.055,smoothstep(.65,1.,s)),ot);
 c*=min(1.,sqrt(cap/max(lum(c),1e-5)));
@@ -59,21 +59,16 @@ if(op>0.){
 // local: the bend fades with distance from the pointer's recent path, the rest of the line stays put
 vec2 pa=px-uPt.xy,ba=uPt.zw-uPt.xy;float dl=length(pa-ba*clamp(dot(pa,ba)/max(dot(ba,ba),1e-4),0.,1.))/(1.4*em);
 vec2 d=texture(uV,v).xy*uRes.y*.03*e*exp(-dl*dl);
-if(length(d)>.04){
-// fine reeded glass, ribs a tenth of an em wide: across each rib the view slides sideways and eases back
-// (soft edges, no hard steps), a little along the flow vertically. The slide stays under a rib's width, so
-// letters are never folded over themselves and stay readable.
-float x=fract(px.x/(.1*em)),f=smoothstep(0.,.75,x)*(1.-smoothstep(.75,1.,x)),m=length(d);
-vec2 cap=vec2(.05,.012)*em,D=cap*(1.-exp(-vec2(m,abs(d.y))/cap))*d/(abs(d)+vec2(.15*m+.3,.3))*f;D=vec2(D.x/uRes.x,-D.y/uRes.y*uTm.x);
-// six bands, red bends least and purple most, two taps each for a soft glassy edge;
-// the weights add back up to the untouched glyph, so it only shows as thin rainbow edges
-#define S(k) (texture(uG,tp-D*k)+texture(uG,tp-D*(k+.08)))*.5
-vec4 r=S(.4),y=S(.7),gr=S(.95),cy=S(1.2),b=S(1.5),p=S(1.85),sum=r+y+gr+cy+b+p;
-vec3 col=sum.rgb/max(sum.a,1e-4),a=vec3(.42*r.a+.3*y.a+.28*p.a,.3*y.a+.4*gr.a+.3*cy.a,.3*cy.a+.42*b.a+.28*p.a);
-// a coloured glyph (the yellow words) keeps its colour and gets a white edge on one side, violet on the other
-float lo=(r.a+y.a)*.5,mid=(gr.a+cy.a)*.5,hi=(b.a+p.a)*.5,mx=max(col.r,max(col.g,col.b)),mn=min(col.r,min(col.g,col.b));
-vec3 ce=col*mid+W*max(lo-mid,0.)+V*max(hi-mid,0.);
-t=vec4(mix(col*a,ce,(mx-mn)/max(mx,1e-4)),max(max(a.r,max(a.g,a.b)),max(lo,hi)));
+float m=length(d);
+if(m>.04){
+// rippled glass: each rib is a smooth lens (a sine, continuous across rib edges, never a step) that slides
+// the view sideways by at most .04em. Ribs are wide enough that the slide never folds a letter over itself,
+// so glyphs keep their exact shapes and antialiasing, only gently waved.
+float A=.04*em*(1.-exp(-m/(.04*em)))*d.x/(abs(d.x)+.15*m+.3);
+vec2 D=vec2(A*sin(px.x*6.2832/(.3*em))/uRes.x,0);
+t=texture(uG,tp-D);
+// no colour split in the glyph itself: just a faint violet glow on one edge and gold on the other
+t.rgb+=(V*max(texture(uG,tp-D*1.7).a-t.a,0.)+Y*max(texture(uG,tp-D*.3).a-t.a,0.))*.22;
 }else t=texture(uG,tp);
 t*=op;}
 o=vec4(c*(1.-t.a)+t.rgb,t.a);}`
@@ -351,7 +346,8 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     size()
     const dt = last ? Math.min((t - last) / 1000, 1 / 30) : 1 / 60
     last = t
-    prism(t, dt, moved)
+    if (rm) dropAll() // reduced motion: headings are never handed to the canvas
+    prism(t, dt, moved && !rm)
     raster()
     const k = rm ? 0.3 : 1 // reduced motion: same response, gentler and shorter-lived
     const tx = (u: Prog['u']) => gl.uniform2f(u.uTx, 1 / vel[0].w, 1 / vel[0].h)
@@ -362,7 +358,7 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
       const sp = Math.hypot(vx, vy), c = Math.min(1, 5 / (sp || 1))
       vx *= c; vy *= c
       splat(vel, [lx, ly], [px, py], 0.035, [vx * 0.45 * k, vy * 0.45 * k], 8)
-      splat(dye, [lx, ly], [px, py], 0.0048, [Math.min(0.1 + sp * 0.2, 0.5) * (rm ? 0.6 : 1), 0], 1)
+      splat(dye, [lx, ly], [px, py], 0.0075, [Math.min(0.06 + sp * 0.12, 0.3) * (rm ? 0.6 : 1), 0], 0.7)
       lx = px; ly = py
     }
     if (sdy) {
@@ -379,7 +375,8 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     for (let i = 0; i < 8; i++) { pass(progs.jacobi, prs[1], [['uT', prs[0].tex], ['uD', div.tex]], tx); swap(prs) }
     pass(progs.grad, vel[1], [['uT', prs[0].tex], ['uV', vel[0].tex]], tx)
     swap(vel)
-    pass(progs.advect, dye[1], [['uV', vel[0].tex], ['uS', dye[0].tex]], (u) => { gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uAsp, asp); gl.uniform1f(u.uK, Math.exp(-dt * (rm ? 6 : 5))); gl.uniform1f(u.uSub, dt * 0.05) })
+    // the dye is barely carried by the flow, so it can't pile up into a crescent ahead of the pointer; it is gone ~400ms after the pointer stops
+    pass(progs.advect, dye[1], [['uV', vel[0].tex], ['uS', dye[0].tex]], (u) => { gl.uniform1f(u.uDt, dt * 0.25); gl.uniform1f(u.uAsp, asp); gl.uniform1f(u.uK, Math.exp(-dt * 9)); gl.uniform1f(u.uSub, 0) })
     swap(dye)
     pass(progs.bloom, bloom, [['uT', dye[0].tex]], (u) => gl.uniform2f(u.uTx, 1 / dye[0].w, 1 / dye[0].h))
     const span = vh * (1 + 2 * MARGIN)
