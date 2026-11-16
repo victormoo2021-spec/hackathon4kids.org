@@ -1,9 +1,7 @@
 import Image from 'next/image'
-import { categories } from '../content/courses'
-import { courseColor, type Person } from './team'
+import { courseHue, type Person } from './team'
 
-const hueOf = (tag: Person['tags'][number]) =>
-  categories.find((c) => c.color === courseColor[tag])?.hue
+const hueOf = (tag: Person['tags'][number]) => courseHue[tag]
 
 const LONG = 200
 

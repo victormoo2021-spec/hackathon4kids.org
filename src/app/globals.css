@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
-@import "./legacy-blocks.css";
 
 /*
   Apple-clean world. Contrast checked (AA):
