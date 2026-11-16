@@ -4,7 +4,7 @@ import type { Metadata, Viewport } from 'next'
 import MotionProviders from './components/motion/Providers'
 import Navigation from './Navigation'
 import Footer from './Footer'
-import StreakField from './components/fx/StreakField'
+import Prism from './components/fx/Prism'
 import Fluid from './components/fx/Fluid'
 
 // Fonts: system SF stack (see globals.css), so no web font download.
@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <StreakField />
+        <Prism />
         <Fluid />
         <MotionProviders>
           <Navigation />

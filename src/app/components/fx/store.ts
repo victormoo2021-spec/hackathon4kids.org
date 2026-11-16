@@ -1,5 +1,5 @@
 // Shared state for the live visuals. The hero "sketch" (the code the laptop types)
-// writes here line by line; the shader (StreakField) and the 3D laptop read it.
+// writes here line by line; the prism canvas (Prism) and the 3D laptop read it.
 // Tiny pub/sub on purpose: no dependency, readable in a render loop via fx.get().
 
 export type Glow = 'purple' | 'violet' | 'gold'
