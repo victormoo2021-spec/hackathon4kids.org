@@ -12,7 +12,7 @@ type Props = {
   lines: readonly string[]
   /** lines from this index on render dim */
   dimFrom?: number
-  /** phrase inside the lines to render yellow */
+  /** phrase inside the lines to mark with the highlighter */
   hl?: string
   className?: string
   start?: string

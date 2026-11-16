@@ -1,5 +1,5 @@
 // Single source for course -> category. Every page reads this.
-// No per-category colors: the Deep night world keeps one purple and reserves yellow for the eye path.
+// No per-category colors: yellow is reserved for the highlighter and the primary button.
 export const categories = [
   { name: 'Code', courses: ['Python', 'Git + GitHub', 'AP CSA'] },
   { name: 'Build', courses: ['Robotics', 'Game Development'] },

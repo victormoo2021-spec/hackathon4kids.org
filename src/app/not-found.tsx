@@ -15,7 +15,7 @@ export default function NotFound() {
           <span className="h-3 w-3 rounded-full bg-raised" />
           <span className="h-3 w-3 rounded-full bg-raised" />
         </div>
-        <pre className="px-5 py-6 font-mono text-sm leading-7 text-text-dim"><span className="l" style={{ '--i': 0 } as React.CSSProperties}><span className="text-purple-soft">$</span> <span className="text-text">open /nope</span></span>{'\n'}<span className="l" style={{ '--i': 1 } as React.CSSProperties}><span className="text-yellow">404:</span> page not found</span></pre>
+        <pre className="px-5 py-6 font-mono text-sm leading-7 text-text-dim"><span className="l" style={{ '--i': 0 } as React.CSSProperties}><span className="text-yellow">$</span> <span className="text-text">open /nope</span></span>{'\n'}<span className="l" style={{ '--i': 1 } as React.CSSProperties}><span className="text-yellow">404:</span> page not found</span></pre>
       </div>
       <h1 className="t-headline max-w-3xl">This page took a wrong turn.</h1>
       <p className="t-lede">The page you are looking for does not exist or has moved.</p>

@@ -17,7 +17,7 @@
 .faq-item { position: relative; }
 .faq-item::before { content: ""; position: absolute; left: 0; top: -1px; bottom: 0; width: 2px; background: var(--color-yellow); transform: scaleY(0); transform-origin: top; transition: transform 300ms var(--ease-out); pointer-events: none; }
 .faq-item:hover::before, .faq-item[open]::before { transform: scaleY(1); }
-.faq-item summary:hover, .faq-item[open] summary { color: var(--color-yellow); }
+.faq-item summary:hover, .faq-item[open] summary { color: var(--color-text); }
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item::details-content {
   block-size: 0;
