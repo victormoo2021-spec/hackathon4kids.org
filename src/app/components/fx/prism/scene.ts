@@ -24,7 +24,10 @@ const mix = (a: number, b: number, t: number) => a + (b - a) * t
 
 type U = Record<string, IUniform>
 
-export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onReady: () => void): () => void {
+// init is cut into idle slices so no single task is long (it matters on phones)
+const idle = () => new Promise<void>((r) => (window.requestIdleCallback ?? setTimeout)(() => r(), { timeout: 400 }))
+
+export async function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onReady: () => void): Promise<() => void> {
   let renderer: WebGLRenderer
   try {
     renderer = new WebGLRenderer({ canvas, antialias: false, alpha: false, depth: false, stencil: false, powerPreference: 'high-performance' })
@@ -38,6 +41,8 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
   const rt = (depth: boolean, t = type, samples = 0) =>
     new WebGLRenderTarget(2, 2, { type: t, depthBuffer: depth, minFilter: LinearFilter, magFilter: LinearFilter, samples })
   const rtBg = rt(false), rtBack = rt(true, UnsignedByteType), rtScene = rt(true, type, 4), rtA = rt(false), rtB = rt(false)
+
+  await idle()
 
   const mqRm = matchMedia('(prefers-reduced-motion: reduce)')
   const isMobile = () => innerWidth < 900
@@ -61,6 +66,8 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
   const compU: U = { tMap: { value: rtScene.texture }, tBloom: { value: rtA.texture }, uT, uBloom: { value: 0.5 }, uAsp }
   const mComp = mat(COMPOSITE_FRAG, compU)
   const mBack = mat(BACK_FRAG, {}, BAR_VERT, { side: BackSide, depthTest: true, depthWrite: true })
+
+  await idle()
 
   const tri = new BufferGeometry()
   tri.setAttribute('position', new BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3))
@@ -89,6 +96,8 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
     return { mesh, u: m.uniforms, x: 0, v: 0 }
   })
 
+  await idle()
+
   const pass = (m: RawShaderMaterial, target: WebGLRenderTarget | null) => {
     fsQuad.material = m
     renderer.setRenderTarget(target)
@@ -99,11 +108,14 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
     t: 0, spin: 0, speed: fx.get().speed, glow: 0, sat: 0, sparkle: 0, burst: 0, wasSparkle: false,
     n: 5, tx: 0, ty: 0, px: 0, py: 0, dock: 0, arrived: false,
     // one-shot responses to a typed line / arrival, each 1 -> 0
-    pulse: 0, kick: 0, pop: 0, arr: 0, hover: 0, hoverT: 0, hasPtr: false, lastGlow: fx.get().glow, lastSpeed: fx.get().speed, shown: false,
+    gx: -1, textR: 0, textAt: 0, pulse: 0, kick: 0, pop: 0, arr: 0, hover: 0, hoverT: 0, hasPtr: false, lastGlow: fx.get().glow, lastSpeed: fx.get().speed, shown: false,
   }
-  let level = 0, ema = 16, slow = 0, fast = 0, raf = 0, last = 0, lastDraw = 0, W = 0, H = 0
-  let dirtyUntil = Infinity, mdirty = true, measuredAt = 0, lost = false, dead = false, ready = false
-  const mark = () => { mdirty = true; dirtyUntil = performance.now() + 1500 }
+  let level = 0, ema = 16, slow = 0, fast = 0, raf = 0, timer = 0, wasBusy = false, last = 0, lastDraw = 0, W = 0, H = 0
+  let dirtyUntil = 0, mdirty = true, measuredAt = 0, lost = false, dead = false, ready = false
+  // anything that changes the picture calls wake(): display rate for a moment, and the loop restarts if it had stopped
+  const wake = () => { dirtyUntil = performance.now() + 1500; start() }
+  let mdirtyText = true
+  const mark = () => { mdirty = mdirtyText = true; wake() }
   const unsub = fx.subscribe(mark)
   const onMove = (e: PointerEvent) => {
     if (e.pointerType === 'touch') return
@@ -111,7 +123,7 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
     S.py = (e.clientY / innerHeight) * 2 - 1
     S.hasPtr = true
     const over = (e.target as Element | null)?.closest?.('[data-streak-end] a') ? 1 : 0
-    if (fx.get().followMouse || over !== S.hoverT) dirtyUntil = performance.now() + 1500
+    if (fx.get().followMouse || over !== S.hoverT) wake()
     S.hoverT = over
   }
   type Cached = { el: Element | null; sel: string }
@@ -144,16 +156,34 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
     uRes.value = [W, H]
   }
 
+  // right edge of the glyphs that share the gutter ring's rows (ranges, since blocks span the whole column)
+  const textRight = (top: number, bot: number) => {
+    let r = 0
+    const rg = document.createRange()
+    document.querySelectorAll('main :is(h1,h2,h3,h4,p,li,summary,dt,dd,a,button,label)').forEach((el) => {
+      const b = el.getBoundingClientRect()
+      if (!b.width || b.bottom < top || b.top > bot || el.closest('#join')) return
+      rg.selectNodeContents(el)
+      const g = rg.getBoundingClientRect()
+      if (g.width && g.bottom > top && g.top < bot) r = Math.max(r, g.right)
+    })
+    return r
+  }
+
+  // one loop: display rate while something is changing, 30fps for the steady spin, stopped when nothing moves
   const frame = (now: number) => {
     raf = 0
     if (document.hidden || lost || dead) return
-    raf = requestAnimationFrame(frame)
-    if (!ready) return
+    const m = step(now)
+    if (m === 2) raf = requestAnimationFrame(frame)
+    else if (m === 1) timer = window.setTimeout(() => { timer = 0; raf = requestAnimationFrame(frame) }, 1000 / 30 - 12)
+  }
+  const step = (now: number): 0 | 1 | 2 => {
     const f = fx.get()
     const rm = mqRm.matches
     const vw = innerWidth, vh = innerHeight
     const mobile = isMobile()
-    if (!last) { last = lastDraw = now; return }
+    if (!last) { last = lastDraw = now; return 2 }
     const delta = now - last
     last = now
 
@@ -181,20 +211,19 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
     // in the hero one bar is not a ring (the resting stage asks for 1): wait for the typed count
     const want = Math.min(page > 0.5 ? f.streaks || 5 : f.streaks > 1 ? f.streaks : 0, mobile ? 3 : N)
     const spinning = lit && want > 0 && !rm && f.intensity > 0
-    if (!spinning && now > dirtyUntil) return
-    // the hero runs at display rate; the gutter ring is a slow object, 30fps is plenty
-    const cadence = page > 0.5 ? 30 : 0
-    if (cadence && now - lastDraw < 1000 / cadence - 3) return
+    const busy = now < dirtyUntil
+    if (!spinning && !busy) return 0
     const dt = Math.min(0.1, (now - lastDraw) / 1000)
     lastDraw = now
     S.t += dt
 
-    if (!cadence) {
+    if (busy && wasBusy) {
       ema += (delta - ema) * 0.1
       if (ema > 20) { fast = 0; if (++slow > 30 && level < 2) { level++; slow = 0; ema = 16 } }
       else if (ema < 12) { slow = 0; if (++fast > 240 && level > 0) { level--; fast = 0 } }
       else { slow = 0; fast = 0 }
     }
+    wasBusy = busy
     resize(vw, vh, mobile ? 1 : LEVELS[level])
 
     // --- state smoothing ---
@@ -230,8 +259,20 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
       S.burst = S.arr = rm ? 0 : 1
       dispatchEvent(new CustomEvent('fx:arrive'))
     }
-    const gR = (mobile ? 0.16 : 0.175) * vh
-    let cx = vw - (mobile ? gR * 0.15 : gR * 1.15 + 24), cy = vh * 0.5, R = gR
+    // gutter ring: fully on screen and right of the text when there is room; otherwise it slides
+    // up to 40% off the right edge and dims instead of sitting on the copy
+    const gR = (mobile ? 0.16 : 0.26) * vh
+    const gFull = vw - gR * 1.15 - 24
+    if (!mobile && page > 0 && mdirtyText && now - S.textAt > 200) {
+      mdirtyText = false
+      S.textAt = now
+      S.textR = textRight(vh * 0.5 - gR * 1.2, vh * 0.5 + gR * 1.2)
+    }
+    const gT = Math.min(Math.max(gFull, S.textR + 24 + gR * 1.15), vw - gR * 0.23)
+    S.gx = S.gx < 0 || rm ? gT : S.gx + (gT - S.gx) * damp(dt, 3)
+    if (Math.abs(gT - S.gx) > 0.5 || (mdirtyText && page > 0 && !mobile)) dirtyUntil = Math.max(dirtyUntil, now + 250)
+    const off = clamp01((S.gx - gFull) / (gR * 0.5))
+    let cx = mobile ? vw - gR * 0.15 : S.gx, cy = vh * 0.5, R = gR
     if (rOrigin && page < 1) {
       const ox = rOrigin.left + rOrigin.width / 2
       let hR = Math.min(rOrigin.width * 0.9, vh * (mobile ? 0.3 : 0.4), vw * 0.5)
@@ -263,7 +304,7 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
       by = 1 - (rEnd.top + rEnd.height / 2) / vh
     }
     if (!rm) S.spin += dt * (mix(S.speed * mix(0.11, 0.06, page), 0.15, d) + 0.6 * S.kick)
-    const fade = mobile ? mix(1, 0.3, page) : mix(mix(1, 0.72, page), 1, d)
+    const fade = mobile ? mix(1, 0.3, page) : mix(mix(1, mix(0.72, 0.55, off), page), 1, d)
     const gain = S.glow * f.intensity * fade * (1 + 0.7 * Math.sin(Math.PI * S.pulse)) * (1 + 0.25 * S.hover * d)
     const bump = (x: number) => Math.sin(Math.PI * (1 - x)) * (x > 0 ? 1 : 0)
     R *= 1 + 0.04 * bump(S.pop) + 0.05 * bump(S.arr)
@@ -284,7 +325,7 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
     S.ty += ((wob ? Math.cos(S.t * 0.7) * 0.7 : S.px) * follow - S.ty) * kt
     ring.rotation.set(mix(-0.3, 0, d) + S.tx * (1 - d), mix(0.12, 0, d) + S.ty * (1 - d), 0)
 
-    let any = false
+    let any = false, moving = false
     for (let i = 0; i < N; i++) {
       const bar = bars[i]
       const tgt = i < want ? 1 : 0
@@ -294,6 +335,7 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
         bar.v += ((tgt - bar.x) * 190 - bar.v * 19) * dt
         bar.x += bar.v * dt
       }
+      if (Math.abs(tgt - bar.x) > 0.004 || Math.abs(bar.v) > 0.02) moving = true
       const on = bar.x > 0.004
       bar.mesh.visible = on
       if (!on) continue
@@ -351,12 +393,17 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
     }
     pass(mComp, null)
     if (!S.shown) { S.shown = true; onReady() }
+    // transitions keep the display rate until they settle
+    if (moving || S.pulse || S.kick || S.pop || S.arr || S.burst || Math.abs((endIn ? 1 : 0) - S.dock) > 0.01 || Math.abs(S.hoverT - S.hover) > 0.01)
+      dirtyUntil = Math.max(dirtyUntil, now + 200)
+    return now < dirtyUntil ? 2 : 1
   }
 
-  const start = () => { if (!raf && !document.hidden && !dead) { last = 0; mark(); raf = requestAnimationFrame(frame) } }
-  const onVis = () => (document.hidden ? (cancelAnimationFrame(raf), (raf = 0)) : start())
-  const onLost = (e: Event) => { e.preventDefault(); lost = true; cancelAnimationFrame(raf); raf = 0 }
-  const onRestored = () => { lost = false; W = H = 0; start() }
+  function start() { if (ready && !raf && !timer && !document.hidden && !dead && !lost) { last = 0; raf = requestAnimationFrame(frame) } }
+  const halt = () => { cancelAnimationFrame(raf); clearTimeout(timer); raf = timer = 0 }
+  const onVis = () => (document.hidden ? halt() : mark())
+  const onLost = (e: Event) => { e.preventDefault(); lost = true; halt() }
+  const onRestored = () => { lost = false; W = H = 0; mark() }
   addEventListener('pointermove', onMove, { passive: true })
   addEventListener('scroll', mark, { passive: true })
   addEventListener('resize', mark)
@@ -378,15 +425,15 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void, onRea
   const wb = new Mesh(barGeo, bars[0].mesh.material), wk = new Mesh(barGeo, mBack)
   wb.frustumCulled = wk.frustumCulled = false
   warm.add(wb, wk)
+  await idle()
   renderer
     .compileAsync(warm, camera)
     .then(() => { ready = true; mark() })
     .catch((e) => { console.error(e); if (!dead) onFail() })
-  start()
 
   return () => {
     dead = true
-    cancelAnimationFrame(raf)
+    halt()
     unsub()
     removeEventListener('pointermove', onMove)
     removeEventListener('scroll', mark)

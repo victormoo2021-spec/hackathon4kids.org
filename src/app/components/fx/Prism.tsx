@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { fx } from './store'
+import { gpuTier } from './gpu'
 
 declare global {
   interface Window {
@@ -20,20 +21,29 @@ export default function Prism() {
 
   useEffect(() => {
     window.__fx = fx
-    let idle = 0
+    let idle = 0, timer = 0
+    const intents = ['scroll', 'touchstart', 'pointerdown', 'keydown']
+    // software GL (SwiftShader, llvmpipe) never gets a renderer at all
     const probe = () => {
-      // throwaway context: software GL (SwiftShader, llvmpipe) never gets a renderer at all
-      const gl = document.createElement('canvas').getContext('webgl2')
-      const dbg = gl?.getExtension('WEBGL_debug_renderer_info')
-      const name = gl && dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : ''
-      gl?.getExtension('WEBGL_lose_context')?.loseContext()
-      setMode(gl && !/swiftshader|llvmpipe|software/i.test(name) ? 'gl' : 'css')
+      intents.forEach((t) => removeEventListener(t, probe))
+      clearTimeout(timer)
+      setMode(gpuTier() === 'gpu' ? 'gl' : 'css')
     }
-    const go = () => { idle = (window.requestIdleCallback ?? setTimeout)(probe, { timeout: 1500 }) as number }
+    const go = () => {
+      idle = (window.requestIdleCallback ?? setTimeout)(() => {
+        // phones: three is parsed on a slow core, so it waits for the first touch / scroll, or 4s of calm
+        if (matchMedia('(pointer: coarse), (max-width: 899px)').matches) {
+          intents.forEach((t) => addEventListener(t, probe, { passive: true, once: true }))
+          timer = window.setTimeout(probe, 4000)
+        } else probe()
+      }, { timeout: 1500 }) as number
+    }
     if (document.readyState === 'complete') go()
     else addEventListener('load', go, { once: true })
     return () => {
       removeEventListener('load', go)
+      intents.forEach((t) => removeEventListener(t, probe))
+      clearTimeout(timer)
       ;(window.cancelIdleCallback ?? clearTimeout)(idle)
     }
   }, [])
@@ -43,7 +53,8 @@ export default function Prism() {
     let stop: (() => void) | undefined, dead = false
     const fail = () => setMode('css')
     import('./prism/scene')
-      .then((m) => { if (!dead) stop = m.createPrism(ref.current!, fail, () => setOn(true)) })
+      .then((m) => (dead || !ref.current ? undefined : m.createPrism(ref.current, fail, () => setOn(true))))
+      .then((s) => { if (dead) s?.(); else stop = s })
       .catch(fail)
     return () => {
       dead = true
