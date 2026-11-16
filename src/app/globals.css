@@ -1,343 +1,149 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+@import "./legacy-blocks.css";
 
 /*
-  Block world tokens. Text rule (AA checked):
-  ink text on yellow / orange / green / teal / pink; white text on purple / blue.
+  Apple-clean world. Contrast checked (AA):
+  ink #1d1d1f and ink-soft #6e6e73 on white and #f5f5f7; white on accent #2448f5 (6.3:1);
+  on dark #0b0b0f use white, ink-dim #a1a1a6 (7.6:1), accent-dark #7c8cff (6.6:1).
 */
 @theme {
-  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --color-ink: #1b1a2b;
-  --color-ink-soft: #4a4760;
-  --color-stage: #ffffff;
-  --color-grid: #e7e5f0;
+  --color-ink: #1d1d1f;
+  --color-ink-soft: #6e6e73;
+  --color-paper: #ffffff;
+  --color-mist: #f5f5f7;
+  --color-hairline: #e3e3e8;
+  --color-accent: #2448f5;
+  --color-accent-strong: #1d3bf0;
+  --color-night: #0b0b0f;
+  --color-night-2: #16161c;
+  --color-ink-dim: #a1a1a6;
+  --color-accent-dark: #7c8cff;
 
-  --color-events: #ffc21a;   /* yellow: hat blocks, announcements */
-  --color-control: #ff8a1f;  /* orange: loops, programs */
-  --color-operators: #2bb673; /* green: actions, primary CTA */
-  --color-looks: #6f3fe8;    /* purple: say / statements */
-  --color-motion: #2563eb;   /* blue: links, navigation */
-  --color-sensing: #14a3a3;  /* teal: info */
-  --color-pen: #e8457a;      /* pink: highlight */
+  /* Display scale: fluid, tight tracking */
+  --text-display: clamp(2.75rem, 7.2vw, 6.5rem);
+  --text-headline: clamp(2.25rem, 4.6vw, 4rem);
+  --text-title: clamp(1.5rem, 2.2vw, 2rem);
+  --text-lede: clamp(1.125rem, 1.4vw, 1.375rem);
 
-  --color-lilac: #f3f0fb;    /* pale panel fill: bio card, inline code */
+  --radius-card: 1.75rem;
+  --radius-tile: 1.25rem;
+  --radius-pill: 999px;
 
-  /* Type scale (display font, 800). Hero is the home h1 only. */
-  --text-hero: 2.25rem;
-  --text-hero-sm: 3rem;
-  --text-hero-lg: 3.75rem;
-  --text-page: 3rem;
-  --text-page-sm: 3.75rem;
-  --text-section: 1.875rem;
-  --text-section-sm: 2.25rem;
-  --text-card: 1.5rem;
+  --shadow-float: 0 1px 1px rgb(0 0 0 / 0.04), 0 8px 24px -6px rgb(0 0 0 / 0.1), 0 24px 64px -16px rgb(0 0 0 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.05), 0 16px 40px -8px rgb(0 0 0 / 0.16), 0 40px 96px -24px rgb(36 72 245 / 0.22);
 
-  /* Radius scale: block is fixed 8px; panels hold blocks; media are images */
-  --radius-block: 0.5rem;
-  --radius-panel: 1rem;
-  --radius-media: 0.75rem;
-
-  /* Shadows: ink-tinted, never raw black rgb */
-  --shadow-soft: 0 6px 18px color-mix(in srgb, var(--color-ink) 16%, transparent);
-  --shadow-pill: inset 0 -2px 0 color-mix(in srgb, black 12%, transparent);
-
-  --ease-snap: cubic-bezier(0.22, 1.25, 0.36, 1);
+  --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
 }
 
 @layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-grid, currentColor);
-  }
-
   html {
     color: var(--color-ink);
-    background: var(--color-stage);
-    accent-color: var(--color-looks);
-    scrollbar-color: var(--color-looks) var(--color-grid);
+    background: var(--color-paper);
+    accent-color: var(--color-accent);
+    scrollbar-color: color-mix(in oklab, var(--color-ink) 28%, transparent) transparent;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-padding-top: 5rem;
   }
 
   body {
-    /* the stage: faint dot grid like a block editor canvas */
-    background-color: var(--color-stage);
-    background-image: radial-gradient(var(--color-grid) 1.2px, transparent 1.2px);
-    background-size: 22px 22px;
+    background: var(--color-paper);
+    overflow-x: clip;
   }
 
   ::selection {
-    background: var(--color-events);
+    background: color-mix(in oklab, var(--color-accent) 22%, white);
     color: var(--color-ink);
   }
 
   :focus-visible {
-    outline: 3px solid var(--color-motion);
+    outline: 2px solid var(--color-accent);
     outline-offset: 3px;
-    border-radius: 6px;
-  }
-
-  a {
-    text-underline-offset: 0.2em;
-    text-decoration-thickness: 2px;
+    border-radius: 8px;
   }
 
   h1, h2, h3 {
     font-family: var(--font-display);
     text-wrap: balance;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.035em;
+  }
+
+  p { text-wrap: pretty; }
+
+  a {
+    text-underline-offset: 0.22em;
+    text-decoration-thickness: 1.5px;
   }
 }
 
-/*
-  Block primitive. Outer .cb carries the bottom tab and drop shadow;
-  inner .cb-body is masked to cut the top notch.
-*/
 @layer components {
-  .cb {
-    --cb-bg: var(--color-looks);
-    --cb-fg: #fff;
-    --notch-x: 18px;
-    --cb-edge: color-mix(in srgb, black 14%, transparent); /* inset bottom edge, shared with the tab */
-    position: relative;
-    display: block;
-    color: var(--cb-fg);
-    filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--color-ink) 14%, transparent));
-    transition: transform 220ms var(--ease-out-expo), filter 220ms var(--ease-out-expo);
-  }
-
-  .cb-body {
-    display: block;
-    position: relative;
-    background: var(--cb-bg);
-    border-radius: var(--radius-block);
-    box-shadow: inset 0 -4px 0 var(--cb-edge);
-    -webkit-mask:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 9'%3E%3Cpath d='M0 0h36l-7 9H7z'/%3E%3C/svg%3E") var(--notch-x) 0 / 36px 9px no-repeat,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 9'%3E%3Cpath d='M0 0h36l-7 9H7z'/%3E%3C/svg%3E") var(--notch-x) 0 / 36px 9px no-repeat exclude,
-      linear-gradient(#000 0 0);
-  }
-
-  /* bottom tab that fills the next block's notch */
-  .cb::after {
-    content: "";
-    position: absolute;
-    left: var(--notch-x);
-    bottom: -9px;
-    width: 36px;
-    height: 9px;
-    /* same darkening as the body's inset edge so the join is seamless */
-    background: linear-gradient(var(--cb-edge), var(--cb-edge)), var(--cb-bg);
-    clip-path: polygon(0 0, 100% 0, 80.5% 100%, 19.5% 100%);
-  }
-
-  /* hat block: rounded cap, no top notch */
-  .cb-hat .cb-body {
-    -webkit-mask: none;
-    mask: none;
-    border-radius: 28px 28px var(--radius-block) var(--radius-block);
-  }
-
-  /* cap block: ends a script, no bottom tab */
-  .cb-cap::after {
-    display: none;
-  }
-
-  /* interactive blocks lift like being dragged */
-  @media (hover: hover) {
-    a.cb:hover,
-    button.cb:hover,
-    .cb-lift:hover {
-      transform: translate(-2px, -3px) rotate(-0.6deg);
-      filter: drop-shadow(0 10px 14px color-mix(in srgb, var(--color-ink) 22%, transparent));
-    }
-  }
-
-  /* press: click into place, fast and flush */
-  a.cb:active,
-  button.cb:active {
-    transform: translate(0, 2px);
-    filter: drop-shadow(0 1px 1px color-mix(in srgb, var(--color-ink) 20%, transparent));
-    transition-duration: 70ms;
-  }
-
-  /* focus reads as block selection: Scratch-style yellow glow around the block */
-  a.cb:focus-visible,
-  button.cb:focus-visible {
-    outline: none;
-    filter: drop-shadow(0 0 0 var(--color-ink)) drop-shadow(0 0 3px var(--color-events)) drop-shadow(0 0 6px var(--color-events));
-  }
-  a.cb:focus-visible .cb-body,
-  button.cb:focus-visible .cb-body {
-    box-shadow: inset 0 -4px 0 var(--cb-edge), inset 0 0 0 3px var(--color-ink);
-  }
-
-  /* inset value slot inside a block, like a block input */
-  .slot {
-    display: inline-block;
-    padding: 0.05em 0.6em;
-    border-radius: 999px;
-    background: #fff;
-    color: var(--color-ink);
-    box-shadow: inset 0 1px 2px color-mix(in srgb, black 18%, transparent);
-  }
-
-  .cb-yellow { --cb-bg: var(--color-events); --cb-fg: var(--color-ink); }
-  .cb-orange { --cb-bg: var(--color-control); --cb-fg: var(--color-ink); }
-  .cb-green { --cb-bg: var(--color-operators); --cb-fg: var(--color-ink); }
-  .cb-purple { --cb-bg: var(--color-looks); --cb-fg: #fff; }
-  .cb-blue { --cb-bg: var(--color-motion); --cb-fg: #fff; }
-  .cb-teal { --cb-bg: var(--color-sensing); --cb-fg: var(--color-ink); }
-  .cb-pink { --cb-bg: var(--color-pen); --cb-fg: var(--color-ink); }
-}
-
-/* Type scale utilities and page rhythm. Every heading and section uses these. */
-@layer components {
-  .h-hero, .h-page, .h-section, .h-card {
-    font-family: var(--font-display);
-    font-weight: 800;
-  }
-  .h-hero { font-size: var(--text-hero); line-height: 1.1; }
-  .h-page { font-size: var(--text-page); line-height: 1.02; }
-  .h-section { font-size: var(--text-section); line-height: 1.15; }
-  .h-card { font-size: var(--text-card); line-height: 1.2; }
-  @media (min-width: 40rem) {
-    .h-hero { font-size: var(--text-hero-sm); }
-    .h-page { font-size: var(--text-page-sm); }
-    .h-section { font-size: var(--text-section-sm); }
-  }
-  @media (min-width: 64rem) {
-    .h-hero { font-size: var(--text-hero-lg); }
-  }
-
-  /* page frame: one width, gutter and top/bottom padding for every page */
-  .wrap {
+  .container-x {
     margin-inline: auto;
     width: 100%;
-    max-width: 80rem;
-    padding-inline: 1rem;
+    max-width: 75rem;
+    padding-inline: 1.25rem;
   }
-  @media (min-width: 40rem) { .wrap { padding-inline: 1.5rem; } }
-  @media (min-width: 64rem) { .wrap { padding-inline: 2.5rem; } }
-  .page-top { padding-top: 2.5rem; }
-  @media (min-width: 48rem) { .page-top { padding-top: 4rem; } }
-  .page-bottom { padding-bottom: 5rem; }
+  @media (min-width: 48rem) { .container-x { padding-inline: 2rem; } }
 
-  /* one vertical rhythm between sections */
-  .section { margin-top: 6rem; }
-  @media (min-width: 48rem) { .section { margin-top: 7rem; } }
+  .section-y { padding-block: 6rem; }
+  @media (min-width: 64rem) { .section-y { padding-block: 9rem; } }
+
+  .t-display { font-size: var(--text-display); line-height: 1.02; font-weight: 650; letter-spacing: -0.045em; }
+  .t-headline { font-size: var(--text-headline); line-height: 1.05; font-weight: 650; letter-spacing: -0.04em; }
+  .t-title { font-size: var(--text-title); line-height: 1.15; font-weight: 600; letter-spacing: -0.025em; }
+  .t-lede { font-size: var(--text-lede); line-height: 1.5; color: var(--color-ink-soft); }
+
+  .glass {
+    background: color-mix(in oklab, white 72%, transparent);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+
+  /* Primary pill button */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.75rem 1.4rem;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    transition: transform 320ms var(--ease-spring), background-color 200ms var(--ease-apple), box-shadow 320ms var(--ease-apple);
+    will-change: transform;
+  }
+  .btn-primary { background: var(--color-accent); color: #fff; box-shadow: 0 6px 20px -6px rgb(36 72 245 / 0.55); }
+  .btn-primary:hover { background: var(--color-accent-strong); }
+  .btn-secondary { background: var(--color-mist); color: var(--color-ink); }
+  .btn-secondary:hover { background: var(--color-hairline); }
+  .btn:active { transform: scale(0.97); transition-duration: 90ms; }
+  .btn-lg { min-height: 3.5rem; padding: 1rem 1.9rem; font-size: 1.125rem; }
+
+  .card {
+    border-radius: var(--radius-card);
+    background: var(--color-paper);
+    box-shadow: var(--shadow-float);
+  }
 }
 
-/* Signature moment: hero script snaps together once on load. */
-@media (prefers-reduced-motion: no-preference) {
-  .snap-in > * {
-    animation: snap-in 620ms var(--ease-snap) both;
-    animation-delay: calc(var(--i, 0) * 110ms + 120ms);
-  }
-}
-
-@keyframes snap-in {
-  from {
-    transform: translate(-24px, -10px) rotate(-2deg); /* dragged in from the palette side; never past the right edge */
-    opacity: 0.001;
-  }
-}
-
-@keyframes pin-wobble {
-  20% { rotate: -14deg; }
-  45% { rotate: 9deg; }
-  70% { rotate: -4deg; }
-  to { rotate: 0deg; }
-}
-
-/* Shell: skip link, nav links, palette dots (layout/nav/home). */
-@layer components {
-  body {
-    /* snap-in and hover lifts must never cause sideways scroll */
-    overflow-x: clip;
-  }
-
-  .skip-link {
-    position: absolute;
-    left: 1rem;
-    top: -4rem;
-    z-index: 50;
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
-    background: var(--color-ink);
-    color: #fff;
-    font-weight: 700;
-  }
-  .skip-link:focus {
-    top: 1rem;
-  }
-
-  /* underline bar slides in from the left like a block snapping into a slot */
-  .nav-link {
-    color: var(--color-ink);
-    text-decoration: none;
-    background: linear-gradient(var(--color-motion), var(--color-motion)) left bottom 4px / 0 3px no-repeat;
-    transition: background-size 260ms var(--ease-out-expo);
-  }
-  .nav-link:focus-visible {
-    background-size: 100% 3px;
-  }
-  @media (hover: hover) {
-    .nav-link:hover {
-      background-size: 100% 3px;
-    }
-  }
-  .nav-link[aria-current="page"] {
-    background-image: linear-gradient(var(--color-events), var(--color-events));
-    background-size: 100% 4px;
-  }
-
-  /* hero stage: robot takes "move 10 steps" along its path on hover */
-  .robot {
-    transition: transform 420ms var(--ease-snap);
-  }
-  @media (hover: hover) {
-    .stage-art:hover .robot {
-      transform: translate(-10px, 4px);
-    }
-  }
-
-  /* contest pin wobbles once when the card is hovered */
-  .pin {
-    transform-origin: 50% 90%;
-  }
-  @media (hover: hover) {
-    .contest-card:hover .pin {
-      animation: pin-wobble 520ms var(--ease-out-expo);
-    }
-  }
-
-  /* mobile menu: blocks stack in one after another */
-  #mobile-menu:not([hidden]) > li {
-    animation: snap-in 360ms var(--ease-snap) both;
-    animation-delay: calc(var(--i, 0) * 50ms);
-  }
-
-  .cat-dot {
-    display: inline-block;
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 999px;
-    background: var(--cb-bg);
-    box-shadow: inset 0 -3px 0 var(--cb-edge);
-  }
+/* Reveal: visible by default; JS adds .reveal-ready only when motion is allowed. */
+.reveal-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav-link, .robot { transition: none; }
-  .stage-art:hover .robot { transform: none; }
-  .contest-card:hover .pin, #mobile-menu > li { animation: none; }
-  .cb, a.cb:active, button.cb:active { transition: none; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,11 +1,12 @@
 import './globals.css'
 import type { Metadata, Viewport } from 'next'
-import { Bricolage_Grotesque, Atkinson_Hyperlegible } from 'next/font/google'
+import { Geist, Geist_Mono } from 'next/font/google'
+import MotionProviders from './components/motion/Providers'
 import Navigation from './Navigation'
 import Footer from './Footer'
 
-const display = Bricolage_Grotesque({ subsets: ['latin'], variable: '--font-bricolage', display: 'swap' })
-const body = Atkinson_Hyperlegible({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-atkinson', display: 'swap' })
+const geist = Geist({ subsets: ['latin'], variable: '--font-geist', display: 'swap' })
+const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono', display: 'swap' })
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -32,16 +33,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
+    <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
       <body className="flex min-h-screen flex-col font-sans text-ink">
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <Navigation />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        <MotionProviders>
+          <Navigation />
+          <main id="main" className="flex-1">
+            {children}
+          </main>
+          <Footer />
+        </MotionProviders>
       </body>
     </html>
   )
