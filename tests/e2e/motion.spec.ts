@@ -14,12 +14,29 @@ test.describe('motion allowed (desktop)', () => {
     const errors = trackErrors(page)
     await page.goto('/')
     await scrollThrough(page, { step: 300 })
-    // ScrollTrigger pins section#hero (which holds #story), wrapping it in a .pin-spacer
-    await expect(page.locator('.pin-spacer:has(#story)').first()).toBeAttached()
+    // the story stage pins with CSS sticky (no GSAP pin-spacer, so no layout shift)
+    await expect(page.locator('#hero .hero-pin:has(#story)')).toHaveCSS('position', 'sticky')
     await expectNoOverflow(page)
     expect(errors.list).toEqual([])
   })
+
+  test('scrolling through the story causes no layout shift', async ({ page }) => {
+    await page.goto('/')
+    await page.evaluate(() => {
+      ;(window as unknown as { __cls: number }).__cls = 0
+      new PerformanceObserver((list) => {
+        for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[])
+          if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value
+      }).observe({ type: 'layout-shift', buffered: true })
+    })
+    await scrollThrough(page, { step: 300 })
+    const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls)
+    expect(cls).toBeLessThan(0.05)
+  })
 })
+
+const heroPinPosition = (page: import('@playwright/test').Page) =>
+  page.locator('#hero .hero-pin').evaluate((el) => getComputedStyle(el).position)
 
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' })
@@ -27,7 +44,7 @@ test.describe('reduced motion', () => {
   test('no pinning, no Lenis, no motion-ok class', async ({ page }) => {
     await page.goto('/')
     await scrollThrough(page, { step: 600, delay: 20 })
-    await expect(page.locator('.pin-spacer')).toHaveCount(0)
+    expect(await heroPinPosition(page)).not.toBe('sticky')
     await expect(page.locator('html.lenis')).toHaveCount(0)
     await expect(page.locator('html.motion-ok')).toHaveCount(0)
   })
@@ -45,6 +62,6 @@ test.describe('mobile', () => {
   test('does not pin anything', async ({ page }) => {
     await page.goto('/')
     await page.locator('#story').scrollIntoViewIfNeeded()
-    await expect(page.locator('.pin-spacer')).toHaveCount(0)
+    expect(await heroPinPosition(page)).not.toBe('sticky')
   })
 })
