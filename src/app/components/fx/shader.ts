@@ -66,8 +66,15 @@ vec3 gAt(float y){
   for (int i=0;i<7;i++){
     vec4 p0 = uPts[i], p1 = uPts[i+1];
     if (y <= p0.y && y >= p1.y){
-      float t = smoothstep(p0.y, p1.y, y);
-      return mix(vec3(p0.x,p0.z,p0.w), vec3(p1.x,p1.z,p1.w), t);
+      // Catmull-Rom through the points (non-uniform spacing in y), so the guide flows instead of stair-stepping
+      vec4 pm = uPts[max(i-1,0)], p2 = uPts[min(i+2,7)];
+      float h = max(p0.y - p1.y, 1e-4), t = (p0.y - y) / h;
+      vec3 v0 = vec3(p0.x,p0.z,p0.w), v1 = vec3(p1.x,p1.z,p1.w);
+      vec3 m0 = (v1 - vec3(pm.x,pm.z,pm.w)) / max(pm.y - p1.y, h) * h;
+      vec3 m1 = (vec3(p2.x,p2.z,p2.w) - v0) / max(p0.y - p2.y, h) * h;
+      float t2 = t*t, t3 = t2*t;
+      vec3 v = (2.*t3-3.*t2+1.)*v0 + (t3-2.*t2+t)*m0 + (-2.*t3+3.*t2)*v1 + (t3-t2)*m1;
+      return vec3(v.x, max(v.yz, 0.));
     }
     r = vec3(p1.x,p1.z,p1.w);
   }

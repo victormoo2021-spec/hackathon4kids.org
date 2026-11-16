@@ -85,8 +85,9 @@ test.describe('FAQ', () => {
     await faq(page)
       .locator('details')
       .evaluateAll((els) => els.forEach((e) => ((e as HTMLDetailsElement).open = true)))
-    // answers animate open (::details-content), so poll the rendered text
-    await expect.poll(async () => (await faq(page).innerText()).toLowerCase()).toContain('free')
-    await expect.poll(async () => (await faq(page).innerText()).toLowerCase()).toContain('20')
+    // content check: textContent ignores the ::details-content open animation (innerText raced it)
+    const text = ((await faq(page).textContent()) ?? '').toLowerCase()
+    expect(text).toContain('free')
+    expect(text).toContain('20')
   })
 })

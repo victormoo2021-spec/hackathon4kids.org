@@ -40,9 +40,16 @@ export function measureGuide(vw: number): GuidePt[] {
     const cx = r.left + sx + r.width / 2
     const top = r.top + sy
     const gx = gutterOf(btn)
-    // gutter, then a short curl that lands on the button's top edge (not past it)
-    while (pts.length && pts[pts.length - 1].y >= top - 70) pts.pop()
-    pts.push({ x: gx, y: top - 70, w: wg, b: 0.4 * k }, { x: (gx + cx) / 2, y: top - 30, w: wh, b: k }, { x: cx, y: top, w: wh, b: k })
+    // gutter, then a rounded sweep under the heading that lands on the button's top edge (not past it)
+    const lerp = (t: number) => gx + (cx - gx) * t
+    while (pts.length && pts[pts.length - 1].y >= top - 230) pts.pop()
+    pts.push(
+      { x: gx, y: top - 230, w: wg, b: 0.4 * k },
+      { x: lerp(0.04), y: top - 120, w: wg, b: 0.6 * k },
+      { x: lerp(0.2), y: top - 72, w: wh, b: 0.85 * k },
+      { x: lerp(0.62), y: top - 42, w: wh, b: k },
+      { x: cx, y: top - 6, w: wh, b: k },
+    )
   }
   for (let i = 1; i < pts.length; i++) pts[i].y = Math.max(pts[i].y, pts[i - 1].y + 1)
   return pts

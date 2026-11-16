@@ -268,6 +268,8 @@ export default function Laptop3D(props: Props) {
   return (
     <div ref={wrap} style={{ position: 'absolute', inset: 0 }}>
       <Canvas
+        // layout size, not the transformed rect: the story scales this wrapper, which must not double-scale the canvas or the screen projection
+        resize={{ offsetSize: true }}
         frameloop="demand"
         dpr={[1, 1.75]}
         camera={{ fov: 28, position: [0, 1.25, 6], near: 1, far: 30 }}
