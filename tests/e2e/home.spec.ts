@@ -17,6 +17,7 @@ test.describe('home sections', () => {
 
   test('hero contains the h1', async ({ page }) => {
     await expect(page.locator('section#hero h1')).toBeVisible()
+    await expect(page.locator('h1')).toHaveCount(1)
   })
 
   test('join section has the mailing-list CTA', async ({ page }) => {
@@ -38,6 +39,16 @@ test('mailing-list CTA sits fully inside the first viewport', async ({ page }) =
       return !!box && box.x >= 0 && box.y >= 0 && box.x + box.width <= vp.width && box.y + box.height <= vp.height
     })
     .toBe(true)
+})
+
+test('mailing-list CTA is inside the first viewport at 390x844', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  const box = await page.locator(`section#hero a[href="${MAILING_LIST}"]`).first().boundingBox()
+  expect(box).not.toBeNull()
+  expect(box!.x).toBeGreaterThanOrEqual(0)
+  expect(box!.y + box!.height).toBeLessThanOrEqual(844)
+  expect(box!.x + box!.width).toBeLessThanOrEqual(390)
 })
 
 test.describe('FAQ', () => {

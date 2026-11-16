@@ -1,4 +1,13 @@
 import { expect, test } from '@playwright/test'
+const drawnPixels = (page: import('@playwright/test').Page) =>
+  page.locator('#story canvas').evaluate((c) => {
+    const cv = c as HTMLCanvasElement
+    const d = cv.getContext('2d')!.getImageData(0, 0, cv.width, cv.height).data
+    let n = 0
+    for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++
+    return n
+  })
+
 import { expectNoOverflow, scrollThrough, trackErrors } from './helpers'
 
 test.describe('motion allowed (desktop)', () => {
@@ -18,6 +27,14 @@ test.describe('motion allowed (desktop)', () => {
     await expect(page.locator('#hero .hero-pin:has(#story)')).toHaveCSS('position', 'sticky')
     await expectNoOverflow(page)
     expect(errors.list).toEqual([])
+  })
+
+  test('story canvas has drawn pixels after scrolling through the hero', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('#story canvas')).toBeAttached()
+    await scrollThrough(page, { step: 300 })
+    await page.locator('#story').scrollIntoViewIfNeeded()
+    await expect.poll(() => drawnPixels(page)).toBeGreaterThan(500)
   })
 
   test('scrolling through the story causes no layout shift', async ({ page }) => {
@@ -47,6 +64,12 @@ test.describe('reduced motion', () => {
     expect(await heroPinPosition(page)).not.toBe('sticky')
     await expect(page.locator('html.lenis')).toHaveCount(0)
     await expect(page.locator('html.motion-ok')).toHaveCount(0)
+  })
+
+  test('story canvas shows the final drawing without scrolling', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('#story canvas')).toBeAttached()
+    await expect.poll(() => drawnPixels(page)).toBeGreaterThan(500)
   })
 
   test('all reveal elements are visible without scrolling', async ({ page }) => {
