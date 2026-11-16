@@ -3,16 +3,16 @@ import { ChevronDownIcon } from '@radix-ui/react-icons'
 import Block from './Block'
 import { faq } from '../content/faq'
 
-type FaqProps = { id?: string; heading?: string; items?: typeof faq }
+type FaqProps = { id?: string; headingId?: string; heading?: string; items?: typeof faq }
 
 const linkCls =
   'font-semibold underline underline-offset-4 decoration-2 hover:decoration-4 focus-visible:outline-2 focus-visible:outline-offset-2'
 
-export default function Faq({ id, heading = 'Questions parents ask', items = faq }: FaqProps) {
+export default function Faq({ id, headingId, heading = 'Questions parents ask', items = faq }: FaqProps) {
   return (
     <div id={id}>
-      <h2 className="font-display text-3xl text-ink sm:text-4xl">{heading}</h2>
-      <div className="mt-6 flex max-w-3xl flex-col gap-3">
+      <h2 id={headingId} className="h-section">{heading}</h2>
+      <div className="mt-8 grid items-start gap-3 lg:grid-cols-2 lg:gap-x-6">
         {items.map(({ q, a, link }) => (
           <Block key={q} color="yellow" bodyClassName="px-0 py-0">
             <details className="group">

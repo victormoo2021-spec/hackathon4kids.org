@@ -4,6 +4,7 @@ import { ArrowRightIcon } from '@radix-ui/react-icons'
 import Block from './components/Block'
 import Op from './components/Op'
 import { CtaPrimary } from './components/CtaPair'
+import Faq from './components/Faq'
 import { contest, MAILING_LIST } from './content/contest'
 import { categories } from './content/courses'
 
@@ -186,6 +187,11 @@ export default function Home() {
             </Block>
           </li>
         </ol>
+      </section>
+
+      {/* Parent questions, answered with confirmed facts only */}
+      <section id="faq" aria-labelledby="faq-title" className={`${wrap} section`}>
+        <Faq headingId="faq-title" />
       </section>
 
       {/* Closing CTA */}
