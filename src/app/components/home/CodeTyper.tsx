@@ -1,10 +1,8 @@
-import { memo } from 'react'
-import { PROGRAM } from './program'
+import { SKETCH } from './program'
 
-// The full program, always visible. StoryStage moves the `on` class between lines like a debugger.
-const TOKEN = /(#.*)|("[^"]*")|\b(import|for|in)\b|\b(\d+)\b|([A-Za-z_]\w*)(?=\()/g
-const CLS = ['c', 's', 'k', 'n', 'f']
-const LINES = PROGRAM.split('\n')
+// Editor window shown inside the laptop screen. `counts[i]` = characters of line i typed so far.
+const TOKEN = /(#.*)|("[^"]*"?)|\b(True|False|\d+(?:\.\d+)?)\b|(=)/g
+const CLS = ['c', 's', 'n', 'eq']
 
 function tokens(line: string): [string, string?][] {
   const out: [string, string?][] = []
@@ -18,19 +16,36 @@ function tokens(line: string): [string, string?][] {
   return out
 }
 
-export default memo(function CodeTyper() {
+/** "glow = \"purple\"" -> "glow → purple" */
+const echo = (line: string) => line.replace(/\s*=\s*/, ' → ').replace(/"/g, '')
+
+export default function CodeTyper({ counts }: { counts: number[] }) {
+  const done = SKETCH.filter((l, i) => counts[i] >= l.length).length
+  const active = Math.min(done, SKETCH.length - 1)
+  const last = SKETCH.slice(0, done).filter((l) => !l.startsWith('#')).pop()
   return (
-    <pre className="code-typer" aria-hidden>
-      {LINES.map((line, i) => (
-        <span className={i === LINES.length - 1 ? 'ln on' : 'ln'} key={i} style={{ '--i': i } as React.CSSProperties}>
-          <span className="no">{i + 1}</span>
-          <span className="tx">
-            {tokens(line).map(([text, cls], j) => (
-              <span key={j} className={cls && `t-${cls}`}>{text}</span>
-            ))}
+    <div className="win">
+      <div className="bar">
+        <span className="file">paint.py</span>
+        <span className="run-btn">Run</span>
+      </div>
+      <pre className="code-typer" aria-hidden>
+        {SKETCH.map((line, i) => (
+          <span className={i === active ? 'ln on' : 'ln'} key={i}>
+            <span className="no">{i + 1}</span>
+            <span className="tx">
+              {tokens(line.slice(0, counts[i])).map(([text, cls], j) => (
+                <span key={j} className={cls && `t-${cls}`}>{text}</span>
+              ))}
+            </span>
           </span>
-        </span>
-      ))}
-    </pre>
+        ))}
+      </pre>
+      <p className="term" aria-hidden><span>$</span> <em>{last ? echo(last) : 'ready'}</em></p>
+      <div className="sr-only">
+        <p>A laptop showing paint.py, a short sketch. Each line changes the lights painting the background of this page:</p>
+        <pre>{SKETCH.join('\n')}</pre>
+      </div>
+    </div>
   )
-})
+}

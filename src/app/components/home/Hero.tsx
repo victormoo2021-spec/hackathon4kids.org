@@ -11,7 +11,7 @@ export default function Hero() {
     <section id="hero" className="hero" aria-labelledby="hero-h1">
       <div className="hero-pin">
         <div className="container-x hero-grid">
-          <div className="hero-copy">
+          <div className="hero-copy" data-fx-shield>
             <h1 id="hero-h1" className="hero-h1">
               {H1.map((w, i) => (
                 <span key={i}>
