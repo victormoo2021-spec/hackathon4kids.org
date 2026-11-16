@@ -44,7 +44,7 @@ function CtaButton() {
     { scope: ref },
   )
   return (
-    <div ref={ref} className="mt-12">
+    <div ref={ref} className="mt-10">
       <div data-cta-btn data-streak-end>
         <EmailCta size="lg" align="center" />
       </div>
@@ -55,9 +55,8 @@ function CtaButton() {
 export default function FinalCta() {
   return (
     <Reveal as="section" id="join" aria-labelledby="join-title" className="container-x section-y text-center">
-      <h2 id="join-title" data-reveal className="t-display mx-auto max-w-4xl">Get the next class dates.</h2>
+      <h2 id="join-title" data-reveal data-spectral className="t-display mx-auto max-w-4xl">Get the next <span className="hl">class dates</span>.</h2>
       <CtaButton />
-      <p data-reveal className="mt-6 text-text-dim">For parents and guardians.</p>
     </Reveal>
   )
 }

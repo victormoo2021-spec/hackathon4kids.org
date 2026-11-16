@@ -8,7 +8,7 @@ const items = [
 export default function Formats() {
   return (
     <Reveal as="section" id="formats" aria-labelledby="formats-title" className="container-x section-y">
-      <h2 id="formats-title" className="sr-only">In person and online</h2>
+      <h2 id="formats-title" data-spectral className="sr-only">In person and online</h2>
       <div data-reveal="rule" data-streak-anchor="r" className="formats-grid relative grid md:grid-cols-2">
         {items.map((it, i) => (
           <div key={it.title} data-reveal data-delay={i ? 120 : undefined} className={`py-8 md:py-2 ${i ? 'border-t border-line md:border-t-0 md:pl-12' : 'md:pr-12'}`}>

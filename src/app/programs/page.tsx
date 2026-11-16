@@ -120,9 +120,6 @@ export default function Programs() {
 
       <Reveal as="section" className="container-x page-section pb-28" aria-labelledby="next">
         <h2 id="next" data-reveal className="t-headline">Joining a contest</h2>
-        <p data-reveal className="t-lede mt-4 max-w-xl">
-          Contests run on Code.org. The instructions page shows parents how to get their child signed in and ready.
-        </p>
         <div data-reveal className="mt-8 flex flex-wrap items-center gap-4">
           <EmailCta size="lg" />
           <a href="/code.org" className="btn btn-secondary btn-lg">Contest instructions</a>

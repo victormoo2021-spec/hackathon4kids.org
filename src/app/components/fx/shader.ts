@@ -103,16 +103,16 @@ void main(){
   vec2 p = (gl_FragCoord.xy-.5*uRes)/uRes.y;
   vec2 v = p-uMouse; p += v*.55*uBend*exp(-dot(v,v)/.08);
   vec3 col = vec3(0.);
-  const vec3 HOT[8] = vec3[8](vec3(1.,.8,.3), vec3(.55,.36,1.4), vec3(.55,.36,1.4), vec3(1.,.92,.82), vec3(.55,.36,1.4), vec3(.55,.36,1.4), vec3(.55,.36,1.4), vec3(.55,.36,1.4));
+  const vec3 HOT[8] = vec3[8](vec3(1.,.82,.25), vec3(1.,.9,.45), vec3(1.,.93,.6), vec3(1.,.95,.7), vec3(1.,.9,.55), vec3(1.,.93,.6), vec3(1.,.9,.5), vec3(1.,.93,.6));
   if (uPage < .999){
     for (int i=0;i<8;i++){
       if (float(i) >= uMax) break;
       float vis = uVis[i]; if (vis <= 0.) continue;
-      vec3 base = i==0 ? uColA : (i==3 ? uColB : mix(uColA, uColB, .55));
+      vec3 base = (i==1 || i==3) ? vec3(1.,.67,.02) : (i==0 ? uColA : mix(uColA, uColB, .55));
       col += ribbon(RB[i], p, vis, base, HOT[i])*(1.-uPage);
     }
   }
-  if (uPage > .001) col += guide(p, uColA, HOT[0])*uPage;
+  if (uPage > .001) col += guide(p, vec3(.39,.26,1.), vec3(1.,.93,.6))*uPage;
   float halo = dot(col, vec3(.33));
   // screen spill (not a blob): hugs the laptop screen and falls off fast
   float sd = sdBox(p-uOrigin, uScreenHalf);
@@ -121,7 +121,7 @@ void main(){
   vec2 pq = p+vec2(0.,uParallax); vec2 cell = floor(pq/.06); float h = hash(cell);
   vec2 sp = (cell+.2+.6*vec2(hash(cell+7.3),hash(cell+3.1)))*.06;
   float sparkle = exp(-dot(pq-sp,pq-sp)*9000.)*pow(max(0.,sin(uT*3.*(1.-.8*uCalm)+h*6.28)),16.)*min(halo*4.,1.);
-  col += vec3(1.,.9,.7)*sparkle*uSparkle*1.4;
+  col += vec3(1.,.8,.2)*sparkle*uSparkle*1.4;
   col *= 1.-.82*(1.-smoothstep(0.,.22,sdBox(p-uShield.xy,uShield.zw)));
   col *= 1.-.82*(1.-smoothstep(0.,.22,sdBox(p-uShield2.xy,uShield2.zw)));
   col *= uGlow*uIntensity;
