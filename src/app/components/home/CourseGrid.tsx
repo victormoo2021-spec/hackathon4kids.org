@@ -80,18 +80,18 @@ function Tile({ cat, wide }: { cat: Cat; wide?: boolean }) {
         ref={ref}
         onPointerMove={move}
         onPointerLeave={reset}
-        className={`tile card flex h-full flex-col gap-8 p-7 md:p-9 ${wide ? 'md:flex-row md:items-center md:justify-between' : ''}`}
+        className={`tile card flex h-full flex-col gap-8 p-9 md:p-11 ${wide ? 'md:flex-row md:items-center md:justify-between' : ''}`}
         style={{ '--hue': cat.hue } as React.CSSProperties}
       >
         <div>
-          <h3 className="t-title">{cat.name}</h3>
-          <ul className="mt-4 space-y-1.5 text-lg text-ink-soft">
+          <p className="text-base text-ink-soft">{cat.name}</p>
+          <ul className="mt-3 space-y-2 text-base text-ink-soft">
             {cat.courses.map((c) => (
-              <li key={c}>{c}</li>
+              <li key={c} className="text-xl font-semibold text-ink">{c}</li>
             ))}
           </ul>
         </div>
-        <div className="tile-visual" style={{ color: cat.hue }}>
+        <div className={`tile-visual ${wide ? '' : 'mt-auto'}`} style={{ color: cat.hue }}>
           <Visual name={cat.name} />
         </div>
       </div>

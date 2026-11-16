@@ -24,7 +24,7 @@ export default function FinalCta() {
         <div aria-hidden className="final-ribbon" />
         <h2 id="join-title" data-reveal className="t-display mx-auto max-w-4xl">Get the next class dates.</h2>
         <div ref={ref} data-reveal onPointerMove={move} onPointerLeave={leave} className="mx-auto mt-12 inline-block p-8">
-          <EmailCta size="lg" reassure className="items-center" />
+          <EmailCta size="lg" reassure align="center" />
         </div>
         <p data-reveal className="mt-2 text-ink-soft">For parents and guardians. We never sell or share your email.</p>
       </Reveal>

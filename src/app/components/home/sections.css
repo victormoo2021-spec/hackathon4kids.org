@@ -9,8 +9,7 @@
 }
 .tile:hover { box-shadow: var(--shadow-lift); }
 .tile-visual {
-  width: 100%;
-  max-width: 16rem;
+  height: 8rem;
   aspect-ratio: 5 / 3;
   flex-shrink: 0;
   border-radius: var(--radius-tile);
@@ -33,20 +32,27 @@
 }
 
 .final-cta { background: var(--color-mist); }
+/* Pre-baked soft gradients: no filter, no animation, so nothing repaints per frame. */
 .final-ribbon {
   position: absolute;
-  inset: -30% -10%;
+  inset: 0;
   z-index: -1;
-  filter: blur(60px);
-  opacity: 0.55;
+  opacity: 0.6;
   background:
-    radial-gradient(40% 50% at 25% 40%, #7aa2ff, transparent 70%),
-    radial-gradient(40% 50% at 55% 60%, #a98bff, transparent 70%),
-    radial-gradient(40% 50% at 82% 40%, #ff9d8a, transparent 70%);
-  animation: ribbon 18s ease-in-out infinite alternate;
+    radial-gradient(45% 60% at 22% 40%, rgb(122 162 255 / 0.65), transparent 100%),
+    radial-gradient(45% 60% at 55% 62%, rgb(169 139 255 / 0.55), transparent 100%),
+    radial-gradient(45% 60% at 82% 40%, rgb(255 157 138 / 0.55), transparent 100%);
 }
-@keyframes ribbon { to { transform: translate3d(4%, 3%, 0) scale(1.08); } }
-@media (prefers-reduced-motion: reduce) { .final-ribbon { animation: none; } }
+
+.band-ribbon {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.2;
+  background:
+    radial-gradient(40% 55% at 15% 85%, #7c8cff, transparent 100%),
+    radial-gradient(35% 50% at 85% 20%, #a98bff, transparent 100%);
+}
 
 /* FAQ */
 .faq-list { interpolate-size: allow-keywords; }

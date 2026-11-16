@@ -8,11 +8,11 @@ const linkCls = 'font-semibold text-accent underline underline-offset-4 hover:de
 export default function Faq({ id, headingId, heading = 'Questions parents ask', items = faq }: FaqProps) {
   return (
     <div id={id} className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
-      <h2 id={headingId} className="t-headline">{heading}</h2>
+      <h2 id={headingId} className="t-headline lg:sticky lg:top-28 lg:self-start">{heading}</h2>
       <div className="faq-list">
         {items.map(({ q, a, link }) => (
           <details key={q} className="faq-item">
-            <summary className="flex cursor-pointer items-center justify-between gap-6 py-6 text-xl font-semibold tracking-tight text-ink md:text-2xl">
+            <summary className="flex cursor-pointer items-center justify-between gap-6 py-6 text-[1.25rem] font-semibold tracking-tight text-ink">
               {q}
               <span aria-hidden className="faq-icon text-ink-soft" />
             </summary>

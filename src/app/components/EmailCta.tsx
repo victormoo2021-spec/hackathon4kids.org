@@ -8,12 +8,13 @@ type EmailCtaProps = {
   className?: string
   /** show the "No spam" reassurance line under the button */
   reassure?: boolean
+  align?: 'start' | 'center'
 }
 
 // The one primary action on the site. Copy is fixed: do not reword.
-export default function EmailCta({ size = 'md', compact, className = '', reassure }: EmailCtaProps) {
+export default function EmailCta({ size = 'md', compact, className = '', reassure, align = 'start' }: EmailCtaProps) {
   return (
-    <div className={`inline-flex flex-col items-start gap-2 ${className}`}>
+    <div className={`inline-flex flex-col ${align === 'center' ? 'items-center text-center' : 'items-start'} gap-2 ${className}`}>
       <a
         href={MAILING_LIST}
         target="_blank"

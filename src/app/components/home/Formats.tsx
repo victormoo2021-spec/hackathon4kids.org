@@ -41,8 +41,8 @@ export default function Formats() {
       <h2 id="formats-title" data-reveal className="t-headline max-w-2xl">In person and online.</h2>
       <div className="mt-14 grid gap-5 md:grid-cols-2">
         {items.map((it) => (
-          <div key={it.title} data-reveal className="card overflow-hidden bg-mist p-7 shadow-none md:p-9">
-            <div className="h-44 rounded-[var(--radius-tile)] bg-white p-4 shadow-[var(--shadow-float)]">{it.visual}</div>
+          <div key={it.title} data-reveal className="card flex min-h-[22rem] flex-col overflow-hidden bg-mist p-9 shadow-none md:p-11">
+            <div className="h-60 rounded-[var(--radius-tile)] bg-white p-6 shadow-[var(--shadow-float)]">{it.visual}</div>
             <h3 className="t-title mt-8">{it.title}</h3>
             <p className="mt-2 text-lg text-ink-soft">{it.body}</p>
           </div>

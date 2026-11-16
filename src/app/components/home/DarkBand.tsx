@@ -1,12 +1,19 @@
 'use client'
 
 import Link from 'next/link'
+import { ArrowRightIcon } from '@radix-ui/react-icons'
 import { useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
+
+const claims = [
+  ['2018', 'Founded by two high-school students.'],
+  ['Teens teach', 'High-school students teach younger kids in their community.'],
+  ['Free', 'Donations go toward helping underprivileged children.'],
+] as const
 
 const lines = ['Run by high-school', 'students since 2018.']
 
@@ -23,10 +30,10 @@ export default function DarkBand() {
         )
         gsap.from('[data-rise]', {
           opacity: 0, // opacity only: keep links focusable
-          y: 28,
-          duration: 0.9,
+          y: 16,
+          duration: 0.7,
           ease: 'expo.out',
-          stagger: 0.1,
+          stagger: 0.06,
           scrollTrigger: { trigger: '[data-rise]', start: 'top 90%', once: true },
         })
         gsap.to('[data-glyphs]', {
@@ -42,8 +49,9 @@ export default function DarkBand() {
 
   return (
     <section ref={ref} id="run-by-students" aria-labelledby="students-title" className="relative isolate overflow-hidden bg-night text-white">
+      <div aria-hidden className="band-ribbon" />
       <div aria-hidden data-glyphs className="band-glyphs" />
-      <div className="container-x section-y relative">
+      <div className="container-x relative py-24 lg:py-36">
         <h2 id="students-title" className="t-display max-w-5xl">
           {lines.map((l) => (
             <span key={l} className="block overflow-hidden pb-[0.08em]">
@@ -51,14 +59,17 @@ export default function DarkBand() {
             </span>
           ))}
         </h2>
-        <div className="mt-14 grid gap-10 text-lg text-ink-dim md:grid-cols-3">
-          <p data-rise>Hackathon4Kids was founded by two high-school students.</p>
-          <p data-rise>Students teach younger kids in their own community.</p>
-          <p data-rise>Donations go toward helping underprivileged children.</p>
-        </div>
-        <p data-rise className="mt-12">
-          <Link href="/about#instructors" className="font-semibold text-accent-dark underline underline-offset-4">
-            Meet the team
+        <dl className="mt-20 grid gap-12 md:grid-cols-3 md:gap-10">
+          {claims.map(([big, cap]) => (
+            <div key={big} data-rise>
+              <dt className="text-[2.5rem] font-semibold leading-none tracking-tight text-white">{big}</dt>
+              <dd className="mt-4 max-w-[18rem] text-[0.9375rem] leading-relaxed text-white/[0.62]">{cap}</dd>
+            </div>
+          ))}
+        </dl>
+        <p data-rise className="mt-16">
+          <Link href="/about#instructors" className="group inline-flex items-center gap-2 font-semibold text-white underline-offset-4 hover:underline">
+            Meet the team <ArrowRightIcon aria-hidden className="transition-transform group-hover:translate-x-1" />
           </Link>
         </p>
       </div>

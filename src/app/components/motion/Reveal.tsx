@@ -21,7 +21,7 @@ type RevealProps = {
  * Fades and rises every [data-reveal] descendant once, as it enters the viewport.
  * Content is fully visible without JS and under reduced motion.
  */
-export default function Reveal({ children, className, as: Tag = 'div', stagger = 0.08, ...rest }: RevealProps) {
+export default function Reveal({ children, className, as: Tag = 'div', stagger = 0.06, ...rest }: RevealProps) {
   const ref = useRef<HTMLElement>(null)
 
   useGSAP(
@@ -31,9 +31,9 @@ export default function Reveal({ children, className, as: Tag = 'div', stagger =
         const items = gsap.utils.toArray<HTMLElement>('[data-reveal]', ref.current)
         if (!items.length) return
         // opacity only (never visibility) so unrevealed content stays focusable for keyboard users
-        gsap.set(items, { opacity: 0, y: 28 })
+        gsap.set(items, { opacity: 0, y: 16 })
         const show = (els: Element[]) =>
-          gsap.to(els, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger, overwrite: true })
+          gsap.to(els, { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out', stagger, overwrite: true })
         const onFocus = (e: FocusEvent) => {
           const hit = items.filter((el) => el.contains(e.target as Node))
           if (hit.length) gsap.set(hit, { opacity: 1, y: 0, overwrite: true })
