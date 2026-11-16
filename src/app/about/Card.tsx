@@ -1,85 +1,48 @@
-import Image, { StaticImageData } from 'next/image'
+import Image from 'next/image'
+import Block from '../components/Block'
+import { courseColor, type Person } from './team'
 
-export const enum Tag {
-  Python,
-  AMC10,
-  AMC8,
-  APPhysics1,
-  GitGitHub,
-  APCSA,
-  CurrentInstructor,
-  RetiredInstructor,
-  GameDev,
-  Robotics,
-  IntroToAlgebra,
-  IntroToPhysics
-}
-
-const tagInfo = (tag: Tag) => {
-  switch (tag) {
-    case Tag.CurrentInstructor:
-      return ['bg-amber-500', '💪 current team']
-    case Tag.RetiredInstructor:
-      return ['bg-stone-400', '🎓 retired']
-    case Tag.Python:
-      return ['bg-lime-500', '🐍 Python']
-    case Tag.GameDev:
-      return ['bg-violet-600', '👾 Game Development']
-    case Tag.AMC10:
-      return ['bg-orange-500', '✏️ AMC 10']
-    case Tag.AMC8:
-      return ['bg-orange-500', '✏️ AMC 8']
-    case Tag.GitGitHub:
-      return ['bg-indigo-500', '🕊️ Git + GitHub']
-    case Tag.APCSA:
-      return ['bg-red-400', '☕ AP CSA']
-    case Tag.Robotics:
-      return ['bg-fuchsia-400', '🤖 Robotics']
-    case Tag.APPhysics1:
-      return ['bg-teal-400', '⚙️  AP Physics 1']
-    case Tag.IntroToAlgebra:
-      return ['bg-orange-500', '✏️ Intro To Algebra']
-    case Tag.IntroToPhysics:
-      return ['bg-teal-400', '⚙️  Intro To Physics']
-  }
-}
-
-interface CardProps {
-  name: string;
-  subtitle: string;
-  avatar: StaticImageData;
-  children: React.ReactNode;
-  tags: Tag[];
-}
-
-const Card = ({ name, children, avatar, tags, subtitle }: CardProps) => {
+// One team member as a two-block script: a hat block (who) snapped onto a
+// pale cap block (bio + the courses they teach as small blocks).
+export default function Card({ person }: { person: Person }) {
+  const { name, role, photo, bio, current, tags } = person
   return (
-    <div className="rounded-lg p-5 w-full border border-gray-200">
-      <div className="flex flex-row items-center gap-4 mb-4">
+    <article className="break-inside-avoid mb-12">
+      <Block
+        color={current ? 'yellow' : 'blue'}
+        shape="hat"
+        bodyClassName="flex items-center gap-4 px-4 pt-5 pb-5"
+      >
         <Image
-          src={avatar}
-          alt={`Image of ${name}`}
-          className="w-20 rounded-3xl"
+          src={photo}
+          alt={`Portrait of ${name}`}
+          sizes="80px"
+          className="size-20 shrink-0 rounded-2xl object-cover ring-4 ring-white/70"
         />
-        <div>
-          <h3 className="text-2xl font-bold">{name}</h3>
-          <p className="text-gray-600">{subtitle}</p>
+        <span className="min-w-0">
+          <h3 className="text-2xl font-extrabold leading-tight">{name}</h3>
+          <span className="block leading-snug">{role}</span>
+          <span className="slot mt-2 text-sm font-bold">{current ? 'Current team' : 'Former team'}</span>
+        </span>
+      </Block>
+      <div
+        className="cb cb-cap"
+        style={{ '--cb-bg': '#f3f0fb', '--cb-fg': 'var(--color-ink)' } as React.CSSProperties}
+      >
+        <div className="cb-body px-5 pt-6 pb-5">
+          <p className="leading-relaxed">{bio}</p>
+          <p className="mt-4 mb-2 text-sm font-bold text-ink-soft">Teaches</p>
+          <ul className="flex flex-wrap gap-x-2 gap-y-4 pb-1">
+            {tags.map((tag) => (
+              <li key={tag}>
+                <Block color={courseColor[tag]} shape="cap" className="inline-block" bodyClassName="px-3 pt-2 pb-1.5 text-sm font-bold">
+                  {tag}
+                </Block>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-      <p>{children}</p>
-      <hr className="mt-3 mb-4" />
-      <div className="flex flex-row flex-wrap gap-2">
-        {
-          tags.map((tag) => {
-            const [color, text] = tagInfo(tag)
-            return (
-              <span key={tag} className={`rounded-md px-2 py-0.5 text-sm text-white ${color}`}>{text}</span>
-            )
-          })
-        }
-      </div>
-    </div>
+    </article>
   )
 }
-
-export default Card

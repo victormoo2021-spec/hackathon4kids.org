@@ -1,74 +1,104 @@
 'use client'
 
-import * as NavigationMenu from '@radix-ui/react-navigation-menu'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Cross2Icon, HamburgerMenuIcon } from '@radix-ui/react-icons'
 import logo from 'public/logo.png'
+import Block from './components/Block'
+import { contest, MAILING_LIST } from './content/contest'
 
-const Navigation = () => (
-  <NavigationMenu.Root className="flex flex-col md:flex-row justify-between px-5 md:px-24 pt-4">
-    <NavigationMenu.List className="flex flex-row gap-4 text-lg">
-      <NavigationMenu.Item>
-        <NavigationMenu.Link asChild>
-          <Link href="/" className="font-bold text-blue-950">
-            <Image
-              src={logo}
-              alt="Hackathon4Kids logo"
-              className="w-8 h-8 inline-block mr-3"
-            />
-            Hackathon4Kids
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/programs', label: 'Programs' },
+  { href: '/about', label: 'About' },
+]
+
+export default function Navigation() {
+  const pathname = usePathname()
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => setOpen(false), [pathname])
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
+
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href))
+
+  const items = (
+    <>
+      {links.map((l) => (
+        <li key={l.href}>
+          <Link
+            href={l.href}
+            aria-current={isActive(l.href) ? 'page' : undefined}
+            className="nav-link block rounded-md px-2 py-2 text-lg font-bold"
+          >
+            {l.label}
           </Link>
-        </NavigationMenu.Link>
-      </NavigationMenu.Item>
+        </li>
+      ))}
+      {contest.active && (
+        <li>
+          <Block
+            color="yellow"
+            shape="hat"
+            href={contest.href}
+            className="cb-cap"
+            bodyClassName="px-4 py-1.5 font-display font-bold"
+          >
+            {contest.navLabel}
+          </Block>
+        </li>
+      )}
+      <li>
+        <Block
+          color="green"
+          shape="cap"
+          href={MAILING_LIST}
+          external
+          bodyClassName="px-4 pt-3 pb-2 font-display font-bold"
+        >
+          Join mailing list
+        </Block>
+      </li>
+    </>
+  )
 
-      <NavigationMenu.Indicator />
-    </NavigationMenu.List>
+  return (
+    <header className="mx-auto w-full max-w-7xl px-4 pt-4 sm:px-6 lg:px-10">
+      <nav aria-label="Main" className="flex items-center justify-between gap-4">
+        <Link href="/" className="flex items-center gap-3 rounded-md font-display text-xl font-extrabold text-ink">
+          <Image src={logo} alt="" className="h-9 w-9" priority />
+          Hackathon4Kids
+        </Link>
 
-    <NavigationMenu.List className="flex flex-col mt-4 md:mt-0 md:flex-row gap-2 md:gap-8">
-      <NavigationMenu.Item>
-        <NavigationMenu.Link asChild className="rounded-md px-3 py-1 bg-linear-to-r from-indigo-200 via-red-200 to-yellow-100">
-          <Link href="/code.org" className="font-semibold">✍️ New: Winter Contest!</Link>
-        </NavigationMenu.Link>
-      </NavigationMenu.Item>
+        <ul className="hidden items-center gap-5 md:flex">{items}</ul>
 
-      <NavigationMenu.Item>
-        <NavigationMenu.Link asChild>
-          <a href="/about">About Us</a>
-        </NavigationMenu.Link>
-      </NavigationMenu.Item>
+        <button
+          type="button"
+          className="flex items-center gap-2 rounded-md px-3 py-2 font-bold md:hidden"
+          aria-expanded={open}
+          aria-controls="mobile-menu"
+          onClick={() => setOpen((o) => !o)}
+        >
+          {open ? <Cross2Icon aria-hidden width={20} height={20} /> : <HamburgerMenuIcon aria-hidden width={20} height={20} />}
+          Menu
+        </button>
+      </nav>
 
-      {/* <NavigationMenu.Item> */}
-      {/*   <NavigationMenu.Trigger> */}
-      {/*     Past Programs */}
-      {/*     <CaretDownIcon aria-hidden className="inline-block ml-1.5 -translate-y-0.5 transition-transform duration-400 group-data-[state=open]:rotate-180" /> */}
-      {/*   </NavigationMenu.Trigger> */}
-      {/*   <NavigationMenu.Content className="absolute mt-2 rounded-md shadow-md px-5 py-3 w-full left-0"> */}
-      {/*     <NavigationMenu.Sub> */}
-      {/*       <NavigationMenu.List className="flex flex-col gap-4"> */}
-      {/*         <NavigationMenu.Item> */}
-      {/*           <NavigationMenu.Link asChild> */}
-      {/*             <a href="/about">Summer 2023</a> */}
-      {/*           </NavigationMenu.Link> */}
-      {/*         </NavigationMenu.Item> */}
-      {/*         <NavigationMenu.Item> */}
-      {/*           <NavigationMenu.Link asChild> */}
-      {/*             <a href="/about">Summer 2021</a> */}
-      {/*           </NavigationMenu.Link> */}
-      {/*         </NavigationMenu.Item> */}
-      {/*         <NavigationMenu.Item> */}
-      {/*           <NavigationMenu.Link asChild> */}
-      {/*             <a href="/about">Before Summer 2021</a> */}
-      {/*           </NavigationMenu.Link> */}
-      {/*         </NavigationMenu.Item> */}
-      {/*       </NavigationMenu.List> */}
-      {/*     </NavigationMenu.Sub> */}
-      {/*   </NavigationMenu.Content> */}
-      {/*   <NavigationMenu.Viewport /> */}
-      {/* </NavigationMenu.Item> */}
-
-      <NavigationMenu.Indicator />
-    </NavigationMenu.List>
-  </NavigationMenu.Root >
-)
-
-export default Navigation
+      <ul
+        id="mobile-menu"
+        hidden={!open}
+        className="mt-3 flex flex-col items-start gap-3 rounded-lg border-2 bg-stage p-4 md:hidden"
+      >
+        {items}
+      </ul>
+    </header>
+  )
+}
