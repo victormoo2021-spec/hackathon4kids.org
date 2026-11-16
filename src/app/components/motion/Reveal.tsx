@@ -5,7 +5,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 
-gsap.registerPlugin(ScrollTrigger, useGSAP)
+// Plugins are registered once in Providers.tsx.
 
 type RevealProps = {
   children: React.ReactNode
@@ -18,8 +18,13 @@ type RevealProps = {
 }
 
 /**
- * Fades and rises every [data-reveal] descendant once, as it enters the viewport.
- * Content is fully visible without JS and under reduced motion.
+ * Reveals every [data-reveal] descendant once, as it enters the viewport.
+ *   data-reveal="" | "rise"  opacity 0->1 + y 16->0 (700ms out)
+ *   data-reveal="fade"       opacity only (800ms)
+ *   data-reveal="rule"       tweens CSS var --rule 0->1 (900ms out); opacity untouched
+ *   data-delay="120"         extra delay in ms
+ * Calm (reduced motion): rise becomes a 500ms fade, rule is set to 1 immediately.
+ * Without JS everything is visible: the hidden state is applied here only.
  */
 export default function Reveal({ children, className, as: Tag = 'div', stagger = 0.06, ...rest }: RevealProps) {
   const ref = useRef<HTMLElement>(null)
@@ -27,23 +32,40 @@ export default function Reveal({ children, className, as: Tag = 'div', stagger =
   useGSAP(
     () => {
       const mm = gsap.matchMedia()
-      mm.add('(prefers-reduced-motion: no-preference)', () => {
+      mm.add({ full: '(prefers-reduced-motion: no-preference)', calm: '(prefers-reduced-motion: reduce)' }, (ctx) => {
+        const calm = !!ctx.conditions?.calm
         const items = gsap.utils.toArray<HTMLElement>('[data-reveal]', ref.current)
         if (!items.length) return
+        const kind = (el: HTMLElement) => el.dataset.reveal || 'rise'
         // opacity only (never visibility) so unrevealed content stays focusable for keyboard users
-        gsap.set(items, { opacity: 0, y: 16 })
+        items.forEach((el) => {
+          if (kind(el) === 'rule') gsap.set(el, { '--rule': calm ? 1 : 0 })
+          else gsap.set(el, { opacity: 0, y: kind(el) === 'rise' && !calm ? 16 : 0 })
+        })
         const show = (els: Element[]) =>
-          gsap.to(els, { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out', stagger, overwrite: true })
+          els.forEach((el, i) => {
+            const e = el as HTMLElement
+            const delay = i * stagger + (Number(e.dataset.delay) || 0) / 1000
+            const k = kind(e)
+            if (k === 'rule') {
+              if (!calm) gsap.to(e, { '--rule': 1, duration: 0.9, ease: 'expo.out', delay, overwrite: true })
+            } else if (k === 'fade') {
+              gsap.to(e, { opacity: 1, duration: 0.8, ease: 'power1.out', delay, overwrite: true })
+            } else if (calm) {
+              gsap.to(e, { opacity: 1, duration: 0.5, ease: 'power1.out', delay, overwrite: true })
+            } else {
+              gsap.to(e, { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out', delay, overwrite: true })
+            }
+          })
         const onFocus = (e: FocusEvent) => {
-          const hit = items.filter((el) => el.contains(e.target as Node))
-          if (hit.length) gsap.set(hit, { opacity: 1, y: 0, overwrite: true })
+          items
+            .filter((el) => el.contains(e.target as Node))
+            .forEach((el) =>
+              kind(el) === 'rule' ? gsap.set(el, { '--rule': 1, overwrite: true }) : gsap.set(el, { opacity: 1, y: 0, overwrite: true }),
+            )
         }
         ref.current?.addEventListener('focusin', onFocus)
-        ScrollTrigger.batch(items, {
-          start: 'top 88%',
-          once: true,
-          onEnter: (batch) => show(batch),
-        })
+        ScrollTrigger.batch(items, { start: 'top 88%', once: true, onEnter: (batch) => show(batch) })
         return () => ref.current?.removeEventListener('focusin', onFocus)
       })
       return () => mm.revert()

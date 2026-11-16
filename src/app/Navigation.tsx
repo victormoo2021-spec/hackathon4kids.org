@@ -84,7 +84,10 @@ export default function Navigation() {
             aria-label={open ? 'Close menu' : 'Open menu'}
             onClick={() => setOpen((o) => !o)}
           >
-            {open ? <Cross2Icon aria-hidden width={22} height={22} /> : <HamburgerMenuIcon aria-hidden width={22} height={22} />}
+            <span className="menu-ico" aria-hidden>
+              <HamburgerMenuIcon width={22} height={22} />
+              <Cross2Icon width={22} height={22} />
+            </span>
           </button>
         </div>
       </div>
