@@ -32,6 +32,9 @@ function CtaTrail() {
         gsap.set(btn, { opacity: 0, scale: calm ? 1 : 0.94 })
         gsap.set(path, { strokeDashoffset: 1 })
         root.addEventListener('focusin', onFocus)
+        // safety: the main button must appear as soon as it is on screen, even if the page
+        // can't scroll far enough for the trail to finish (tall viewports, short pages)
+        ScrollTrigger.create({ trigger: btn, start: 'top 92%', once: true, onEnter: showBtn })
         if (calm) {
           ScrollTrigger.create({
             trigger,
