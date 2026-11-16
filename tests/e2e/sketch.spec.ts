@@ -33,7 +33,8 @@ test('unknown names and out-of-range values throw SketchError', () => {
 })
 
 test('runSketch folds the first n lines', () => {
-  let want: Partial<FxState> = { ...FX_DEFAULT }
+  // before any speed line the story idles slowly (speed .2)
+  let want: Partial<FxState> = { ...FX_DEFAULT, speed: 0.2 }
   for (let n = 0; n <= SKETCH.length; n++) {
     if (n > 0 && EXPECTED[n - 1]) want = { ...want, ...EXPECTED[n - 1] }
     expect(runSketch(SKETCH, n), `n=${n}`).toMatchObject(want)

@@ -11,7 +11,10 @@ function canUse3D() {
   const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
   if (conn?.saveData) return false
   try {
-    return !!document.createElement('canvas').getContext('webgl2')
+    const gl = document.createElement('canvas').getContext('webgl2')
+    const dbg = gl?.getExtension('WEBGL_debug_renderer_info')
+    // no GPU (software GL): keep the CSS laptop
+    return !!gl && !/swiftshader|llvmpipe|software/i.test(dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '')
   } catch {
     return false
   }

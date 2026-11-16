@@ -54,6 +54,8 @@ export default function StreakField() {
 
   useEffect(() => {
     window.__fx = fx
+    // compile the shader after load + idle, so it never competes with the hero entrance (it starts dark anyway)
+    const boot = (): (() => void) | void => {
     const canvas = ref.current
     if (!canvas) return
     let gl = canvas.getContext('webgl2', { antialias: false, alpha: false, powerPreference: 'high-performance' })
@@ -62,6 +64,9 @@ export default function StreakField() {
       return
     }
 
+    // software GL (no GPU: SwiftShader, llvmpipe) gets a low tier so it never starves the main thread
+    const dbg = gl.getExtension('WEBGL_debug_renderer_info')
+    const soft = /swiftshader|llvmpipe|software/i.test(dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '')
     const mqRm = matchMedia('(prefers-reduced-motion: reduce)')
     const mqCoarse = matchMedia('(pointer: coarse)')
     const names = ['uRes', 'uOrigin', 'uScreenHalf', 'uMouse', 'uShield', 'uColA', 'uColB', 'uPts', 'uVis', 'uT', 'uFlow', 'uGlow', 'uIntensity', 'uPage', 'uSparkle', 'uBend', 'uHeadY', 'uCalm', 'uStatic', 'uFlare', 'uMax']
@@ -149,8 +154,8 @@ export default function StreakField() {
       const busy = glowTarget > 0 || S.glowP > 0
       if (!busy && !dirty) { last = now; return }
 
-      // 30fps in page mode
-      const cadence = S.page > 0.5 ? 30 : 0
+      // 30fps in page mode, 15fps on software GL
+      const cadence = soft ? 15 : S.page > 0.5 ? 30 : 0
       if (cadence && now - lastDraw < 1000 / cadence - 3) return
       const dt = Math.min(0.1, (now - lastDraw) / 1000 || dtRaw)
       lastDraw = now
@@ -164,7 +169,7 @@ export default function StreakField() {
         else if (ema < 12 && !mobile) { slow = 0; if (++fast > 120 && level > 0) { level--; fast = 0 } }
         else { slow = 0; fast = 0 }
       } else if (delta > 45 && ++slow > 30 && level < 2) { level++; slow = 0 }
-      const scale = mobile ? 0.5 : Math.min(LEVELS[level], S.page > 0.5 ? 0.75 : 1)
+      const scale = soft ? 0.25 : mobile ? 0.5 : Math.min(LEVELS[level], S.page > 0.5 ? 0.75 : 1)
       const dpr = Math.min(devicePixelRatio || 1, 1.5)
       const nw = Math.max(2, Math.round(vw * dpr * scale)), nh = Math.max(2, Math.round(vh * dpr * scale))
       if (nw !== W || nh !== H) {
@@ -288,6 +293,17 @@ export default function StreakField() {
       canvas.removeEventListener('webglcontextrestored', onRestored)
       gl?.getExtension('WEBGL_lose_context')?.loseContext()
       gl = null
+    }
+    }
+    let stop: (() => void) | void
+    let idle = 0
+    const go = () => { idle = (window.requestIdleCallback ?? setTimeout)(() => { stop = boot() }, { timeout: 1500 }) as number }
+    if (document.readyState === 'complete') go()
+    else addEventListener('load', go, { once: true })
+    return () => {
+      removeEventListener('load', go)
+      ;(window.cancelIdleCallback ?? clearTimeout)(idle)
+      stop?.()
     }
   }, [])
 

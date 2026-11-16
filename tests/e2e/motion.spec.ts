@@ -159,7 +159,7 @@ test.describe('mobile', () => {
 
   test('fx autoplays to the final state', async ({ page }) => {
     await page.goto('/')
-    await page.waitForTimeout(9000)
+    await page.waitForTimeout(11000)
     expect(await fxState(page)).toMatchObject(FINAL)
   })
 })
