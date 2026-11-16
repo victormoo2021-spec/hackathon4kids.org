@@ -5,6 +5,7 @@ import MotionProviders from './components/motion/Providers'
 import Navigation from './Navigation'
 import Footer from './Footer'
 import StreakField from './components/fx/StreakField'
+import Fluid from './components/fx/Fluid'
 
 // Fonts: system SF stack (see globals.css), so no web font download.
 export const viewport: Viewport = {
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <StreakField />
+        <Fluid />
         <MotionProviders>
           <Navigation />
           <main id="main" className="flex-1">
