@@ -35,21 +35,26 @@ void main(){o=.25*(texture(uT,v+uTx*vec2(1.5,.5))+texture(uT,v+uTx*vec2(-.5,1.5)
 const COMP = `${H}uniform sampler2D uD,uB,uV,uT;uniform vec2 uTm;uniform float uAsp,uTxt;
 const vec3 P=vec3(.486,.361,1.),Y=vec3(1.,.839,.039),W=vec3(1.,.97,.86);
 float lum(vec3 c){return dot(c*c,vec3(.2126,.7152,.0722));}
-float tap(vec2 p,vec2 d,float k,float t0){return max(.5*(texture(uT,p-d*k).r+texture(uT,p-d*(k-.14)).r)-t0,0.);}
+float tap(vec2 p,vec2 d,float k,float t0){float l=.8+1.6*k;return max(textureLod(uT,p-d*k,l).r-max(textureLod(uT,p,l).r,t0),0.);}
 void main(){
 float h=texture(uD,v).r,g=texture(uB,v).r;
 vec2 tp=vec2(v.x,(1.-v.y)*uTm.x+uTm.y);
-float s=textureLod(uT,tp,3.).b*uTxt;vec3 c=mix(P,Y,smoothstep(.03,.2,h)*(1.-.85*smoothstep(.75,1.,s)));c=mix(c,W,smoothstep(.5,1.,h));
+float s=textureLod(uT,tp,3.).b*uTxt,ot=smoothstep(.1,.5,s);
+// wispier over any text, a touch stronger in empty space
+h*=mix(1.12,.6,ot);g*=mix(1.12,.45,ot);
+vec3 c=mix(P,Y,smoothstep(.03,.2,h)*(1.-.85*smoothstep(.75,1.,s)));c=mix(c,W,smoothstep(.5,1.,h));
 c=c*(1.-exp(-h*h*9.))+mix(P,Y,.6)*g*.7;
 
 // keep text readable: over text blocks the added light is clamped to a low luminance
-float cap=mix(2.,.055,s);
+float cap=mix(2.,mix(.16,.055,smoothstep(.65,1.,s)),ot);
 c*=min(1.,sqrt(cap/max(lum(c),1e-5)));
 if(uTxt>0.){
-vec2 d=texture(uV,v).xy*.05;d*=min(1.,.07/(length(d)+1e-5))*smoothstep(.005,.022,length(d));d=vec2(d.x/uAsp,-d.y*uTm.x);
+vec2 d=texture(uV,v).xy*.05;float mv=smoothstep(.005,.022,length(d));d*=min(1.,.045/(length(d)+1e-5))*mv;d=vec2(d.x/uAsp,-d.y*uTm.x);
 float t0=texture(uT,tp).r;
 // prism smear: violet travels furthest, yellow in the middle (and strongest), red hugs the glyph
-c+=(vec3(.655,.545,1.)*tap(tp,d,1.,t0)*.7+Y*tap(tp,d,.62,t0)*1.35+vec3(1.,.32,.18)*tap(tp,d,.3,t0)*.6)*(1.-t0)*.8;}
+// displaced minus the equally blurred original, so the blur adds no halo of its own: zero flow, zero fringe
+// only the outer fringe: nothing is added where the glyph itself is, so it can never read as a second copy
+c+=(vec3(.655,.545,1.)*tap(tp,d,1.,t0)*.7+Y*tap(tp,d,.62,t0)*1.35+vec3(1.,.32,.18)*tap(tp,d,.3,t0)*.6)*(1.-smoothstep(0.,.35,t0))*mv*.44;}
 c+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.;
 o=vec4(c,1);}`
 
@@ -135,16 +140,62 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
   const tcan = document.createElement('canvas')
   const ctx = tcan.getContext('2d')!
   const ttex = gl.createTexture()!
-  let sig = '', rasterY = 0, hasText = false, lastCheck = -1e9
-  const raster = (t: number) => {
-    if (t - lastCheck < 200 && Math.abs(scrollY - rasterY) < vh * MARGIN * 0.8) return
-    lastCheck = t
-    const els = document.querySelectorAll<HTMLElement>('[data-spectral]')
+  let sig = '', rasterY = 0, hasText = false
+  type Word = { s: string; x: number; y: number; h: number; font: string; ls: string; clip: number[] }
+  const range = document.createRange()
+  const re = /\S+/g
+  // Every active frame: where is each visible word right now, and what clips it? Headings animate
+  // (scroll-scrubbed line masks, reveals), so a stale raster would show as a ghost copy of the text.
+  const measure = (m: number): Word[] => {
+    const seen = new Map<Element, { op: number; clip: number[] }>()
+    // opacity product and overflow-clip rect accumulated from the element up to <body>
+    const chain = (el: Element): { op: number; clip: number[] } => {
+      const hit = seen.get(el)
+      if (hit) return hit
+      const up = el.parentElement && el !== document.body ? chain(el.parentElement) : { op: 1, clip: [-1e5, -1e5, 1e5, 1e5] }
+      const cs = getComputedStyle(el)
+      let clip = up.clip
+      if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible' || cs.clip !== 'auto') {
+        const r = el.getBoundingClientRect()
+        clip = [Math.max(clip[0], r.left), Math.max(clip[1], r.top), Math.min(clip[2], r.right), Math.min(clip[3], r.bottom)]
+      }
+      const out = { op: cs.visibility === 'hidden' ? 0 : up.op * +cs.opacity, clip }
+      seen.set(el, out)
+      return out
+    }
+    const words: Word[] = []
+    document.querySelectorAll<HTMLElement>('[data-spectral]').forEach((el) => {
+      const b = el.getBoundingClientRect()
+      if (b.bottom < -m || b.top > vh + m) return
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+      for (let n = walker.nextNode() as Text | null; n; n = walker.nextNode() as Text | null) {
+        const p = n.parentElement
+        if (!p) continue
+        const { op, clip } = chain(p)
+        // mid-fade text is left alone: a fringe is only honest around fully shown glyphs
+        if (op < 0.99 || clip[2] - clip[0] < 2 || clip[3] - clip[1] < 2) continue
+        const cs = getComputedStyle(p)
+        const font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, ls = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing
+        const tt = cs.textTransform
+        // ponytail: one rect per word, so a word broken across lines (hyphenation) is drawn unbroken; go per-character if that ever shows
+        for (let w = re.exec(n.data); w; w = re.exec(n.data)) {
+          range.setStart(n, w.index); range.setEnd(n, w.index + w[0].length)
+          const r = range.getClientRects()[0]
+          if (!r || r.bottom <= clip[1] || r.top >= clip[3] || r.right <= clip[0] || r.left >= clip[2]) continue
+          words.push({ s: tt === 'uppercase' ? w[0].toUpperCase() : tt === 'lowercase' ? w[0].toLowerCase() : w[0], x: r.left, y: r.top, h: r.height, font, ls, clip })
+        }
+      }
+    })
+    return words
+  }
+  const raster = () => {
+    const m = Math.round(vh * MARGIN), k = Math.min(1, 2048 / vw)
+    const words = measure(m)
+    const q = (n: number) => Math.round(n * 2) // half-pixel steps
     let s = `${vw}x${vh}`
-    els.forEach((el) => { const r = el.getBoundingClientRect(); s += `|${Math.round(r.left)},${Math.round(r.top + scrollY)},${Math.round(r.width)},${Math.round(r.height)}` })
+    for (const w of words) s += `|${w.s},${q(w.x)},${q(w.y + scrollY)},${q(w.h)},${q(w.clip[1] + scrollY)},${q(w.clip[3] + scrollY)},${w.font}`
     if (s === sig && Math.abs(scrollY - rasterY) < vh * MARGIN * 0.6) return
     sig = s; rasterY = scrollY
-    const m = Math.round(vh * MARGIN), k = Math.min(1, 2048 / vw)
     tcan.width = Math.round(vw * k); tcan.height = Math.round((vh + 2 * m) * k)
     ctx.setTransform(k, 0, 0, k, 0, m * k)
     ctx.fillStyle = '#000'; ctx.fillRect(0, -m, vw, vh + 2 * m)
@@ -152,38 +203,21 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     ctx.fillStyle = '#00f'
     document.querySelectorAll(`main :is(${SHIELD}),footer :is(${SHIELD})`).forEach((el) => {
       const r = el.getBoundingClientRect()
-      if (r.width < 1 || r.bottom < -m || r.top > vh + m) return
+      if (r.width < 2 || r.height < 2 || r.bottom < -m || r.top > vh + m) return
       // large headings only need 3:1, so they tolerate more light than body copy
       ctx.globalAlpha = el.matches("h1,h2,[data-spectral],[data-spectral] *") ? 0.6 : 1
       ctx.fillRect(r.left - 8, r.top - 8, r.width + 16, r.height + 16)
     })
     ctx.globalAlpha = 1; ctx.fillStyle = '#f00'; ctx.textBaseline = 'alphabetic'
-    hasText = false
-    const range = document.createRange()
-    const re = /\S+/g
-    els.forEach((el) => {
-      const b = el.getBoundingClientRect()
-      if (b.bottom < -m || b.top > vh + m) return
-      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
-      for (let n = walker.nextNode() as Text | null; n; n = walker.nextNode() as Text | null) {
-        const p = n.parentElement
-        if (!p || p.checkVisibility?.({ opacityProperty: true, visibilityProperty: true }) === false) continue
-        const cs = getComputedStyle(p)
-        ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`
-        ctx.letterSpacing = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing
-        const tt = cs.textTransform
-        // ponytail: one rect per word, so a word broken across lines (hyphenation) is drawn unbroken; go per-character if that ever shows
-        for (let w = re.exec(n.data); w; w = re.exec(n.data)) {
-          range.setStart(n, w.index); range.setEnd(n, w.index + w[0].length)
-          const r = range.getClientRects()[0]
-          if (!r) continue
-          const word = tt === 'uppercase' ? w[0].toUpperCase() : tt === 'lowercase' ? w[0].toLowerCase() : w[0]
-          const mt = ctx.measureText(word)
-          ctx.fillText(word, r.left, r.top + (r.height - mt.fontBoundingBoxAscent - mt.fontBoundingBoxDescent) / 2 + mt.fontBoundingBoxAscent)
-          hasText = true
-        }
-      }
-    })
+    hasText = words.length > 0
+    for (const w of words) {
+      ctx.save()
+      ctx.beginPath(); ctx.rect(w.clip[0], w.clip[1], w.clip[2] - w.clip[0], w.clip[3] - w.clip[1]); ctx.clip()
+      ctx.font = w.font; ctx.letterSpacing = w.ls
+      const mt = ctx.measureText(w.s)
+      ctx.fillText(w.s, w.x, w.y + (w.h - mt.fontBoundingBoxAscent - mt.fontBoundingBoxDescent) / 2 + mt.fontBoundingBoxAscent)
+      ctx.restore()
+    }
     ctx.globalCompositeOperation = 'source-over'
     gl.bindTexture(gl.TEXTURE_2D, ttex)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tcan)
@@ -239,7 +273,7 @@ export function createFluid(canvas: HTMLCanvasElement): (() => void) | null {
     size()
     const dt = last ? Math.min((t - last) / 1000, 1 / 30) : 1 / 60
     last = t
-    raster(t)
+    raster()
     const k = rm ? 0.3 : 1 // reduced motion: same response, gentler and shorter-lived
     const tx = (u: Prog['u']) => gl.uniform2f(u.uTx, 1 / vel[0].w, 1 / vel[0].h)
 
