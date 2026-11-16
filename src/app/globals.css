@@ -2,39 +2,56 @@
 @plugin "@tailwindcss/typography";
 
 /*
-  Apple-clean world. Contrast checked (AA):
-  ink #1d1d1f and ink-soft #6e6e73 on white and #f5f5f7; white on accent #2448f5 (6.3:1);
-  on dark #0b0b0f use white, ink-dim #a1a1a6 (7.6:1), accent-dark #7c8cff (6.6:1).
+  "Deep night" world. All dark. Contrast checked (WCAG AA):
+  text #f4f1fa: 17.9:1 on page, 16.7:1 on card
+  text-dim #9a93ad: 6.8:1 on page, 6.3:1 on card
+  purple-soft #a78bff (text links): 7.4:1 on page, 6.9:1 on card
+  purple #7c5cff is for glows, borders and large text only (4.3:1 on card)
+  page ink #0a0710 on yellow #ffd60a: 14.2:1 (primary button)
+  Yellow is the eye path: primary button, the program's drawing, the scroll trail. Nothing else.
 */
 @theme {
-  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
 
-  --color-ink: #1d1d1f;
-  --color-ink-soft: #6e6e73;
-  --color-paper: #ffffff;
-  --color-mist: #f5f5f7;
-  --color-hairline: #e3e3e8;
-  --color-accent: #2448f5;
-  --color-accent-strong: #1d3bf0;
-  --color-night: #0b0b0f;
-  --color-night-2: #16161c;
-  --color-ink-dim: #a1a1a6;
-  --color-accent-dark: #7c8cff;
+  /* new names (use these) */
+  --color-page: #0a0710;
+  --color-card: #15101f;
+  --color-raised: #2a1d47;
+  --color-text: #f4f1fa;
+  --color-text-dim: #9a93ad;
+  --color-purple: #7c5cff;
+  --color-purple-soft: #a78bff;
+  --color-yellow: #ffd60a;
+  --color-yellow-deep: #f5c400;
 
-  /* Display scale: fluid, tight tracking */
-  --text-display: clamp(2.75rem, 7.2vw, 6.5rem);
-  --text-headline: clamp(2.25rem, 4.6vw, 4rem);
+  /* legacy names mapped onto the dark world so nothing renders light-on-light mid-migration */
+  --color-ink: #f4f1fa;
+  --color-ink-soft: #9a93ad;
+  --color-paper: #0a0710;
+  --color-mist: #15101f;
+  --color-hairline: #2a1d47;
+  --color-accent: #a78bff;
+  --color-accent-strong: #7c5cff;
+  --color-night: #0a0710;
+  --color-night-2: #15101f;
+  --color-ink-dim: #9a93ad;
+  --color-accent-dark: #a78bff;
+
+  --text-display: clamp(3rem, 8vw, 7.5rem);
+  --text-headline: clamp(2.5rem, 5.4vw, 4.75rem);
   --text-title: clamp(1.5rem, 2.2vw, 2rem);
-  --text-lede: clamp(1.125rem, 1.4vw, 1.375rem);
+  --text-lede: clamp(1.125rem, 1.4vw, 1.3125rem);
 
   --radius-card: 1.75rem;
-  --radius-tile: 1.25rem;
+  --radius-tile: 1.375rem;
   --radius-pill: 999px;
 
-  --shadow-float: 0 1px 1px rgb(0 0 0 / 0.04), 0 8px 24px -6px rgb(0 0 0 / 0.1), 0 24px 64px -16px rgb(0 0 0 / 0.14);
-  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.05), 0 16px 40px -8px rgb(0 0 0 / 0.16), 0 40px 96px -24px rgb(36 72 245 / 0.22);
+  /* depth on dark: hairline + top-edge highlight + deep shadow */
+  --shadow-float: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 30px 80px -30px rgb(0 0 0 / 0.8);
+  --shadow-lift: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 40px 100px -30px rgb(124 92 255 / 0.35);
+  --shadow-yellow: 0 10px 40px -10px rgb(255 214 10 / 0.55);
 
   --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -43,27 +60,29 @@
 
 @layer base {
   html {
-    color: var(--color-ink);
-    background: var(--color-paper);
-    accent-color: var(--color-accent);
-    scrollbar-color: color-mix(in oklab, var(--color-ink) 28%, transparent) transparent;
+    color: var(--color-text);
+    background: var(--color-page);
+    color-scheme: dark;
+    accent-color: var(--color-yellow);
+    scrollbar-color: var(--color-raised) var(--color-page);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     scroll-padding-top: 5rem;
   }
 
   body {
-    background: var(--color-paper);
+    background: var(--color-page);
+    font-size: 1.0625rem;
     overflow-x: clip;
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--color-accent) 22%, white);
-    color: var(--color-ink);
+    background: var(--color-yellow);
+    color: var(--color-page);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-yellow);
     outline-offset: 3px;
     border-radius: 8px;
   }
@@ -72,6 +91,7 @@
     font-family: var(--font-display);
     text-wrap: balance;
     letter-spacing: -0.035em;
+    font-weight: 600;
   }
 
   p { text-wrap: pretty; }
@@ -86,26 +106,25 @@
   .container-x {
     margin-inline: auto;
     width: 100%;
-    max-width: 75rem;
+    max-width: 76rem;
     padding-inline: 1.25rem;
   }
   @media (min-width: 48rem) { .container-x { padding-inline: 2rem; } }
 
-  .section-y { padding-block: 6rem; }
-  @media (min-width: 64rem) { .section-y { padding-block: 9rem; } }
+  .section-y { padding-block: 7rem; }
+  @media (min-width: 64rem) { .section-y { padding-block: 10rem; } }
 
-  .t-display { font-size: var(--text-display); line-height: 1.02; font-weight: 650; letter-spacing: -0.045em; }
-  .t-headline { font-size: var(--text-headline); line-height: 1.05; font-weight: 650; letter-spacing: -0.04em; }
+  .t-display { font-size: var(--text-display); line-height: 1; font-weight: 600; letter-spacing: -0.045em; }
+  .t-headline { font-size: var(--text-headline); line-height: 1.04; font-weight: 600; letter-spacing: -0.04em; }
   .t-title { font-size: var(--text-title); line-height: 1.15; font-weight: 600; letter-spacing: -0.025em; }
-  .t-lede { font-size: var(--text-lede); line-height: 1.5; color: var(--color-ink-soft); }
+  .t-lede { font-size: var(--text-lede); line-height: 1.5; color: var(--color-text-dim); }
 
   .glass {
-    background: color-mix(in oklab, white 72%, transparent);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background: color-mix(in oklab, var(--color-page) 72%, transparent);
+    backdrop-filter: saturate(160%) blur(20px);
+    -webkit-backdrop-filter: saturate(160%) blur(20px);
   }
 
-  /* Primary pill button */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -116,26 +135,28 @@
     font-weight: 600;
     letter-spacing: -0.01em;
     transition: transform 320ms var(--ease-spring), background-color 200ms var(--ease-apple), box-shadow 320ms var(--ease-apple);
-    will-change: transform;
   }
-  .btn-primary { background: var(--color-accent); color: #fff; box-shadow: 0 6px 20px -6px rgb(36 72 245 / 0.55); }
-  .btn-primary:hover { background: var(--color-accent-strong); }
-  .btn-secondary { background: var(--color-mist); color: var(--color-ink); }
-  .btn-secondary:hover { background: var(--color-hairline); }
+  /* the one yellow action */
+  .btn-primary { background: var(--color-yellow); color: var(--color-page); box-shadow: var(--shadow-yellow); }
+  .btn-primary:hover { background: var(--color-yellow-deep); }
+  .btn-secondary { background: var(--color-card); color: var(--color-text); box-shadow: inset 0 0 0 1px var(--color-raised); }
+  .btn-secondary:hover { box-shadow: inset 0 0 0 1px var(--color-purple); }
   .btn:active { transform: scale(0.97); transition-duration: 90ms; }
   .btn-lg { min-height: 3.5rem; padding: 1rem 1.9rem; font-size: 1.125rem; }
 
   .card {
     border-radius: var(--radius-card);
-    background: var(--color-paper);
+    background: var(--color-card);
+    border: 1px solid var(--color-raised);
     box-shadow: var(--shadow-float);
   }
-}
 
-/* Reveal: visible by default; JS adds .reveal-ready only when motion is allowed. */
-.reveal-ready [data-reveal] {
-  opacity: 0;
-  transform: translateY(28px);
+  .link {
+    color: var(--color-purple-soft);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--color-purple-soft) 40%, transparent);
+  }
+  .link:hover { text-decoration-color: currentColor; }
 }
 
 @media (prefers-reduced-motion: reduce) {

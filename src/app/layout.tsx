@@ -1,18 +1,16 @@
 import './globals.css'
 import './shell.css'
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import MotionProviders from './components/motion/Providers'
 import Navigation from './Navigation'
 import Footer from './Footer'
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-geist', display: 'swap' })
-const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono', display: 'swap' })
-
+// Fonts: system SF stack (see globals.css), so no web font download.
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#ffffff',
+  themeColor: '#0a0710',
+  colorScheme: 'dark',
 }
 
 export const metadata: Metadata = {
@@ -36,7 +34,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
+    <html lang="en">
       <body className="flex min-h-screen flex-col font-sans text-ink">
         <a href="#main" className="skip-link">
           Skip to content

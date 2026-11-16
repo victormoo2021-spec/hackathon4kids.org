@@ -5,12 +5,12 @@ primary_target: "src/app/page.tsx"
 related_targets: ["src/app/about/page.tsx","src/app/programs/page.tsx","src/app/code.org/page.mdx","src/app/layout.tsx"]
 ---
 
-Mode: Persuade. Audience: parents of grades 3-8 kids, Bay Area. Primary action: Get class dates by email. Owner-pinned aesthetic (overrides roll): Apple-clean, max-wow motion, GSAP+ScrollTrigger+Lenis, code-made product visuals, pinned scroll story, light with 1-2 dark sections, page transitions. References verified: apple.com/airpods-pro (bottom-left huge headline, glass pill CTA, pinned scrubbed scenes), stripe.com (two-tone headline, flowing gradient ribbon), linear.app (product UI as hero, dark panel).
+Mode: Persuade. Audience: parents of grades 3-8 kids, Bay Area. Primary action: Get class dates by email. Owner-pinned (overrides any roll): "Deep night" palette, all dark; MacBook Pro cinematic + Swift Playgrounds real-code feel; system SF font; real executed program in the scroll story; no illustrations. Owner rejected the previous light build as "cartoonish… looks AI generated".
 
 ## Direction contract
-THESIS: The site is a product launch for a free class: a kid's first program runs on a glossy device as you scroll, refusing the clipart-and-cards nonprofit page.
-OWN-WORLD: White and #f5f5f7 fields, ink #1d1d1f, one logo-derived blue #2448f5, a soft blue-violet-coral gradient ribbon only in hero and final CTA; Geist display at 6rem with -0.045em tracking, Geist Mono for code; 28px-radius cards with layered soft shadows; glass only on nav and floating UI cards; one cinematic #0b0b0f band.
-STORY: Parent sees free, grades 3-8, taught by teens; watches code become a game; sees courses, small classes, who runs it, answers; gets class dates by email.
-FIRST VIEWPORT: Glass nav with blue pill. Two-tone h1 left (ink line, ink-soft continuation), CTA pill plus "No spam" line and quick facts beneath; laptop with code editor right, gradient ribbon glowing behind it.
-FORM: Apple-style launch page, owner-pinned (seed e8f2d74e superseded by brief).
+THESIS: A cinematic night stage where a kid's real program runs and draws in light; refuses cartoon mascots, doodles, pastel blobs and rainbow category colors.
+OWN-WORLD: Page #0a0710, cards #15101f with 1px #2a1d47 hairlines and an inset top highlight, purple #7c5cff only as glow and code color, text #f4f1fa / #9a93ad, purple-soft #a78bff links; yellow #ffd60a reserved for the eye path: the primary button, the program's drawing, and one thin glowing trail. SF display at 7.5rem, tracking -0.045em; SF Mono for code.
+STORY: Parent sees free classes for grades 3-8 taught by teens, watches real code draw a pattern, scans courses, reads one instructor and up to 20 kids, learns it is student-run since 2018, gets answers, gets class dates by email.
+FIRST VIEWPORT: Glass-dark nav with yellow pill. Left: huge white h1, dim continuation, yellow CTA with "No spam" and facts row. Right: dark laptop showing a real Python turtle editor under a soft purple ambient glow; the yellow trail starts at the CTA.
+FORM: Apple-style dark launch page with a real running program, owner-pinned.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
