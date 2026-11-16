@@ -13,7 +13,7 @@ void main() {
   gl_Position = vec4(position.xy, 0.0, 1.0);
 }`
 
-/** Warping gradient. Ground is #0a0710 everywhere; light gathers only around the ring (uC, uR). */
+/** Warping gradient. Ground is #140a3a everywhere; light gathers only around the ring (uC, uR). */
 export const BG_FRAG = /* glsl */ `${HEAD}
 in vec2 vUv;
 out vec4 o;
@@ -21,7 +21,7 @@ uniform float uT, uAsp, uR, uGlow, uPage, uScroll;
 uniform vec2 uC;
 uniform vec3 uF;
 uniform vec3 uColA, uColB;
-const vec3 BASE = vec3(0.00304, 0.00214, 0.00518);
+const vec3 BASE = vec3(0.00701, 0.00304, 0.04231);
 void main() {
   vec2 p = (vUv - uC) * vec2(uAsp, 1.0) / max(uR, 0.02);
   vec2 q = p + 0.32 * vec2(
@@ -43,7 +43,7 @@ void main() {
   vec2 s = vUv * vec2(uAsp, 1.0) + vec2(0.0, uScroll * 0.25);
   float n1 = 0.5 + 0.5 * sin(s.x * 1.7 + sin(s.y * 1.3 + uT * 0.04) * 1.5);
   float n2 = 0.5 + 0.5 * sin(s.y * 2.1 - s.x * 0.8 + uT * 0.03 + 1.7);
-  c += uPage * (uColA * 0.012 * n1 * n2 + vec3(1.0, 0.6, 0.1) * 0.006 * (1.0 - n1) * n2 * n2);
+  c += uPage * (uColA * 0.075 * n1 * n2 + vec3(1.0, 0.05, 0.456) * 0.05 * (1.0 - n1) * n2 * n2 + vec3(0.153, 0.044, 1.0) * 0.03 * n2);
   // soft gold flash behind the final button
   vec2 pf = (vUv - uF.xy) * vec2(uAsp, 1.0) / 0.17;
   vec3 flash = vec3(1.0, 0.67, 0.02) * uF.z * exp(-dot(pf, pf)) * 0.22;
@@ -124,7 +124,7 @@ void main() {
   vec3 irid = mix(uColA, uColB, smoothstep(0.25, 0.9, w));
 
   // clear body: tinted transmission of the bent background, no fill of its own
-  vec3 col = through * mix(vec3(0.84, 0.82, 1.0), irid + 0.25, 0.22) * 1.3 + lit * 0.9;
+  vec3 col = through * mix(vec3(0.9, 0.86, 1.0), irid + 0.25, 0.5) * 1.3 + lit * 0.9;
   // soft clip, so a bar can never wash out the text that sits on top of it; only thin lines below stay hot
   col /= 1.0 + dot(col, vec3(0.2126, 0.7152, 0.0722)) * 2.0;
   // rims: Fresnel on the bevels
@@ -144,7 +144,7 @@ void main() {
   vec3 spc = smoothstep(0.2, 0.0, length(fract(g) - 0.5)) * step(0.93, h) * tw * uSparkle * vec3(3.2, 2.9, 2.2);
 
   col = (col * uGlow) + spc * (0.25 + 0.75 * uGlow);
-  col = mix(vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))), col, uSat);
+  col = mix(vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))), col, uSat * 1.4);
   o = vec4(mix(texture(tBg, uv).rgb, col, clamp(uVis, 0.0, 1.0)), 1.0);
 }`
 

@@ -37,7 +37,7 @@ void main(){o=.25*(texture(uT,v+uTx*vec2(1.5,.5))+texture(uT,v+uTx*vec2(-.5,1.5)
 // currently handed to the canvas, at device resolution. uHr/uHs: their boxes (css px) and (bend, opacity, font px).
 // uPt: the pointer and a point trailing it (css px); the bend lives around that segment.
 const COMP = `${H}uniform sampler2D uD,uB,uV,uS,uG;uniform vec2 uTm,uRes;uniform vec4 uPt,uHr[4],uHs[4];
-const vec3 P=vec3(.486,.361,1.),Y=vec3(1.,.87,.48),W=vec3(1.,.97,.9),V=vec3(.62,.5,1.);
+const vec3 P=vec3(.427,.231,1.),Y=vec3(1.,.87,.48),W=vec3(1.,.97,.9),V=vec3(1.,.247,.706);
 float lum(vec3 c){return dot(c*c,vec3(.2126,.7152,.0722));}
 void main(){
 float h=texture(uD,v).r,g=texture(uB,v).r;

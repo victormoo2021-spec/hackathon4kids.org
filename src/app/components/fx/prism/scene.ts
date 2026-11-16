@@ -10,9 +10,9 @@ import { BACK_FRAG, BAR_VERT, BG_FRAG, BLUR_FRAG, BRIGHT_FRAG, COMPOSITE_FRAG, C
 
 // linear [dominant, accent]
 const GLOW: Record<Glow, [number[], number[]]> = {
-  purple: [[0.2, 0.107, 1], [1, 0.67, 0.02]],
-  violet: [[0.42, 0.24, 1], [1, 0.5, 0.42]],
-  gold: [[1, 0.67, 0.02], [0.2, 0.107, 1]],
+  purple: [[0.153, 0.044, 1], [1, 0.05, 0.456]],
+  violet: [[1, 0.05, 0.456], [0.153, 0.044, 1]],
+  gold: [[1, 0.672, 0.003], [0.153, 0.044, 1]],
 }
 const LEVELS = [1, 0.75, 0.5]
 const FOV = 32
