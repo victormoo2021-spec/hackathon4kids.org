@@ -34,8 +34,8 @@ void main() {
   float lobeA = exp(-dot(q - a1, q - a1) * 1.5);
   float lobeB = exp(-dot(q - a2, q - a2) * 2.2);
   float hint = exp(-dot(q - a2 * 1.15, q - a2 * 1.15) * 14.0);
-  vec3 c = uColA * (0.035 * halo + 0.03 * band + 0.10 * lobeA * halo)
-         + uColB * (0.04 * lobeB * band + 0.03 * lobeB * halo + 0.10 * hint * band);
+  vec3 c = uColA * (0.04 * halo + 0.035 * band + 0.17 * lobeA * halo)
+         + uColB * (0.04 * lobeB * band + 0.07 * lobeB * halo + 0.12 * hint * band);
   // a breath of colour across the whole page so the ground is not dead flat
   c += uColA * 0.0012 * (0.5 + 0.5 * sin(vUv.x * 2.1 + vUv.y * 1.4 + uT * 0.03));
   o = vec4(BASE + c * uGlow, 1.0);
@@ -46,10 +46,12 @@ in vec3 position;
 in vec3 normal;
 uniform mat4 modelViewMatrix, projectionMatrix;
 uniform mat3 normalMatrix;
-out vec3 vN, vP, vO;
+out vec3 vN, vP, vO, vNb;
 void main() {
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   vN = normalMatrix * normal;
+  // bulged normal (as if the plank were a rod): gives the lights a thin streak along the long faces
+  vNb = normalMatrix * normalize(normal + vec3(0.0, position.y, position.z) * 6.0);
   vP = mv.xyz;
   vO = position;
   gl_Position = projectionMatrix * mv;
@@ -63,7 +65,7 @@ void main() { o = vec4(normalize(vN) * 0.5 + 0.5, 1.0); }`
 
 /** Front faces: 6-band refraction of the captured background + a procedural light rig. */
 export const GLASS_FRAG = /* glsl */ `${HEAD}
-in vec3 vN, vP, vO;
+in vec3 vN, vP, vO, vNb;
 out vec4 o;
 uniform sampler2D tBg;
 #ifdef BACK
@@ -75,9 +77,9 @@ uniform vec3 uColA, uColB;
 
 // R, Y, G, C, B, P: each channel is covered by exactly three bands
 const vec3 BAND[6] = vec3[6](vec3(1,0,0), vec3(1,1,0), vec3(0,1,0), vec3(0,1,1), vec3(0,0,1), vec3(1,0,1));
-const float IOR[6] = float[6](1.40, 1.43, 1.47, 1.51, 1.56, 1.62);
-const vec3 L1 = vec3(-0.44, 0.66, 0.61);
-const vec3 L2 = vec3(0.72, -0.35, 0.60);
+const float IOR[6] = float[6](1.33, 1.39, 1.46, 1.54, 1.63, 1.74);
+const vec3 L1 = vec3(-0.30, 0.45, 0.84);
+const vec3 L2 = vec3(0.45, -0.25, 0.86);
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(41.3, 289.1))) * 43758.5453); }
 
@@ -87,7 +89,6 @@ float strips(vec2 k) {
   float s2 = smoothstep(0.045, 0.0, abs(k.x + 0.42 + 0.20 * k.y)) * 0.7;
   return s1 + s2;
 }
-float rig(vec2 k) { return strips(k) + exp(-dot(k - vec2(-0.25, 0.35), k - vec2(-0.25, 0.35)) * 4.0) * 0.16; }
 float ggx(float nh, float a) { float a2 = a * a; float d = nh * nh * (a2 - 1.0) + 1.0; return a2 / (3.14159 * d * d); }
 
 void main() {
@@ -101,7 +102,8 @@ void main() {
   vec3 Nr = N;
 #endif
   float ndv = clamp(dot(N, V), 0.0, 1.0);
-  float fres = 0.04 + 0.96 * pow(1.0 - ndv, 5.0);
+  float edge = 1.0 - ndv;
+  float fres = 0.04 + 0.96 * pow(edge, 5.0);
 
   vec3 through = vec3(0.0), lit = vec3(0.0);
   for (int i = 0; i < 6; i++) {
@@ -109,27 +111,28 @@ void main() {
     vec2 off = dev * uRefr;
     off.x /= uAsp;
     through += BAND[i] * texture(tBg, uv + off).rgb;
-    lit += BAND[i] * rig(dev * 3.4 + N.xy * 0.3 + vec2(vO.x * 0.55, vO.x * 0.2 + vO.y));
+    // strip lights seen through the glass, only where the bend is steep, so the spectrum stays in narrow bands
+    lit += BAND[i] * strips(dev * 4.0 + vec2(vO.x * 0.55, vO.x * 0.2 + vO.y)) * smoothstep(0.04, 0.26, length(dev));
   }
   through /= 3.0;
   lit /= 3.0;
 
   float w = 0.5 + 0.5 * sin(vO.x * 2.4 + ndv * 3.0 + uT * 0.21 + uSeed);
   vec3 irid = mix(uColA, uColB, smoothstep(0.25, 0.9, w));
-  vec3 body = mix(vec3(1.0), irid + 0.3, 0.22);
-  float edge = 1.0 - ndv;
 
+  // clear body: tinted transmission of the bent background, no fill of its own
+  vec3 col = through * mix(vec3(0.84, 0.82, 1.0), irid + 0.25, 0.22) * 1.3 + lit * 0.9;
+  // soft clip, so a bar can never wash out the text that sits on top of it; only thin lines below stay hot
+  col /= 1.0 + dot(col, vec3(0.2126, 0.7152, 0.0722)) * 2.0;
+  // rims: Fresnel on the bevels
+  col += (irid * 0.9 + 0.3) * (fres * 1.3 + pow(edge, 3.0) * 0.45);
   vec3 R = reflect(-V, N);
-  vec3 col = through * body * 1.35 + irid * 0.012;
-  col += lit * mix(vec3(0.7), irid * 1.3 + 0.12, 0.6) * (0.2 + 0.5 * edge);
-  col += irid * (fres * 0.5 + pow(edge, 2.5) * 0.22);
-  float sp = ggx(max(dot(N, normalize(L1 + V)), 0.0), 0.09) * 0.022
-           + ggx(max(dot(N, normalize(L2 + V)), 0.0), 0.14) * 0.012;
-  // a flat face lights up all at once, so the lobe is capped and joins the soft-clipped fill
-  col += min(sp, 0.18) * mix(vec3(1.0, 0.96, 1.0), vec3(1.0, 0.84, 0.35), 0.35) * (1.0 + 1.6 * uSparkle);
-  // broad fill is soft-clipped so a bar can never wash out the text that sits on top of it; only thin lines stay hot
-  col /= 1.0 + dot(col, vec3(0.2126, 0.7152, 0.0722)) * 2.5;
-  col += fres * strips(R.xy * 1.3 + vec2(vO.x * 0.5, vO.y)) * mix(vec3(0.9), uColA + 0.3, 0.5) * 0.6;
+  col += fres * strips(R.xy * 1.3 + vec2(vO.x * 0.5, vO.y)) * 0.6;
+  // two lights, streaked along the bar by the bulged normal
+  vec3 Ns = normalize(vNb);
+  float sp = ggx(max(dot(Ns, normalize(L1 + V)), 0.0), 0.06) * 0.006
+           + ggx(max(dot(Ns, normalize(L2 + V)), 0.0), 0.09) * 0.004;
+  col += min(sp, 2.5) * mix(vec3(1.0, 0.97, 1.0), vec3(1.0, 0.84, 0.4), 0.3) * (1.0 + 1.2 * uSparkle);
 
   // glints: small twinkling points on the faces
   vec2 g = (vO.xy + vO.zx * vec2(1.7, 0.6)) * 26.0;

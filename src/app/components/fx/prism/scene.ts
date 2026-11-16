@@ -78,7 +78,7 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
   const ring = new Group()
   scene.add(ring)
   // planks, unit = ring radius
-  const barGeo = new RoundedBoxGeometry(1, 0.19, 0.11, 4, 0.028)
+  const barGeo = new RoundedBoxGeometry(1, 0.14, 0.085, 5, 0.034)
   const bars = Array.from({ length: N }, (_, i) => {
     const m = mat(GLASS_FRAG, { ...glassShared, uVis: { value: 0 }, uSeed: { value: i * 1.7 } }, BAR_VERT, {
       depthTest: true, depthWrite: true, defines: backPass ? { BACK: 1 } : {},
@@ -113,12 +113,15 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
   const cEl = (c: Cached) => (c.el?.isConnected ? c.el : (c.el = document.querySelector(c.sel)))
   const cOrigin: Cached = { el: null, sel: '[data-fx-origin]' }
   const cHero: Cached = { el: null, sel: '.hero' }
+  const cShield: Cached = { el: null, sel: '[data-fx-shield]' }
+  const cTitle: Cached = { el: null, sel: '#join-title' }
+  const cFoot: Cached = { el: null, sel: 'footer' }
   const cEnd: Cached = { el: null, sel: '[data-streak-end] :is(a, button)' }
   const rect = (c: Cached) => {
     const r = cEl(c)?.getBoundingClientRect()
     return r && r.width ? r : null
   }
-  let rOrigin: DOMRect | null = null, rEnd: DOMRect | null = null, heroBottom = 0, hasHero = false
+  let rOrigin: DOMRect | null = null, rEnd: DOMRect | null = null, rShield: DOMRect | null = null, rTitle: DOMRect | null = null, rFoot: DOMRect | null = null, heroBottom = 0, hasHero = false
 
   const resize = (vw: number, vh: number, scale: number) => {
     // phones: scale is relative to the real DPR (0.5 x 2..3), otherwise half of a clamped 1.5 aliases the bar edges
@@ -157,6 +160,9 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
       hasHero = !!hero
       heroBottom = hero ? hero.getBoundingClientRect().bottom : 0
       rEnd = rect(cEnd)
+      rShield = rect(cShield)
+      rTitle = rect(cTitle)
+      rFoot = rect(cFoot)
     }
     // 0 = hero (ring frames the laptop), 1 = page (ring rides the right gutter)
     const page = rOrigin && hasHero ? ss((0.92 * vh - heroBottom) / (0.6 * vh)) : 1
@@ -206,16 +212,28 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
     const gR = (mobile ? 0.16 : 0.175) * vh
     let cx = vw - (mobile ? gR * 0.15 : gR * 0.55 + 20), cy = vh * 0.5, R = gR
     if (rOrigin && page < 1) {
-      const hR = Math.min(rOrigin.width * 0.9, vh * 0.4, vw * (mobile ? 0.62 : 0.5))
-      cx = mix(rOrigin.left + rOrigin.width / 2, cx, page)
+      const ox = rOrigin.left + rOrigin.width / 2
+      let hR = Math.min(rOrigin.width * 0.9, vh * 0.4, vw * (mobile ? 0.62 : 0.5))
+      // bars stay right of the hero copy column (tilted toward the pointer a bar's far end reaches ~1.38 R)
+      if (!mobile && rShield) hR = Math.max(rOrigin.width * 0.55, Math.min(hR, (ox - rShield.right - 24) / 1.38))
+      cx = mix(ox, cx, page)
       cy = mix(rOrigin.top + rOrigin.height / 2, cy, page)
       R = mix(hR, R, page)
     }
+    // dock: a flattened halo hugging the button, below the heading and clear of the footer
     const d = ss(S.dock)
+    let ey = 1
     if (rEnd && d > 0) {
+      const dR = rEnd.width * 0.75
+      let dy = rEnd.top + rEnd.height / 2
+      let ry = dR * 0.5
+      if (rTitle) ry = Math.min(ry, dy - rTitle.bottom - dR * 0.12)
+      ry = Math.max(ry, rEnd.height / 2 + 10)
+      if (rFoot) dy = Math.min(dy, rFoot.top - 24 - ry - dR * 0.1)
       cx = mix(cx, rEnd.left + rEnd.width / 2, d)
-      cy = mix(cy, rEnd.top + rEnd.height / 2, d)
-      R = mix(R, rEnd.width / 2 + 30, d)
+      cy = mix(cy, dy, d)
+      R = mix(R, dR, d)
+      ey = mix(1, ry / dR, d)
     }
     const fade = mobile ? mix(0.8, 0.3, page) : mix(1, 0.72, page)
     const gain = S.glow * f.intensity * fade
@@ -232,7 +250,7 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
     const kt = rm ? 1 : damp(dt, 4)
     S.tx += (S.py * follow - S.tx) * kt
     S.ty += (S.px * follow - S.ty) * kt
-    ring.rotation.set(-0.3 + S.tx, 0.12 + S.ty, 0)
+    ring.rotation.set(mix(-0.3, 0, d) + S.tx * (1 - d), mix(0.12, 0, d) + S.ty * (1 - d), 0)
 
     let any = false
     for (let i = 0; i < N; i++) {
@@ -249,11 +267,12 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
       if (!on) continue
       any = true
       const ang = (i / S.n) * Math.PI * 2 + S.spin + Math.PI / 2
-      bar.mesh.position.set(Math.cos(ang), Math.sin(ang), 0)
-      bar.mesh.rotation.set(S.spin * 1.6 + i * 0.7, 0.42, ang + Math.PI / 2, 'ZYX')
+      const ca = Math.cos(ang), sa = Math.sin(ang)
+      bar.mesh.position.set(ca, sa * ey, 0)
+      bar.mesh.rotation.set(S.spin * 1.6 + i * 0.7, mix(0.42, 0.06, d), Math.atan2(ey * ca, -sa), 'ZYX')
       // bars span most of the chord between neighbours, so any count still closes into a ring
       const k = Math.max(0.001, mix(0.6, 1, bar.x))
-      bar.mesh.scale.set(k * Math.min(1.5, 2 * Math.sin(Math.PI / S.n) * 0.94), k, k)
+      bar.mesh.scale.set(k * Math.min(1.5, 2 * Math.sin(Math.PI / S.n) * 0.94) * Math.hypot(sa, ey * ca), k * mix(1, 0.6, d), k * mix(1, 0.6, d))
       bar.u.uVis.value = bar.x
     }
 
@@ -261,12 +280,12 @@ export function createPrism(canvas: HTMLCanvasElement, onFail: () => void): () =
     uAsp.value = vw / vh
     bgU.uC.value = [cx / vw, 1 - cy / vh]
     bgU.uR.value = Math.min(R / vh, 0.42)
-    bgU.uGlow.value = gain * (lit ? 1 : 0.15)
-    glassShared.uRefr.value = (R / vh) * 0.55
+    bgU.uGlow.value = gain * (lit ? 1 : 0.15) * mix(1, 0.6, d)
+    glassShared.uRefr.value = (R / vh) * 0.8
     glassShared.uGlow.value = gain
     glassShared.uSat.value = S.sat
     glassShared.uSparkle.value = rm ? S.sparkle * 0.6 : S.sparkle * (1 + 1.5 * S.burst)
-    compU.uBloom.value = (0.55 + 0.45 * S.sparkle + 0.8 * S.burst) * (0.3 + 0.7 * S.sat)
+    compU.uBloom.value = (0.4 + 0.3 * S.sparkle + 0.8 * S.burst) * (0.3 + 0.7 * S.sat)
 
     // --- passes ---
     pass(mBg, rtBg)
