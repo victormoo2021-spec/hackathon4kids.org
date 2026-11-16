@@ -1,31 +1,19 @@
 /* Home sections. Transforms/opacity only for motion; reduced-motion safe. */
-.course-card { transition: box-shadow 350ms var(--ease-apple); }
-@media (hover: hover) and (pointer: fine) {
-  .course-card:hover {
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 0 0 1px var(--color-purple), 0 30px 80px -30px rgb(124 92 255 / 0.5);
+
+/* Final CTA trail: own rules, not the hero's .trail. Draws in as it enters view where supported. */
+.cta-trail { display: block; margin-inline: auto; width: 2px; height: 96px; overflow: visible; }
+.cta-trail path { fill: none; stroke: var(--color-yellow); stroke-width: 2px; stroke-linecap: round; vector-effect: non-scaling-stroke; stroke-dasharray: 1; }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .cta-trail path { stroke-dashoffset: 1; animation: cta-trail-draw linear both; animation-timeline: view(); animation-range: entry 0% cover 45%; }
   }
 }
-
-.band-glow {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(50% 60% at 80% 0%, rgb(124 92 255 / 0.22), transparent 100%);
-}
-
-.final-cta::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(50% 40% at 50% 100%, rgb(124 92 255 / 0.18), transparent 100%);
-}
-.trail { filter: drop-shadow(0 0 6px rgb(255 214 10 / 0.7)); overflow: visible; }
+@keyframes cta-trail-draw { to { stroke-dashoffset: 0; } }
 
 /* FAQ */
 .faq-list { interpolate-size: allow-keywords; }
-.faq-item { border-top: 1px solid var(--color-hairline); }
-.faq-item:last-child { border-bottom: 1px solid var(--color-hairline); }
+.faq-item { border-top: 1px solid var(--color-line); }
+.faq-item:last-child { border-bottom: 1px solid var(--color-line); }
 .faq-item summary { list-style: none; }
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item::details-content {
@@ -35,25 +23,9 @@
   transition: block-size 400ms var(--ease-out-expo), opacity 300ms var(--ease-apple), content-visibility 400ms allow-discrete;
 }
 .faq-item[open]::details-content { block-size: auto; opacity: 1; }
-.faq-icon { position: relative; width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
-.faq-icon::before,
-.faq-icon::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 2px;
-  margin-top: -1px;
-  background: currentColor;
-  border-radius: 2px;
-  transition: transform 350ms var(--ease-out-expo);
-}
-.faq-icon::after { transform: rotate(90deg); }
-.faq-item[open] .faq-icon::after { transform: rotate(0deg); }
-.faq-item[open] .faq-icon::before { transform: rotate(180deg); }
+.faq-icon { flex-shrink: 0; transition: transform 200ms cubic-bezier(0.28, 0.11, 0.32, 1); }
+.faq-item[open] .faq-icon { transform: rotate(45deg); }
 @media (prefers-reduced-motion: reduce) {
   .faq-item::details-content,
-  .faq-icon::before,
-  .faq-icon::after { transition: none; }
+  .faq-icon { transition: none; }
 }

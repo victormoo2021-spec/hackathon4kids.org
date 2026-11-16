@@ -2,7 +2,7 @@ import { MAILING_LIST } from './contest'
 
 const CONTACT_EMAIL = 'hackathon4kidsevent@gmail.com'
 
-export type FaqItem = { q: string; a: string; link?: { href: string; label: string; external?: boolean } }
+export type FaqItem = { q: string; a: string; link?: { href: string; label: string } }
 
 export const faq: FaqItem[] = [
   {
@@ -28,12 +28,12 @@ export const faq: FaqItem[] = [
   {
     q: 'When are the classes?',
     a: 'We have not set the schedule yet. When dates are ready, we will announce them by email. Join the mailing list to get them.',
-    link: { href: MAILING_LIST, label: 'Join the mailing list', external: true },
+    link: { href: MAILING_LIST, label: 'Join the mailing list' },
   },
   {
     q: 'How do I sign up?',
     a: 'Parents or guardians can join our mailing list. We only email you when a new program or contest opens.',
-    link: { href: MAILING_LIST, label: 'Join the mailing list', external: true },
+    link: { href: MAILING_LIST, label: 'Join the mailing list' },
   },
   {
     q: 'What happens to my email address?',
@@ -50,7 +50,6 @@ export const faq: FaqItem[] = [
     link: {
       href: `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Helping Hackathon4Kids')}`,
       label: CONTACT_EMAIL,
-      external: true,
     },
   },
 ]

@@ -1,41 +1,48 @@
 import Link from 'next/link'
 import { ArrowRightIcon } from '@radix-ui/react-icons'
 import Reveal from '../motion/Reveal'
-import { categories } from '../../content/courses'
+import { categories, type Course } from '../../content/courses'
 
-const blurb: Record<(typeof categories)[number]['name'], string> = {
-  Code: 'Write and share real programs.',
-  Build: 'Robots and games, made with code.',
-  Math: 'Algebra and math competition practice.',
-  Physics: 'How things move, up to AP Physics 1.',
+// Same one-liners as /programs.
+const blurbs: Record<Course, string> = {
+  Python: 'A first text-based programming language, written and run line by line.',
+  'Game Development': 'Using code to design and build games.',
+  Robotics: 'Writing programs that control a real robot.',
+  'Git + GitHub': 'The tools programmers use to save, track, and share their code.',
+  'AP CSA': 'Java programming, following the AP Computer Science A course.',
+  'Intro to Algebra': 'Variables, expressions, and equations, the start of algebra.',
+  'AMC 8': 'Practice for the AMC 8 middle school math competition.',
+  'AMC 10': 'Practice for the AMC 10 math competition.',
+  'Intro to Physics': 'How things move, and the forces that move them.',
+  'AP Physics 1': 'Mechanics, following the AP Physics 1 course.',
 }
 
 export default function CourseGrid() {
   return (
     <Reveal as="section" id="courses" aria-labelledby="courses-title" className="container-x section-y">
       <div className="max-w-2xl">
-        <h2 id="courses-title" data-reveal className="t-headline">What kids learn</h2>
-        <p data-reveal className="t-lede mt-5 text-ink-soft">
-          Hands-on classes that start with the basics and grow with your child, from first lines of code to AP exams.
+        <h2 id="courses-title" data-reveal className="t-headline">Courses</h2>
+        <p data-reveal className="t-lede mt-5">
+          Python, robotics, game design, math, and physics, from a first program to AP exams.
         </p>
       </div>
-      <div className="mt-14 grid gap-5 sm:grid-cols-2">
+      <div className="mt-14 border-t border-line">
         {categories.map((c) => (
-          <div key={c.name} data-reveal>
-            <div className="course-card card h-full p-9 md:p-11">
-              <h3 className="text-base font-medium text-ink-soft">{c.name}</h3>
-              <p className="mt-2 text-lg text-ink">{blurb[c.name]}</p>
-              <ul className="mt-8 space-y-1.5">
-                {c.courses.map((n) => (
-                  <li key={n} className="text-[1.25rem] font-semibold tracking-tight text-ink">{n}</li>
-                ))}
-              </ul>
-            </div>
+          <div key={c.name} data-reveal className="grid gap-4 border-b border-line py-8 md:grid-cols-[1fr_2fr] md:gap-12 md:py-10">
+            <h3 className="t-title text-text">{c.name}</h3>
+            <ul>
+              {c.courses.map((n) => (
+                <li key={n} className="border-t border-line py-4 first:border-t-0 first:pt-0 md:py-5 md:first:pt-0">
+                  <p className="text-base font-medium text-text">{n}</p>
+                  <p className="mt-1 text-text-dim">{blurbs[n]}</p>
+                </li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>
-      <p data-reveal className="mt-10">
-        <Link href="/programs" className="inline-flex items-center gap-2 font-semibold text-accent underline-offset-4 hover:underline">
+      <p data-reveal className="mt-6">
+        <Link href="/programs" className="link inline-flex min-h-11 items-center gap-2 font-semibold">
           See all programs <ArrowRightIcon aria-hidden />
         </Link>
       </p>

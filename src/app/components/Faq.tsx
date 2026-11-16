@@ -1,34 +1,35 @@
 import Link from 'next/link'
 import { faq } from '../content/faq'
 
-type FaqProps = { id?: string; headingId?: string; heading?: string; items?: typeof faq }
+const linkCls = 'link inline-flex min-h-11 items-center font-semibold'
 
-const linkCls = 'font-semibold text-accent underline underline-offset-4 hover:decoration-2'
+function FaqLink({ href, label }: { href: string; label: string }) {
+  if (href.startsWith('/')) return <Link href={href} className={linkCls}>{label}</Link>
+  if (href.startsWith('http'))
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={linkCls}>
+        {label}<span className="sr-only"> (opens in a new tab)</span>
+      </a>
+    )
+  return <a href={href} className={linkCls}>{label}</a>
+}
 
-export default function Faq({ id, headingId, heading = 'Questions parents ask', items = faq }: FaqProps) {
+export default function Faq({ headingId }: { headingId?: string }) {
   return (
-    <div id={id} className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
-      <h2 id={headingId} className="t-headline lg:sticky lg:top-28 lg:self-start">{heading}</h2>
+    <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
+      <h2 id={headingId} className="t-headline lg:sticky lg:top-28 lg:self-start">Questions parents ask</h2>
       <div className="faq-list">
-        {items.map(({ q, a, link }) => (
+        {faq.map(({ q, a, link }) => (
           <details key={q} className="faq-item">
-            <summary className="flex cursor-pointer items-center justify-between gap-6 py-6 text-[1.25rem] font-semibold tracking-tight text-ink">
+            <summary className="flex min-h-[72px] cursor-pointer items-center justify-between gap-6 py-4 text-[1.25rem] font-medium text-text">
               {q}
-              <span aria-hidden className="faq-icon text-ink-soft" />
+              <svg aria-hidden viewBox="0 0 18 18" width="18" height="18" fill="none" stroke="#9a93ad" strokeWidth="1.5" strokeLinecap="round" className="faq-icon">
+                <path d="M9 2v14M2 9h14" />
+              </svg>
             </summary>
-            <div className="pb-7 text-lg text-ink-soft">
+            <div className="pb-6 text-lg text-text-dim">
               <p className="max-w-prose">{a}</p>
-              {link && (
-                <p className="mt-3">
-                  {link.external ? (
-                    <a href={link.href} className={linkCls} {...(link.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link href={link.href} className={linkCls}>{link.label}</Link>
-                  )}
-                </p>
-              )}
+              {link && <p className="mt-1"><FaqLink {...link} /></p>}
             </div>
           </details>
         ))}

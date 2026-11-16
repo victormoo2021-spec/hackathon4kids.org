@@ -7,13 +7,13 @@ const items = [
 
 export default function Formats() {
   return (
-    <Reveal as="section" id="formats" aria-labelledby="formats-title" className="container-x section-y">
-      <h2 id="formats-title" data-reveal className="t-headline max-w-2xl">In person and online.</h2>
-      <div className="mt-14 grid gap-5 md:grid-cols-2">
-        {items.map((it) => (
-          <div key={it.title} data-reveal className="course-card card p-9 md:p-11">
-            <h3 className="t-title">{it.title}</h3>
-            <p className="mt-3 text-lg text-ink-soft">{it.body}</p>
+    <Reveal as="section" id="formats" aria-labelledby="formats-title" className="container-x py-16 md:py-20">
+      <h2 id="formats-title" className="sr-only">In person and online</h2>
+      <div className="grid md:grid-cols-2">
+        {items.map((it, i) => (
+          <div key={it.title} data-reveal className={`py-8 md:py-2 ${i ? 'border-t border-line md:border-l md:border-t-0 md:pl-12' : 'md:pr-12'}`}>
+            <h3 className="t-title text-text">{it.title}</h3>
+            <p className="mt-2 text-lg text-text-dim">{it.body}</p>
           </div>
         ))}
       </div>
