@@ -1,23 +1,22 @@
-/* Hero + pinned story. Default = the static (mobile / reduced-motion) layout;
-   the pinned layout is gated by the same media query StoryStage hands to gsap.matchMedia. */
+/* Hero: one viewport, copy left, laptop right (stacked on mobile). */
 
-.hero { position: relative; overflow: clip; padding-block: 6.5rem 3.5rem; }
-.hero-grid { display: grid; gap: 2.5rem; align-items: start; }
-.stage { display: grid; gap: 2.5rem; min-width: 0; }
+.hero { position: relative; overflow: clip; min-height: max(100svh, 40rem); display: grid; align-items: center; padding-block: 6.5rem 3.5rem; }
+.hero-grid { display: grid; gap: 2.5rem; align-items: center; width: 100%; }
+.stage, .stage-laptop { min-width: 0; }
+.hl { color: var(--color-yellow); }
+@media (min-width: 900px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 2rem; }
+  .stage-laptop { width: 100%; margin-left: auto; transform: scale(1.22); transform-origin: 60% 50%; }
+}
 
 .hero-h1 { font-size: clamp(3rem, 7.2vw, 6.5rem); line-height: 0.98; font-weight: 700; letter-spacing: -0.04em; color: var(--color-text); max-width: 11ch; text-wrap: balance; }
 .hero-cont { margin-top: 1.1rem; font-size: clamp(1.25rem, 1.8vw, 1.5rem); line-height: 1.35; font-weight: 500; letter-spacing: -0.01em; color: #cfc9de; max-width: 26ch; }
 .hero-copy > div { margin-top: 2rem; }
-.facts { display: flex; flex-wrap: wrap; gap: 0.35rem 0; margin-top: 1.75rem; font-size: 0.9375rem; color: var(--color-text-dim); }
-.facts li { display: inline-flex; }
-.facts .dot { margin-inline: 0.6rem; }
 @media (max-width: 639px) {
-  .facts { display: grid; grid-template-columns: 1fr; gap: 0.35rem; }
-  .facts .dot { display: none; }
   .hero-copy .btn { min-width: 16rem; height: 3.25rem; font-size: 1.0625rem; }
 }
 @media (min-width: 1100px) {
-  .hero-h1 { font-size: clamp(3rem, 8.4vw, 7.5rem); line-height: 0.96; max-width: 12ch; }
+  .hero-h1 { font-size: clamp(3rem, 6vw, 6.5rem); line-height: 0.96; max-width: 12ch; }
 }
 
 /* ---------- page load: pure CSS, no hydration flash. Every distance is x var(--m) so CALM = opacity only ---------- */
@@ -29,7 +28,6 @@
 @keyframes h-up { from { opacity: 0; transform: translateY(calc(12px * var(--m, 1))); } to { opacity: 1; transform: translateY(0); } }
 .hero-cta { animation: h-cta 600ms var(--hero-out) 480ms both; transform-origin: left center; }
 @keyframes h-cta { from { opacity: 0; transform: scale(calc(1 - 0.04 * var(--m, 1))); } to { opacity: 1; transform: scale(1); } }
-.facts li { animation: h-fade 500ms var(--hero-apple) calc(600ms + 70ms * var(--i, 0)) both; }
 @keyframes h-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* editor window (children of <Laptop>); sized in cqw of the screen so it scales without CLS */
@@ -49,35 +47,7 @@
 .term em { font-style: normal; }
 .term span { color: var(--color-purple-soft); }
 
-/* ---------- story captions: one at a time, real text ---------- */
-.story { display: grid; justify-items: center; padding-inline: 1.25rem; }
-.caps { display: grid; width: 100%; max-width: 40rem; min-height: 3.5rem; text-align: center; text-shadow: 0 0 28px rgb(10 7 16 / 0.9), 0 0 2px rgb(10 7 16 / 0.8); }
-.cap { grid-area: 1 / 1; opacity: 0; transform: translateY(10px); transition: opacity 300ms var(--hero-apple), transform 500ms cubic-bezier(.2, .8, .2, 1); font-size: 1.25rem; line-height: 1.2; font-weight: 600; letter-spacing: -0.02em; color: var(--color-text); }
-.cap.on { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) { .cap { transform: none; transition: opacity 300ms linear; } }
 
-@media (min-width: 900px) {
-  .hero { padding-block: clamp(7rem, 14vh, 9rem) 4rem; }
-  .stage { display: contents; }
-  .story { grid-column: 1 / -1; }
-  .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 2rem; }
-}
-@media (min-width: 1100px) {
-  .hero-grid { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
-}
-
-/* ---------- pinned story layout (the sticky is only here: desktop + no reduced motion) ---------- */
-@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
-  .hero { height: calc(max(100svh, 40rem) + 150svh); padding: 0; overflow: visible; }
-  .hero-pin { position: sticky; top: 0; height: max(100svh, 40rem); padding-block: 0 1.5rem; overflow: clip; }
-  .hero-grid { height: 100%; }
-  .hero-copy { padding-top: clamp(7rem, 14vh, 9rem); will-change: transform, opacity; }
-  .stage-laptop { align-self: center; width: 100%; max-width: min(50rem, calc(58svh * 1.55)); margin-inline: auto -3%; will-change: transform; }
-  .story { position: absolute; inset: 0; margin: 0; padding: 0; display: block; pointer-events: none; z-index: 2; }
-  .caps { position: absolute; left: 0; right: 0; max-width: none; bottom: 5rem; height: 4.5rem; }
-  .cap { inset-inline: 1.25rem; font-size: clamp(1.5rem, 2.8vw, 2.5rem); line-height: 1.15; letter-spacing: -0.03em; }
-  .cap:last-child { font-size: clamp(1.5rem, 2.8vw, 2.5rem); }
-}
 
 @media (max-width: 639px) {
   .win { font-size: 4.6cqw; }
