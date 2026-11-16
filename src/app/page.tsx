@@ -1,18 +1,15 @@
 import type { CSSProperties, ReactNode } from 'react'
 import Link from 'next/link'
 import { ArrowRightIcon } from '@radix-ui/react-icons'
-import Block, { type BlockColor } from './components/Block'
+import Block from './components/Block'
+import Op from './components/Op'
+import { CtaPrimary } from './components/CtaPair'
 import { contest, MAILING_LIST } from './content/contest'
 import { categories } from './content/courses'
 
-const wrap = 'mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10'
+const wrap = 'wrap'
 
 const palette = categories
-
-// Block label word, e.g. "say", "repeat". Decorative grammar around real content.
-function Op({ children }: { children: ReactNode }) {
-  return <span className="mr-2 font-display font-bold opacity-90">{children}</span>
-}
 
 function Snap({ i, children }: { i: number; children: ReactNode }) {
   return <div style={{ '--i': i } as CSSProperties}>{children}</div>
@@ -22,17 +19,17 @@ export default function Home() {
   return (
     <>
       {/* Hero: the script snaps together on load */}
-      <section className={`${wrap} grid items-start gap-14 pt-12 md:pt-20 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]`}>
+      <section className={`${wrap} grid items-start gap-14 page-top lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]`}>
         <div>
           <div className="snap-in cb-stack">
             <Snap i={0}>
-              <Block color="yellow" shape="hat" className="w-fit max-w-full" bodyClassName="px-6 pt-5 pb-3 font-display text-lg font-bold">
+              <Block color="yellow" shape="hat" className="w-fit max-w-full" size="lg" bodyClassName="font-display text-lg font-bold">
                 when parent visits
               </Block>
             </Snap>
             <Snap i={1}>
-              <Block color="purple" className="w-fit max-w-full" bodyClassName="px-6 pt-5 pb-5">
-                <h1 className="text-4xl leading-[1.1] font-extrabold sm:text-5xl lg:text-6xl">
+              <Block color="purple" className="w-fit max-w-full" size="lg">
+                <h1 className="h-hero">
                   <span aria-hidden className="mr-3 font-display font-bold opacity-80">say</span>
                   <span className="slot">Free</span> coding classes for{' '}
                   <span className="slot whitespace-nowrap">grades 3-8</span>
@@ -40,7 +37,7 @@ export default function Home() {
               </Block>
             </Snap>
             <Snap i={2}>
-              <Block color="orange" className="w-fit max-w-full" bodyClassName="flex flex-wrap items-center gap-2 px-6 pt-4 pb-3 text-lg">
+              <Block color="orange" className="w-fit max-w-full" size="lg" bodyClassName="flex flex-wrap items-center gap-2 text-lg">
                 <Op>repeat</Op>
                 <span className="slot font-bold">Python</span>
                 <span className="slot font-bold">Robotics</span>
@@ -48,24 +45,14 @@ export default function Home() {
               </Block>
             </Snap>
             <Snap i={3}>
-              <Block
-                color="green"
-                shape="cap"
-                href={MAILING_LIST}
-                external
-                className="w-fit max-w-full"
-                bodyClassName="flex items-center gap-3 px-6 pt-4 pb-4 font-display text-xl font-extrabold"
-              >
-                Get class dates by email
-                <ArrowRightIcon aria-hidden width={22} height={22} />
-              </Block>
+              <CtaPrimary hero className="w-fit max-w-full" />
             </Snap>
           </div>
 
           <p className="mt-3 text-sm text-ink-soft">No spam. Unsubscribe anytime.</p>
 
           <div className="mt-8">
-            <Block color="teal" className="w-fit max-w-full" bodyClassName="flex flex-wrap items-center gap-2 px-6 pt-4 pb-3 text-lg">
+            <Block color="teal" className="w-fit max-w-full" size="lg" bodyClassName="flex flex-wrap items-center gap-2 text-lg">
               <Op>quick facts</Op>
               {['Free', 'Grades 3-8', 'Bay Area', 'In person and online', 'Taught by high-school students'].map((f) => (
                 <span key={f} className="slot font-bold">{f}</span>
@@ -85,13 +72,13 @@ export default function Home() {
               <Pin />
               <div className="cb cb-blue cb-cap">
                 <div className="cb-body px-6 pt-9 pb-6">
-                  <h2 id="contest-title" className="text-2xl font-extrabold">
+                  <h2 id="contest-title" className="h-card">
                     {contest.title}
                   </h2>
                   <p className="mt-3 max-w-[50ch]">{contest.blurb}</p>
                   <Link
                     href={contest.href}
-                    className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 font-bold text-ink shadow-[inset_0_-2px_0_rgb(0_0_0/0.12)] hover:bg-events"
+                    className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 font-bold text-ink shadow-pill hover:bg-events"
                   >
                     {contest.ctaLabel}
                     <ArrowRightIcon aria-hidden />
@@ -105,8 +92,8 @@ export default function Home() {
       </section>
 
       {/* What kids learn: block palette */}
-      <section aria-labelledby="learn" className={`${wrap} mt-28 md:mt-36`}>
-        <h2 id="learn" className="text-3xl font-extrabold sm:text-4xl">
+      <section aria-labelledby="learn" className={`${wrap} section`}>
+        <h2 id="learn" className="h-section">
           What kids learn
         </h2>
         <p className="mt-3 max-w-[65ch] text-lg text-ink-soft">
@@ -114,18 +101,18 @@ export default function Home() {
           they grow.
         </p>
 
-        <div className="mt-10 rounded-2xl border-2 bg-stage p-4 sm:p-6">
+        <div className="mt-10 rounded-panel border-2 bg-stage p-4 sm:p-6">
           <ul className="divide-y-2">
             {palette.map((cat) => (
               <li key={cat.name} className="grid gap-4 py-5 first:pt-1 last:pb-3 sm:grid-cols-[9rem_minmax(0,1fr)] sm:items-start">
-                <h3 className="flex items-center gap-3 text-lg font-bold sm:pt-2">
+                <h3 className="flex items-center gap-3 font-display text-lg font-bold sm:pt-2">
                   <span aria-hidden className={`cat-dot cb-${cat.color}`} />
                   {cat.name}
                 </h3>
                 <ul className="flex flex-wrap gap-x-3 gap-y-5">
                   {cat.courses.map((c) => (
                     <li key={c}>
-                      <Block color={cat.color} bodyClassName="px-5 pt-4 pb-3 font-display text-lg font-bold">
+                      <Block color={cat.color} bodyClassName="font-display text-lg font-bold">
                         {c}
                       </Block>
                     </li>
@@ -136,16 +123,16 @@ export default function Home() {
           </ul>
         </div>
 
-        <Block color="blue" shape="cap" href="/programs" className="mt-8 w-fit" bodyClassName="flex items-center gap-2 px-5 pt-4 pb-3 font-display font-bold">
+        <Block color="blue" shape="cap" href="/programs" className="mt-8 w-fit" bodyClassName="flex items-center gap-2 font-display font-bold">
           See all programs
           <ArrowRightIcon aria-hidden />
         </Block>
       </section>
 
       {/* Why trust: the program as a script */}
-      <section aria-labelledby="how" className={`${wrap} mt-28 md:mt-36 grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]`}>
+      <section aria-labelledby="how" className={`${wrap} section grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]`}>
         <div>
-          <h2 id="how" className="text-3xl font-extrabold sm:text-4xl">
+          <h2 id="how" className="h-section">
             Run by students, free for families
           </h2>
           <p className="mt-3 max-w-[50ch] text-lg text-ink-soft">
@@ -156,7 +143,7 @@ export default function Home() {
 
         <ol className="cb-stack max-w-2xl">
           <li>
-            <Block color="yellow" shape="hat" bodyClassName="px-6 pt-5 pb-4">
+            <Block color="yellow" shape="hat" size="lg">
               <p className="font-display text-xl font-bold">
                 when founded in <span className="slot">2018</span>
               </p>
@@ -164,7 +151,7 @@ export default function Home() {
             </Block>
           </li>
           <li>
-            <Block color="purple" bodyClassName="px-6 pt-5 pb-4">
+            <Block color="purple" size="lg">
               <p className="font-display text-xl font-bold">
                 set teachers to <span className="slot">high-school students</span>
               </p>
@@ -172,7 +159,7 @@ export default function Home() {
             </Block>
           </li>
           <li>
-            <Block color="green" bodyClassName="px-6 pt-5 pb-4">
+            <Block color="green" size="lg">
               <p className="font-display text-xl font-bold">
                 set price to <span className="slot">free</span>
               </p>
@@ -180,39 +167,33 @@ export default function Home() {
             </Block>
           </li>
           <li>
-            <Block color="orange" shape="cap" bodyClassName="px-6 pt-5 pb-5">
+            <Block color="orange" size="lg">
               <p className="font-display text-xl font-bold">when you donate</p>
               <p className="mt-1">Donations go toward assisting underprivileged children.</p>
+            </Block>
+          </li>
+          <li>
+            <Block color="teal" shape="cap" href="/about#instructors" size="lg">
+              <p className="font-display text-xl font-bold">Who teaches your kid</p>
+              <p className="mt-1 max-w-[60ch]">
+                Our instructors are high-school students who teach the courses they know well. Meet them and
+                the team that runs the program.
+              </p>
+              <span className="mt-3 inline-flex items-center gap-2 font-display font-bold">
+                Meet the team
+                <ArrowRightIcon aria-hidden />
+              </span>
             </Block>
           </li>
         </ol>
       </section>
 
-      {/* Team teaser */}
-      <section aria-labelledby="team" className={`${wrap} mt-28 md:mt-36`}>
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h2 id="team" className="text-3xl font-extrabold sm:text-4xl">
-              Who teaches your kid
-            </h2>
-            <p className="mt-3 max-w-[60ch] text-lg text-ink-soft">
-              Our instructors are high-school students who teach the courses they know well. Meet them and
-              the team that runs the program.
-            </p>
-          </div>
-          <Block color="teal" shape="cap" href="/about#instructors" className="w-fit shrink-0" bodyClassName="flex items-center gap-2 px-5 pt-4 pb-3 font-display font-bold">
-            Meet the team
-            <ArrowRightIcon aria-hidden />
-          </Block>
-        </div>
-      </section>
-
       {/* Closing CTA */}
-      <section aria-labelledby="join" className={`${wrap} mt-28 md:mt-36`}>
-        <div className="rounded-3xl border-2 bg-stage px-5 py-10 sm:px-10 md:py-14">
+      <section aria-labelledby="join" className={`${wrap} section`}>
+        <div className="rounded-panel border-2 bg-stage px-5 py-10 sm:px-10 md:py-14">
           <div className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_auto]">
             <div>
-              <h2 id="join" className="text-3xl font-extrabold sm:text-4xl">
+              <h2 id="join" className="h-section">
                 Hear about the next class first
               </h2>
               <p className="mt-3 max-w-[55ch] text-lg text-ink-soft">
@@ -221,20 +202,10 @@ export default function Home() {
               </p>
             </div>
             <div className="cb-stack">
-              <Block color="yellow" shape="hat" className="w-fit max-w-full" bodyClassName="px-6 pt-5 pb-3 font-display text-lg font-bold">
+              <Block color="yellow" shape="hat" className="w-fit max-w-full" size="lg" bodyClassName="font-display text-lg font-bold">
                 when ready
               </Block>
-              <Block
-                color="green"
-                shape="cap"
-                href={MAILING_LIST}
-                external
-                className="w-fit max-w-full"
-                bodyClassName="flex items-center gap-3 px-6 pt-4 pb-4 font-display text-xl font-extrabold"
-              >
-                Get class dates by email
-                <ArrowRightIcon aria-hidden width={22} height={22} />
-              </Block>
+              <CtaPrimary hero className="w-fit max-w-full" />
               <p className="text-sm text-ink-soft">No spam. Unsubscribe anytime.</p>
               <p className="max-w-[40ch] text-sm text-ink-soft">
                 For parents and guardians. We never sell or share your email.

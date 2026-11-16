@@ -1,5 +1,5 @@
 import Block from '../components/Block'
-import { MAILING_LIST } from '../content/contest'
+import CtaPair from '../components/CtaPair'
 import Card from './Card'
 import { team } from './team'
 
@@ -7,12 +7,12 @@ export const metadata = { title: 'About' }
 
 export default function About() {
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-8 pt-10 pb-20 text-ink">
+    <div className="wrap page-top page-bottom text-ink">
       <section className="grid gap-12 md:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] md:items-center">
         <div className="max-w-[62ch]">
-          <h1 className="font-display text-5xl sm:text-6xl font-extrabold leading-[1.02] mb-6">
-            Built and run by students
-          </h1>
+          <Block color="purple" shape="hat" size="lg" className="mb-8 w-fit max-w-full">
+            <h1 className="h-page">Built and run by students</h1>
+          </Block>
           <div className="space-y-4 text-lg leading-relaxed">
             <p>
               Hackathon4Kids was founded in 2018 by two high-school students who wanted to help kids in
@@ -24,43 +24,38 @@ export default function About() {
               beyond.
             </p>
           </div>
-          <div className="mt-8 flex flex-wrap gap-x-4 gap-y-6">
-            <Block color="green" href={MAILING_LIST} external bodyClassName="px-5 py-3 font-bold">
-              Get class dates by email
-            </Block>
-            <Block color="blue" href="/programs" bodyClassName="px-5 py-3 font-bold">
-              See our programs
-            </Block>
+          <div className="mt-8">
+            <CtaPair secondary={{ label: 'See our programs', href: '/programs' }} />
           </div>
         </div>
 
         {/* The founding story as a script: decorative, the prose above carries it. */}
         <div aria-hidden="true" className="font-display font-bold text-lg max-w-sm">
-          <Block color="yellow" shape="hat" bodyClassName="px-5 pt-6 pb-4">
+          <Block color="yellow" shape="hat">
             when <span className="slot">2018</span> starts
           </Block>
-          <Block color="purple" bodyClassName="px-5 pt-5 pb-4">
+          <Block color="purple">
             say <span className="slot">let&apos;s teach kids to code</span>
           </Block>
-          <Block color="orange" bodyClassName="pl-5 pr-5 pt-5 pb-3">
+          <Block color="orange">
             forever
             <div className="mt-3 ml-4">
-              <Block color="teal" bodyClassName="px-4 pt-4 pb-3">
+              <Block color="teal">
                 grow <span className="slot">team</span>
               </Block>
-              <Block color="pink" bodyClassName="px-4 pt-4 pb-3">
+              <Block color="pink">
                 add <span className="slot">classes</span>
               </Block>
             </div>
           </Block>
-          <Block color="green" shape="cap" bodyClassName="px-5 pt-5 pb-4">
+          <Block color="green" shape="cap">
             teach <span className="slot">our community</span>
           </Block>
         </div>
       </section>
 
-      <section id="instructors" className="mt-24 scroll-mt-24">
-        <h2 className="font-display text-4xl font-extrabold mb-3">Our instructors</h2>
+      <section id="instructors" className="section scroll-mt-24">
+        <h2 className="h-section mb-3">Our instructors</h2>
         <p className="max-w-[62ch] text-lg leading-relaxed text-ink-soft mb-10">
           The students, alumni, and advisors who teach our classes and keep Hackathon4Kids running.
         </p>

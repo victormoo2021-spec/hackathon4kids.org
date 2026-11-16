@@ -5,11 +5,11 @@ import Image, { type ImageProps } from 'next/image'
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     h1: ({ children }) => (
-      <h1 className="font-display text-5xl font-extrabold leading-[1.05] mb-6">{children}</h1>
+      <h1 className="h-page mb-6">{children}</h1>
     ),
     // h2 is a snap-in "say" block, like a section of a script
     h2: ({ children }) => (
-      <h2 className="cb cb-purple mt-14 mb-2 inline-block text-2xl sm:text-3xl font-extrabold">
+      <h2 className="cb cb-purple mt-14 mb-2 inline-block h-card sm:text-3xl">
         <span className="cb-body block px-5 pt-5 pb-4">{children}</span>
       </h2>
     ),
@@ -40,7 +40,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     },
     strong: ({ children }) => <strong className="font-bold">{children}</strong>,
     code: ({ children }) => (
-      <code className="rounded-md bg-[#f3f0fb] px-1.5 py-0.5 font-mono text-[0.9em]">{children}</code>
+      <code className="rounded-md bg-lilac px-1.5 py-0.5 font-mono text-[0.9em]">{children}</code>
     ),
     hr: () => <hr className="my-10 border-t-2 border-grid" />,
     img: (props) => (
@@ -48,7 +48,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         sizes="(min-width: 768px) 32rem, 100vw"
         width={0}
         height={0}
-        className="my-8 h-auto w-full max-w-lg rounded-xl border-4 border-white shadow-[0_6px_18px_rgb(27_26_43/0.16)]"
+        className="my-8 h-auto w-full max-w-lg rounded-media border-4 border-white shadow-soft"
         {...(props as ImageProps)}
         alt={props.alt ?? ''}
       />

@@ -13,16 +13,17 @@ colors:
   motion: "#2563eb"
   sensing: "#14a3a3"
   pen: "#e8457a"
+  lilac: "#f3f0fb"
 typography:
   display:
     fontFamily: "Bricolage Grotesque, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "clamp(2.25rem, 5vw, 3.75rem)"
+    fontSize: "2.25rem / 3rem / 3.75rem"
     fontWeight: 800
     lineHeight: 1.1
     letterSpacing: "-0.02em"
   headline:
     fontFamily: "Bricolage Grotesque, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1.875rem to 2.25rem"
+    fontSize: "1.875rem / 2.25rem"
     fontWeight: 800
     letterSpacing: "-0.02em"
   title:
@@ -38,6 +39,8 @@ rounded:
   block: "8px"
   hat: "28px 28px 8px 8px"
   slot: "999px"
+  panel: "16px"
+  media: "12px"
 spacing:
   block-x: "24px"
   block-y: "16px"
@@ -109,9 +112,11 @@ Code = purple (Python, Git + GitHub, AP CSA); Build = blue (Robotics, Game Devel
 **Character:** Bricolage is chunky and a little quirky for headings; Atkinson is engineered for legibility, which suits parents and young readers.
 
 ### Hierarchy (as built)
-- **Display** (800, text-4xl / sm 5xl / lg 6xl on home; text-5xl / sm 6xl on Programs and About, leading 1.02-1.1): page h1, inside the purple "say" block on home.
-- **Headline** (800, text-3xl / sm 4xl on home; text-4xl fixed on Programs/About): section h2.
-- **Title** (800, text-2xl): contest card h2, card titles.
+- **Hero** (`.h-hero`, 2.25 / 3 / 3.75rem at base / sm / lg, leading 1.1): the home h1 only, inside the purple "say" block.
+- **Page** (`.h-page`, 3 / 3.75rem, leading 1.02): h1 on Programs, About and MDX pages. Programs and About set it in a purple hat block.
+- **Section** (`.h-section`, 1.875 / 2.25rem, leading 1.15): every section h2.
+- **Card** (`.h-card`, 1.5rem, leading 1.2): contest card, script and person titles, MDX h2 block.
+All four are display 800; sizes come from `--text-hero/page/section/card` in `@theme`. Never size a heading ad hoc.
 - **Body** (400, text-lg, ink-soft for lead paragraphs): max-w 50-65ch.
 - **Label** (display 700-800, text-lg to xl): hat and button block labels. Not uppercase, no tracking.
 
@@ -123,7 +128,7 @@ Code = purple (Python, Git + GitHub, AP CSA); Build = blue (Robotics, Game Devel
 Hybrid but flat at rest: depth comes from the block's inset bottom edge and a tight drop shadow, and from lift on interaction. Shadows are structural (they make a block read as a physical piece), not ambient.
 
 ### Shadow Vocabulary
-- **Block rest** (`filter: drop-shadow(0 2px 2px rgb(27 26 43 / 0.14))`, plus `inset 0 -4px 0 rgb(0 0 0 / 0.14)` on body): every block. Filter, not box-shadow, so notch and tab are shadowed.
+- **Block rest** (`filter: drop-shadow(0 2px 2px)` in ink at 14% via color-mix, plus `inset 0 -4px 0 var(--cb-edge)` (black 14%) on body): every block. Filter, not box-shadow, so notch and tab are shadowed.
 - **Block lift** (`drop-shadow(0 10px 14px rgb(27 26 43 / 0.22))`, translate(-2px,-3px) rotate(-0.6deg)): interactive blocks on hover, only under `@media (hover: hover)`.
 - **Block press** (`drop-shadow(0 1px 1px ...)`, translate(0,2px), 70ms): active.
 - **Focus glow** (double yellow drop-shadow 3px/6px plus inset 3px ink ring on body): focus-visible on block links and buttons, reading as Scratch block selection. Plain elements get a 3px blue outline, 3px offset.
@@ -132,15 +137,22 @@ Hybrid but flat at rest: depth comes from the block's inset bottom edge and a ti
 ### Named Rules
 **The Dragged-Block Rule.** Only blocks that are links or buttons (`a.cb`, `button.cb`, `.cb-lift`) lift. Static blocks never move on hover.
 
+### Tokens (`@theme`)
+Radius: `--radius-block` 8px, `--radius-panel` 16px (bordered panels, portraits), `--radius-media` 12px (images). Shadows: `--shadow-soft` (media), `--shadow-pill`. Fill: `--color-lilac` (bio card, inline code).
+
 ## 5. Components
 
 ### Block (`components/Block.tsx`, `.cb`)
-Props: `color` (yellow, orange, green, purple, blue, teal, pink), `shape` (stack, hat, cap), `href`, `external`, `bodyClassName` (default `px-5 py-3`). Renders a Next Link, an external `<a>` (noopener), or a div. Radius 8px; top notch (36x9 mask at 18px offset) and bottom tab join stacked blocks. Hat: 28px top radius, no notch. Cap: no bottom tab. Vertical padding is hand-tuned per use (extra top padding compensates for the notch).
+Props: `color` (yellow, orange, green, purple, blue, teal, pink), `shape` (stack, hat, cap), `href`, `external`, `size` (`sm` px-3 pt-2 pb-1.5, `md` default px-5 pt-4 pb-3, `lg` px-6 pt-5 pb-4; hats get 0.25rem more top), `bodyClassName` (layout and type extras only, never padding). Renders a Next Link, an external `<a>` (noopener), or a div. Radius 8px; top notch (36x9 mask at 18px offset) and bottom tab join stacked blocks. Hat: 28px top radius, no notch. Cap: no bottom tab. The bottom tab uses the same `--cb-edge` darkening as the body inset edge, so the join is seamless.
 
 ### Slot (`.slot`)
 Pill (999px) white inset well with ink text, holds a value: "Free", "grades 3-8", course names, quick facts.
 
-### Primary CTA
+### Op (`components/Op.tsx`)
+Inline op word ("repeat", "quick facts", "at a glance") inside a block.
+
+### Primary CTA and CtaPair (`components/CtaPair.tsx`)
+`CtaPrimary` is the single source of the copy (`hero` gives the large arrow version). `CtaPair secondary={{label, href}}` is the green primary plus a blue secondary, used at the end of About, Programs and MDX pages.
 Green cap block, display 800 text-xl, label "Get class dates by email" plus arrow icon, links to `MAILING_LIST`. Followed by "No spam. Unsubscribe anytime." in soft ink. The copy is fixed; do not reword to "Join" or "Sign up".
 
 ### Contest card
@@ -156,7 +168,7 @@ Each child of the hero stack animates from translate(-24px,-10px) rotate(-2deg) 
 Hover lift, press, nav bar and robot nudge are state feedback only. Under `prefers-reduced-motion: reduce` the snap-in is not applied, nav, robot and block transitions are off, pin wobble and mobile-menu animation are off. Body uses `overflow-x: clip` so animations never cause sideways scroll.
 
 ### Layout and rhythm (as implemented)
-Wrapper `mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10`. Home hero is two columns: script stack left, contest right. Course list rows are a grid of a 9rem category column plus content. Section vertical rhythm is set per page, not by a token.
+Every page uses `.wrap` (max-w-7xl, gutters 16 / 24 / 40px) with `.page-top` (2.5rem, 4rem from md) and `.page-bottom` (5rem). Sections are separated by `.section` (6rem, 7rem from md) only. Home hero is two columns: script stack left, contest right. Course list rows are a grid of a 9rem category column plus content.
 
 ## 6. Do's and Don'ts
 
@@ -176,9 +188,4 @@ Wrapper `mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10`. Home hero is two colum
 - **Don't** hardcode new hexes or rgb shadows in components; use `@theme` tokens.
 
 ### Known gaps (build carries these; fix later, do not inherit as rules)
-- Heading sizes differ per page (h1 text-4/5/6xl home vs 5/6xl Programs and About; h2 text-3/4xl home vs 4xl elsewhere) and section rhythm is untokenized. Needs shared heading utilities.
-- Block padding recipes vary by use; a `size` prop is proposed.
-- The CTA pair is duplicated (home hero and join section); extract a shared component.
-- `#f3f0fb` is hardcoded in `about/Card.tsx` (as `--cb-bg`) and `mdx-components.tsx` (inline code), and raw `rgb()` shadows appear in globals.css and the contest pill; tokenize.
-- Programs and About heroes use less block grammar than home.
 - Safety and FAQ sections are pending owner facts.

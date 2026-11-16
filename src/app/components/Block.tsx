@@ -8,8 +8,16 @@ type BlockProps = {
   href?: string
   external?: boolean
   className?: string
+  size?: 'sm' | 'md' | 'lg'
   bodyClassName?: string
   children: React.ReactNode
+}
+
+// Padding recipes: the top is deeper than the bottom to clear the notch; hats add a little more.
+const pad = {
+  sm: { stack: 'px-3 pt-2 pb-1.5', hat: 'px-3 pt-3 pb-1.5' },
+  md: { stack: 'px-5 pt-4 pb-3', hat: 'px-5 pt-5 pb-3' },
+  lg: { stack: 'px-6 pt-5 pb-4', hat: 'px-6 pt-6 pb-4' },
 }
 
 // A code block from the block-coding world. Renders a link when href is set.
@@ -19,11 +27,12 @@ export default function Block({
   href,
   external,
   className = '',
-  bodyClassName = 'px-5 py-3',
+  size = 'md',
+  bodyClassName = '',
   children,
 }: BlockProps) {
   const cls = `cb cb-${color} ${shape === 'hat' ? 'cb-hat' : ''} ${shape === 'cap' ? 'cb-cap' : ''} ${className}`
-  const body = <div className={`cb-body ${bodyClassName}`}>{children}</div>
+  const body = <div className={`cb-body ${pad[size][shape === 'hat' ? 'hat' : 'stack']} ${bodyClassName}`}>{children}</div>
 
   if (href && external) {
     return (

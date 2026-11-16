@@ -50,7 +50,8 @@ export default function Navigation() {
             shape="hat"
             href={contest.href}
             className="cb-cap"
-            bodyClassName="px-4 py-1.5 font-display font-bold"
+            size="sm"
+            bodyClassName="font-display font-bold"
           >
             {contest.navLabel}
           </Block>
@@ -62,7 +63,8 @@ export default function Navigation() {
           shape="cap"
           href={MAILING_LIST}
           external
-          bodyClassName="px-4 pt-3 pb-2 font-display font-bold"
+          size="sm"
+          bodyClassName="font-display font-bold"
         >
           Join mailing list
         </Block>
@@ -71,7 +73,7 @@ export default function Navigation() {
   )
 
   return (
-    <header className="mx-auto w-full max-w-7xl px-4 pt-4 sm:px-6 lg:px-10">
+    <header className="wrap pt-4">
       <nav aria-label="Main" className="flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-3 rounded-md font-display text-xl font-extrabold text-ink">
           <Image src={logo} alt="" className="h-9 w-9" priority />
@@ -95,7 +97,7 @@ export default function Navigation() {
       <ul
         id="mobile-menu"
         hidden={!open}
-        className="mt-3 flex flex-col items-start gap-3 rounded-lg border-2 bg-stage p-4 md:hidden"
+        className="mt-3 flex flex-col items-start gap-3 rounded-block border-2 bg-stage p-4 md:hidden"
       >
         {items}
       </ul>
