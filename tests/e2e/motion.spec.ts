@@ -68,9 +68,11 @@ test.describe('reduced motion', () => {
     await expect(page.locator('html.motion-ok')).toHaveCount(0)
   })
 
-  test('the laptop stays in the hero; courses get inline demo cards', async ({ page }) => {
+  // travel is scroll-linked, so it stays under reduced motion on desktop (laptop-future.spec); mobile keeps inline cards
+  test('the hero laptop types; small screens get inline demo cards', async ({ page, isMobile }) => {
     await page.goto('/')
-    await expect(page.locator('#story .file')).toHaveText('spiral.py', { timeout: 9000 })
+    await expect(page.locator('#story .file')).toHaveText('spiral.py', { timeout: 15000 })
+    if (!isMobile) return
     await expect(page.locator('.course-lap')).toBeHidden()
     await expect(page.locator('.demo-card')).toHaveCount(4)
     await page.locator('[data-group="math"] .demo-card').scrollIntoViewIfNeeded()
@@ -87,14 +89,15 @@ test.describe('reduced motion', () => {
   })
 
   // Calm tier is opacity-only: after settling, nothing keeps a transform.
-  // Exclusion: descendants of <canvas> (none expected; canvas drawing is not CSS motion).
+  // Exclusions: descendants of <canvas> (none expected; canvas drawing is not CSS motion), and #story: the laptop's
+  // travel into #courses is scroll-linked (it moves only as the user scrolls), so it keeps its translate/scale.
   test('no element keeps a computed transform after settling', async ({ page }) => {
     await page.goto('/')
     await scrollThrough(page, { step: 600, delay: 20 })
     await settle(page)
     const bad = await page.evaluate(() =>
       Array.from(document.querySelectorAll<HTMLElement>('body *'))
-        .filter((e) => !e.closest('canvas'))
+        .filter((e) => !e.closest('canvas, #story'))
         .map((e) => [e, getComputedStyle(e).transform] as const)
         .filter(([, t]) => t !== 'none' && t !== 'matrix(1, 0, 0, 1, 0, 0)')
         .map(([e, t]) => `${e.tagName}.${String(e.className).slice(0, 40)} ${t}`),

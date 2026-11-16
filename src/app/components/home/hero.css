@@ -7,6 +7,8 @@
   .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 2rem; }
   /* sized by width, not transform: a scale would double-count in the 3D canvas measure */
   .stage-laptop { width: 120%; margin-left: -6%; }
+  /* larger editor type on the desktop laptop: docked it projects to ~15px at 1440 */
+  .stage .win { font-size: 3.8cqw; }
   .lap-fly { position: relative; z-index: 3; transform-origin: 0 0; }
 }
 

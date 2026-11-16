@@ -15,6 +15,7 @@ const LID_Z = 1.06 // lid centre, measured from the hinge along the lid
 const PX_W = 1000
 const PX_H = Math.round((PX_W * SCREEN_H) / SCREEN_W)
 const RIM = '#ffd60a'
+const OMEGA = 7 // spring stiffness (rad/s); critically damped, ~0.6s settle
 
 type Props = { progress: number; host: HTMLElement; onReady: () => void; onFail: () => void }
 
@@ -52,6 +53,8 @@ function Rig({ progress, host, onReady, onFail, visible, reduce, screenEl }: Rig
   const group = useRef<Group>(null)
   const lid = useRef<Group>(null)
   const light = useRef<PointLight>(null)
+  const key = useRef<PointLight>(null)
+  const spring = useRef({ yaw: 0, pitch: 0 })
   const prog = useRef(progress)
   const ptr = useRef({ x: 0, y: 0 })
   const cur = useRef({ yaw: -22, pitch: 3.5, scale: 1, y: 0, glow: 0 })
@@ -87,20 +90,42 @@ function Rig({ progress, host, onReady, onFail, visible, reduce, screenEl }: Rig
 
   useFrame((state, dt) => {
     const c = cur.current
-    const p = prog.current
-    // progress = travel from the hero into the courses column: a gentle tilt that peaks mid-flight and settles
-    const bump = Math.sin(Math.PI * MathUtils.clamp(p, 0, 1))
+    const p = MathUtils.clamp(prog.current, 0, 1)
+    // progress = travel from the hero into the courses column: a gentle tilt that peaks mid-flight and settles.
+    // Docked, the model grows so the screen text reads ~15px at 1440.
+    const bump = Math.sin(Math.PI * p)
+    const scale = 1.12 + 0.08 * p * p * (3 - 2 * p)
+    const px = ptr.current.x
+    const py = ptr.current.y
     const t = reduce
-      ? { yaw: -6, pitch: 3.5, scale: 1.12, y: 0, glow: 1 }
-      : { yaw: -6 - 10 * bump + ptr.current.x * 6, pitch: 3.5 + 6 * bump + ptr.current.y * 3, scale: 1.12, y: 0, glow: 1 }
+      ? { yaw: -6, pitch: 3.5, scale, y: 0, glow: 1 }
+      : { yaw: -6 - 10 * bump + px * 6, pitch: 3.5 + 6 * bump + py * 3, scale, y: 0, glow: 1 }
     const d = Math.min(dt, 0.05)
     let moving = false
-    for (const k of ['yaw', 'pitch', 'scale', 'y'] as const) {
+    // yaw/pitch: per-axis critically damped spring (velocity carries over, so a new target animates from where it is)
+    for (const k of ['yaw', 'pitch'] as const) {
+      const vel = spring.current[k]
+      const a = -2 * OMEGA * vel - OMEGA * OMEGA * (c[k] - t[k])
+      spring.current[k] = vel + a * d
+      c[k] += spring.current[k] * d
+      if (Math.abs(c[k] - t[k]) > 0.01 || Math.abs(spring.current[k]) > 0.02) moving = true
+    }
+    for (const k of ['scale', 'y'] as const) {
       c[k] = MathUtils.damp(c[k], t[k], 6, d)
-      if (Math.abs(c[k] - t[k]) > (k === 'scale' || k === 'y' ? 0.0005 : 0.01)) moving = true
+      if (Math.abs(c[k] - t[k]) > 0.0005) moving = true
     }
     c.glow = MathUtils.damp(c.glow, t.glow, 3, d)
     if (Math.abs(c.glow - t.glow) > 0.003) moving = true
+
+    // warm key follows the pointer across the aluminium (world space, in front of the laptop) so reflections slide
+    const k = key.current
+    if (k) {
+      const tx = reduce ? 1.6 : px * 2.6
+      const ty = reduce ? 2.2 : 2.2 - py * 1.4
+      k.position.x = MathUtils.damp(k.position.x, tx, 5, d)
+      k.position.y = MathUtils.damp(k.position.y, ty, 5, d)
+      if (Math.abs(k.position.x - tx) + Math.abs(k.position.y - ty) > 0.005) moving = true
+    }
 
     const g = group.current
     if (g) {
@@ -145,10 +170,13 @@ function Rig({ progress, host, onReady, onFail, visible, reduce, screenEl }: Rig
   })
 
   return (
-    <group ref={group}>
-      <Model lid={lid} />
-      <pointLight ref={light} position={[0, 1.3, -0.3]} distance={5} decay={2} intensity={0} />
-    </group>
+    <>
+      <group ref={group}>
+        <Model lid={lid} />
+        <pointLight ref={light} position={[0, 1.3, -0.3]} distance={5} decay={2} intensity={0} />
+      </group>
+      <pointLight ref={key} color={RIM} position={[1.6, 2.2, 1.8]} distance={7} decay={2} intensity={reduce ? 3 : 7} />
+    </>
   )
 }
 

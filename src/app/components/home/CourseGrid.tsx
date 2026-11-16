@@ -22,7 +22,7 @@ const blurbs: Record<Course, string> = {
 
 export default function CourseGrid() {
   return (
-    <Reveal as="section" stagger={0.07} id="courses" aria-labelledby="courses-title" className="container-x section-y">
+    <Reveal as="section" stagger={0.07} id="courses" aria-labelledby="courses-title" className="container-x section-y relative">
       <div className="max-w-2xl">
         <h2 id="courses-title" data-spectral data-reveal className="t-headline"><span className="hl">Courses</span></h2>
       </div>
@@ -53,6 +53,17 @@ export default function CourseGrid() {
           <div className="course-lap-slot" />
         </div>
       </div>
+      {/* HUD trace: StoryStage draws one line per group, from the docked laptop's screen to the group's title */}
+      <svg className="hud" aria-hidden>
+        {categories.map((c) => (
+          <g key={c.name} data-hud={c.name.toLowerCase()}>
+            <path pathLength={1} />
+            <circle r={2.5} />
+            <circle r={2.5} />
+            <text>{'\u2192 ' + c.name.toLowerCase()}</text>
+          </g>
+        ))}
+      </svg>
       <CourseHover />
       <p data-reveal className="mt-6">
         <Link href="/programs" className="link link-arrow inline-flex min-h-11 items-center gap-2 font-semibold">
