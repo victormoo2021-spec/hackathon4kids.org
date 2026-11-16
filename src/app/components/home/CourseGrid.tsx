@@ -25,11 +25,11 @@ export default function CourseGrid() {
       </div>
       <div className="mt-12 border-t border-line">
         {categories.map((c) => (
-          <div key={c.name} data-reveal="rule" className="spec relative grid gap-4 py-8 md:grid-cols-[1fr_2fr] md:gap-12 md:py-10">
-            <h3 data-reveal className="t-title text-text">{c.name}</h3>
+          <div key={c.name} data-reveal="rule" style={{ '--accent': c.neon } as React.CSSProperties} className="spec relative grid gap-4 py-8 md:grid-cols-[1fr_2fr] md:gap-12 md:py-10">
+            <h3 data-reveal className="t-title text-[var(--accent)]">{c.name}</h3>
             <ul>
               {c.courses.map((n) => (
-                <li key={n} data-reveal="clip" className="border-t border-line py-4 first:border-t-0 first:pt-0 md:py-5 md:first:pt-0">
+                <li key={n} data-reveal="clip" className="course border-t border-line py-4 first:border-t-0 first:pt-0 md:py-5 md:first:pt-0">
                   <p className="text-xl font-semibold text-text">{n}</p>
                   <p className="mt-1 text-base text-text-dim">{blurbs[n]}</p>
                 </li>

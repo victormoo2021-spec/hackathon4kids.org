@@ -238,11 +238,11 @@ function Model({ lid }: { lid: React.RefObject<Group | null> }) {
         </Rounded>
         <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, -0.001, LID_Z]}>
           <planeGeometry args={[2.94, 2.02]} />
-          <meshPhysicalMaterial color="#050408" metalness={0} roughness={0.08} clearcoat={1} clearcoatRoughness={0.03} />
+          <meshPhysicalMaterial color="#0c0526" metalness={0} roughness={0.08} clearcoat={1} clearcoatRoughness={0.03} />
         </mesh>
         <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, -0.002, LID_Z]}>
           <planeGeometry args={[SCREEN_W, SCREEN_H]} />
-          <meshBasicMaterial color="#0d0916" />
+          <meshBasicMaterial color="#0f0830" />
         </mesh>
       </group>
     </>

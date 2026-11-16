@@ -2,10 +2,10 @@
 @plugin "@tailwindcss/typography";
 
 /*
-  "Deep night" world. All dark. Contrast checked (WCAG AA):
-  text #f6f4fb, body #e4dff0, lede #cfc9de, dim #b9b2cc, purple-soft #a78bff: all >= 7:1 on page #0a0710 and card #15101f
-  purple #7c5cff is for glows, borders and large text only (4.3:1 on card)
-  page ink #0a0710 on yellow #ffd60a: 14.2:1 (primary button)
+  "Electric night" world. All dark. Contrast checked (WCAG AA):
+  text #f7f4ff, body #e9e3ff, lede #d6ccff, dim #c2b6f0, purple-soft #b49bff: all >= 7:1 on page #140a3a and card #1e1150
+  neons (code #22e4ff, build #ff3fb4, math #b6ff3c, physics #ff8a1f): all >= 5.2:1 on page and card
+  page ink #140a3a on yellow #ffd60a: 13.1:1 (primary button)
   Yellow is the eye path: primary button, the program's drawing, the guiding light streak. Nothing else.
 */
 @theme {
@@ -14,17 +14,21 @@
   --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
 
   /* new names (use these) */
-  --color-page: #0a0710;
-  --color-card: #15101f;
-  --color-raised: #2a1d47;
-  --color-text: #f6f4fb;
-  --color-text-body: #e4dff0;
-  --color-text-lede: #cfc9de;
-  --color-text-dim: #b9b2cc;
-  --color-purple: #7c5cff;
-  --color-purple-soft: #a78bff;
+  --color-page: #140a3a;
+  --color-card: #1e1150;
+  --color-raised: #2e1a73;
+  --color-text: #f7f4ff;
+  --color-text-body: #e9e3ff;
+  --color-text-lede: #d6ccff;
+  --color-text-dim: #c2b6f0;
+  --color-purple: #6d3bff;
+  --color-purple-soft: #b49bff;
   --color-yellow: #ffd60a;
   --color-yellow-deep: #f5c400;
+  --color-code: #22e4ff;
+  --color-build: #ff3fb4;
+  --color-math: #b6ff3c;
+  --color-physics: #ff8a1f;
 
   --text-display: clamp(2.25rem, 6.2vw, 6.25rem);
   --text-headline: clamp(2.5rem, 6vw, 5.5rem);
@@ -36,8 +40,8 @@
   --radius-pill: 999px;
 
   /* depth on dark: neutral hairline + top-edge highlight + deep shadow (no colored glows) */
-  --color-line: rgb(255 255 255 / 0.12);
-  --color-line-strong: rgb(255 255 255 / 0.24);
+  --color-line: rgb(180 155 255 / 0.18);
+  --color-line-strong: rgb(180 155 255 / 0.32);
   --shadow-float: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 30px 80px -30px rgb(0 0 0 / 0.8);
   --shadow-lift: 0 1px 0 rgb(255 255 255 / 0.08) inset, 0 40px 90px -30px rgb(0 0 0 / 0.9);
   --shadow-yellow: 0 1px 0 rgb(255 255 255 / 0.5) inset;
@@ -92,7 +96,7 @@
 
   @media (min-width: 48rem) { body { font-size: 1.125rem; } }
   h1, h2, h3 { color: var(--color-text); }
-  h2[data-spectral] { text-shadow: 0 0 28px rgb(10 7 16 / 0.9); }
+  h2[data-spectral] { text-shadow: 0 0 28px rgb(20 10 58 / 0.9); }
   p { text-wrap: pretty; }
 
   a {

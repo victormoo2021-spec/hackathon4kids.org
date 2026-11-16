@@ -48,7 +48,7 @@ export default function MaskLines({ id, lines, dimFrom = Infinity, hl, className
     <h2 ref={ref} id={id} data-spectral className={`t-display ${className}`}>
       {lines.map((l, i) => (
         <span key={l} className="block overflow-hidden pb-[0.1em]">
-          <span data-line className={`block ${i >= dimFrom ? 'text-text-dim' : ''}`}>{hl && l.includes(hl) ? <>{l.split(hl)[0]}<span className="hl">{hl}</span>{l.split(hl)[1]}</> : l}</span>
+          <span data-line className={`block ${i >= dimFrom ? 'text-purple-soft' : ''}`}>{hl && l.includes(hl) ? <>{l.split(hl)[0]}<span className="hl">{hl}</span>{l.split(hl)[1]}</> : l}</span>
         </span>
       ))}
     </h2>

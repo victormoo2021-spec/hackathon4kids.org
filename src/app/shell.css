@@ -2,12 +2,12 @@
 .skip-link:focus{top:1rem}
 
 .site-header{position:sticky;top:0;z-index:50}
-.site-header::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:rgb(10 7 16/.8);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgb(255 255 255/.12);transition:background-color 300ms var(--ease-apple)}
+.site-header::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:rgb(20 10 58/.8);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgb(255 255 255/.12);transition:background-color 300ms var(--ease-apple)}
 .site-header>div:first-child{animation:nav-in 400ms var(--ease-apple) both;view-transition-name:site-header}
 @keyframes nav-in{from{opacity:0}}
-.site-header[data-scrolled="true"]::before{background:rgb(10 7 16/.92);-webkit-backdrop-filter:saturate(180%) blur(28px);backdrop-filter:saturate(180%) blur(28px)}
+.site-header[data-scrolled="true"]::before{background:rgb(20 10 58/.92);-webkit-backdrop-filter:saturate(180%) blur(28px);backdrop-filter:saturate(180%) blur(28px)}
 .site-header[data-open="true"]::before{background:var(--color-page);-webkit-backdrop-filter:none;backdrop-filter:none;border-bottom-color:var(--color-line)}
-.nav-link-d{padding:.5rem .25rem;font-size:.875rem;font-weight:500;color:#e4dff0;transition:color .2s,background-size 300ms var(--ease-out);background:linear-gradient(#fff,#fff) no-repeat right calc(100% - .3rem)/0% 1px}
+.nav-link-d{padding:.5rem .25rem;font-size:.875rem;font-weight:500;color:#e9e3ff;transition:color .2s,background-size 300ms var(--ease-out);background:linear-gradient(#fff,#fff) no-repeat right calc(100% - .3rem)/0% 1px}
 .nav-link-d:hover,.nav-link-d:focus-visible{background-position:left calc(100% - .3rem);background-size:100% 1px}
 @media (prefers-reduced-motion:reduce){.nav-link-d{background:none}}
 .nav-link-d:hover,.nav-link-d[aria-current="page"]{color:#fff}
@@ -24,9 +24,9 @@
 .mobile-sheet[data-open="true"] .m-contact{opacity:1}
 .mobile-sheet .m-contact a{text-decoration:underline;text-underline-offset:3px}
 /* the logo is dark blue: sit it on a light disc so it reads on black */
-.logo-mark{border-radius:999px;background:#f6f4fb;padding:1px;box-shadow:0 0 0 1px rgb(255 255 255/.15)}
+.logo-mark{border-radius:999px;background:#f7f4ff;padding:1px;box-shadow:0 0 0 1px rgb(255 255 255/.15)}
 
-.site-footer{background:rgb(10 7 16/.72);border-top:1px solid var(--color-line);color:var(--color-text-body);font-size:.9375rem;line-height:1.5}
+.site-footer{background:var(--color-card);border-top:1px solid var(--color-line);color:var(--color-text-body);font-size:.9375rem;line-height:1.5}
 .footer-grid{display:grid;gap:2rem}
 @media (min-width:64rem){.footer-grid{grid-template-columns:1.6fr 1fr 1.4fr 1.2fr;gap:3rem}}
 .f-link{display:inline-flex;align-items:center;min-height:2.75rem;transition:color .2s}

@@ -11,7 +11,7 @@
 }
 
 .hero-h1 { font-size: clamp(3rem, 7.2vw, 6.5rem); line-height: 0.98; font-weight: 700; letter-spacing: -0.04em; color: var(--color-text); max-width: 11ch; text-wrap: balance; }
-.hero-cont { margin-top: 1.1rem; font-size: clamp(1.25rem, 1.8vw, 1.5rem); line-height: 1.35; font-weight: 500; letter-spacing: -0.01em; color: #cfc9de; max-width: 26ch; text-shadow: 0 0 24px rgb(10 7 16 / 0.85); }
+.hero-cont { margin-top: 1.1rem; font-size: clamp(1.25rem, 1.8vw, 1.5rem); line-height: 1.35; font-weight: 500; letter-spacing: -0.01em; color: #d6ccff; max-width: 26ch; text-shadow: 0 0 24px rgb(20 10 58 / 0.85); }
 .hero-copy > div { margin-top: 2rem; }
 @media (max-width: 639px) {
   .hero-copy .btn { min-width: 16rem; height: 3.25rem; font-size: 1.0625rem; }
@@ -32,19 +32,19 @@
 @keyframes h-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* editor window (children of <Laptop>); sized in cqw of the screen so it scales without CLS */
-.win { position: absolute; inset: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; font-family: var(--font-mono); font-size: 3.1cqw; line-height: 1.55; color: var(--color-text); background: #0d0916; }
-.bar { display: flex; align-items: center; gap: 1cqw; height: 6.4cqw; padding-inline: 2cqw; background: #15101f; border-bottom: 1px solid var(--color-line); font-size: 2.3cqw; line-height: 1; }
-.file { padding: 1cqw 1.9cqw; border-radius: 1cqw 1cqw 0 0; background: #0d0916; color: var(--color-text); }
-.run-btn { margin-left: auto; padding: 0.8cqw 2.6cqw; border-radius: 99px; border: 1px solid rgb(167 139 255 / 0.3); color: #c4b5ff; background: rgb(124 92 255 / 0.14); font-family: var(--font-sans); font-weight: 600; letter-spacing: -0.01em; }
+.win { position: absolute; inset: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; font-family: var(--font-mono); font-size: 3.1cqw; line-height: 1.55; color: var(--color-text); background: #0f0830; }
+.bar { display: flex; align-items: center; gap: 1cqw; height: 6.4cqw; padding-inline: 2cqw; background: #1e1150; border-bottom: 1px solid var(--color-line); font-size: 2.3cqw; line-height: 1; }
+.file { padding: 1cqw 1.9cqw; border-radius: 1cqw 1cqw 0 0; background: #0f0830; color: var(--color-text); }
+.run-btn { margin-left: auto; padding: 0.8cqw 2.6cqw; border-radius: 99px; border: 1px solid rgb(180 155 255 / 0.3); color: #c4b5ff; background: rgb(109 59 255 / 0.14); font-family: var(--font-sans); font-weight: 600; letter-spacing: -0.01em; }
 .code-typer { margin: 0; padding: 2cqw 0; font: inherit; white-space: pre; overflow: hidden; }
 .ln { display: flex; min-height: 1.55em; padding-right: 2cqw; }
-.ln.on { background: rgb(124 92 255 / 0.1); }
-.no { width: 3cqw; flex: none; box-sizing: content-box; padding-inline: 2cqw 0; margin-right: 2.4cqw; text-align: right; color: #a9a2c0; }
+.ln.on { background: rgb(109 59 255 / 0.1); }
+.no { width: 3cqw; flex: none; box-sizing: content-box; padding-inline: 2cqw 0; margin-right: 2.4cqw; text-align: right; color: #b4a8e6; }
 .ln.on .tx::after { content: ''; display: inline-block; width: 0.28cqw; height: 1.15em; margin-left: 0.2cqw; vertical-align: text-bottom; background: var(--color-purple-soft); animation: caret 1.1s steps(1) infinite; }
 @keyframes caret { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .ln.on .tx::after { animation: none; } }
-.t-c { color: #a9a2c0; } .t-eq { color: #a9a2c0; } .t-s { color: #e9d5ff; } .t-n { color: var(--color-yellow); }
-.term { display: flex; gap: 1.2cqw; margin: 0; padding: 1.3cqw 2cqw; border-top: 1px solid var(--color-line); background: #0a0710; color: #cfc9de; font-size: 2.4cqw; line-height: 1.4; white-space: nowrap; overflow: hidden; }
+.t-c { color: #b4a8e6; } .t-eq { color: #b4a8e6; } .t-s { color: #e9d5ff; } .t-n { color: var(--color-yellow); }
+.term { display: flex; gap: 1.2cqw; margin: 0; padding: 1.3cqw 2cqw; border-top: 1px solid var(--color-line); background: #140a3a; color: #d6ccff; font-size: 2.4cqw; line-height: 1.4; white-space: nowrap; overflow: hidden; }
 .term em { font-style: normal; }
 .term span { color: var(--color-purple-soft); }
 
