@@ -74,7 +74,7 @@ export default function Home() {
 
         <div className="flex flex-col gap-10 lg:pt-6">
           {contest.active && (
-            <aside aria-labelledby="contest-title" className="relative">
+            <aside aria-labelledby="contest-title" className="contest-card relative">
               <Pin />
               <div className="cb cb-blue cb-cap lg:rotate-[1.2deg]">
                 <div className="cb-body px-6 pt-9 pb-6">
@@ -238,7 +238,7 @@ export default function Home() {
 
 function Pin() {
   return (
-    <svg aria-hidden viewBox="0 0 32 40" className="absolute -top-4 left-1/2 z-10 h-10 w-8 -translate-x-1/2">
+    <svg aria-hidden viewBox="0 0 32 40" className="pin absolute -top-4 left-1/2 z-10 h-10 w-8 -translate-x-1/2">
       <ellipse cx="16" cy="37" rx="5" ry="2" fill="rgb(27 26 43 / 0.18)" />
       <path d="M16 22v14" stroke="#4a4760" strokeWidth="2.5" strokeLinecap="round" />
       <circle cx="16" cy="13" r="11" fill="var(--color-pen)" />
@@ -250,7 +250,7 @@ function Pin() {
 // Decorative stage: green flag starts a sprite moving along its path.
 function StageArt() {
   return (
-    <svg aria-hidden viewBox="0 0 360 210" className="hidden w-full max-w-md self-center sm:block lg:self-start">
+    <svg aria-hidden viewBox="0 0 360 210" className="stage-art hidden w-full max-w-md self-center sm:block lg:self-start">
       <defs>
         <pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse">
           <circle cx="2" cy="2" r="1.2" fill="var(--color-grid)" />
@@ -265,6 +265,7 @@ function StageArt() {
       <path d="M70 160c50 10 80-60 140-40s60-30 80-40" fill="none" stroke="var(--color-motion)" strokeWidth="4" strokeDasharray="2 12" strokeLinecap="round" />
       {/* sprite: small robot */}
       <g transform="translate(262 40)">
+        <g className="robot">
         <path d="M30 4v10" stroke="var(--color-ink)" strokeWidth="3" strokeLinecap="round" />
         <circle cx="30" cy="4" r="4" fill="var(--color-pen)" />
         <rect x="8" y="14" width="44" height="34" rx="10" fill="var(--color-events)" stroke="var(--color-ink)" strokeWidth="3" />
@@ -272,6 +273,7 @@ function StageArt() {
         <circle cx="38" cy="31" r="4" fill="var(--color-ink)" />
         <rect x="14" y="52" width="32" height="26" rx="7" fill="var(--color-looks)" stroke="var(--color-ink)" strokeWidth="3" />
         <path d="M22 78v8M38 78v8" stroke="var(--color-ink)" strokeWidth="3" strokeLinecap="round" />
+        </g>
       </g>
       {/* mini block on stage */}
       <g transform="translate(120 172)">

@@ -140,10 +140,23 @@
     filter: drop-shadow(0 10px 14px rgb(27 26 43 / 0.22));
   }
 
+  /* press: click into place, fast and flush */
   a.cb:active,
   button.cb:active {
-    transform: translate(0, 0);
+    transform: translate(0, 2px);
     filter: drop-shadow(0 1px 1px rgb(27 26 43 / 0.2));
+    transition-duration: 70ms;
+  }
+
+  /* focus reads as block selection: Scratch-style yellow glow around the block */
+  a.cb:focus-visible,
+  button.cb:focus-visible {
+    outline: none;
+    filter: drop-shadow(0 0 0 var(--color-ink)) drop-shadow(0 0 3px var(--color-events)) drop-shadow(0 0 6px var(--color-events));
+  }
+  a.cb:focus-visible .cb-body,
+  button.cb:focus-visible .cb-body {
+    box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.14), inset 0 0 0 3px var(--color-ink);
   }
 
   /* inset value slot inside a block, like a block input */
@@ -180,6 +193,13 @@
   }
 }
 
+@keyframes pin-wobble {
+  20% { rotate: -14deg; }
+  45% { rotate: 9deg; }
+  70% { rotate: -4deg; }
+  to { rotate: 0deg; }
+}
+
 /* Shell: skip link, nav links, palette dots (layout/nav/home). */
 @layer components {
   body {
@@ -202,18 +222,41 @@
     top: 1rem;
   }
 
+  /* underline bar slides in from the left like a block snapping into a slot */
   .nav-link {
     color: var(--color-ink);
     text-decoration: none;
+    background: linear-gradient(var(--color-motion), var(--color-motion)) left bottom 4px / 0 3px no-repeat;
+    transition: background-size 260ms var(--ease-out-expo);
   }
   .nav-link:hover {
-    text-decoration: underline;
-    text-decoration-color: var(--color-motion);
+    background-size: 100% 3px;
   }
   .nav-link[aria-current="page"] {
-    text-decoration: underline;
-    text-decoration-color: var(--color-events);
-    text-decoration-thickness: 4px;
+    background-image: linear-gradient(var(--color-events), var(--color-events));
+    background-size: 100% 4px;
+  }
+
+  /* hero stage: robot takes "move 10 steps" along its path on hover */
+  .robot {
+    transition: transform 420ms var(--ease-snap);
+  }
+  .stage-art:hover .robot {
+    transform: translate(-10px, 4px);
+  }
+
+  /* contest pin wobbles once when the card is hovered */
+  .pin {
+    transform-origin: 50% 90%;
+  }
+  .contest-card:hover .pin {
+    animation: pin-wobble 520ms var(--ease-out-expo);
+  }
+
+  /* mobile menu: blocks stack in one after another */
+  #mobile-menu:not([hidden]) > li {
+    animation: snap-in 360ms var(--ease-snap) both;
+    animation-delay: calc(var(--i, 0) * 50ms);
   }
 
   .cat-dot {
@@ -224,4 +267,11 @@
     background: var(--cb-bg);
     box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.14);
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-link, .robot { transition: none; }
+  .stage-art:hover .robot { transform: none; }
+  .contest-card:hover .pin, #mobile-menu > li { animation: none; }
+  .cb, a.cb:active, button.cb:active { transition: none; }
 }

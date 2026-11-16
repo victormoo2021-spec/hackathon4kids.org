@@ -32,8 +32,8 @@ export default function Navigation() {
 
   const items = (
     <>
-      {links.map((l) => (
-        <li key={l.href}>
+      {links.map((l, i) => (
+        <li key={l.href} style={{ '--i': i } as React.CSSProperties}>
           <Link
             href={l.href}
             aria-current={isActive(l.href) ? 'page' : undefined}
@@ -44,7 +44,7 @@ export default function Navigation() {
         </li>
       ))}
       {contest.active && (
-        <li>
+        <li style={{ '--i': links.length } as React.CSSProperties}>
           <Block
             color="yellow"
             shape="hat"
@@ -56,7 +56,7 @@ export default function Navigation() {
           </Block>
         </li>
       )}
-      <li>
+      <li style={{ '--i': links.length + 1 } as React.CSSProperties}>
         <Block
           color="green"
           shape="cap"
