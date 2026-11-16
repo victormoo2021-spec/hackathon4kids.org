@@ -33,13 +33,12 @@ function draw(c: HTMLCanvasElement, p: number) {
     const g = segs[i], t = i < whole ? 1 : f - whole
     if (t <= 0) break
     hx = ox + (g.x1 + (g.x2 - g.x1) * t) * s; hy = oy - (g.y1 + (g.y2 - g.y1) * t) * s
-    ctx.strokeStyle = ctx.shadowColor = g.color
-    ctx.shadowBlur = 10
+    ctx.strokeStyle = g.color
     ctx.lineWidth = g.width * 1.25
     ctx.beginPath(); ctx.moveTo(ox + g.x1 * s, oy - g.y1 * s); ctx.lineTo(hx, hy); ctx.stroke()
   }
   if (f > 0) {
-    ctx.shadowColor = '#fff'; ctx.shadowBlur = 12; ctx.fillStyle = '#fff'
+    ctx.fillStyle = '#fff'
     ctx.beginPath(); ctx.arc(hx, hy, 3, 0, Math.PI * 2); ctx.fill()
   }
 }

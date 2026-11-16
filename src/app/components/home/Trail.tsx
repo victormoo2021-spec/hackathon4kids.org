@@ -2,7 +2,7 @@
 export default function Trail({ pathRef }: { pathRef: React.Ref<SVGPathElement> }) {
   return (
     <svg className="trail" aria-hidden>
-      <path ref={pathRef} d="M0 0" />
+      <path ref={pathRef} d="M0 0" vectorEffect="non-scaling-stroke" />
     </svg>
   )
 }

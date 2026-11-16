@@ -2,7 +2,7 @@ import EmailCta from '../EmailCta'
 import StoryStage from './StoryStage'
 import './hero.css'
 
-const FACTS = ['Free', 'Grades 3-8', 'Bay Area', 'In person and online', 'Up to 20 kids per class']
+const FACTS = ['Bay Area', 'Up to 20 kids per class', 'One instructor per class']
 
 // Server component: the h1 and CTA paint without waiting for JS. Only StoryStage is client.
 export default function Hero() {
@@ -11,14 +11,14 @@ export default function Hero() {
       <div className="hero-pin">
         <div className="container-x hero-grid">
           <div className="hero-copy">
-            <h1 id="hero-h1" className="hero-h1">Free coding classes for grades 3-8.</h1>
+            <h1 id="hero-h1" className="hero-h1 rise">Free coding classes for grades 3-8.</h1>
             <p className="hero-cont rise" style={{ animationDelay: '60ms' }}>
               Taught by high-school students, in person and online.
             </p>
-            <div className="rise" style={{ animationDelay: '140ms' }}>
+            <div className="rise" style={{ animationDelay: '120ms' }}>
               <EmailCta size="lg" reassure />
             </div>
-            <ul className="facts rise" style={{ animationDelay: '220ms' }}>
+            <ul className="facts rise" style={{ animationDelay: '180ms' }}>
               {FACTS.map((f, i) => (
                 <li key={f}>{i > 0 && <span className="dot" aria-hidden>·</span>}{f}</li>
               ))}

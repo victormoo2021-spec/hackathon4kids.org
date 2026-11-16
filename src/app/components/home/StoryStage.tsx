@@ -9,15 +9,18 @@ import Trail from './Trail'
 import TurtleCanvas, { fit } from './TurtleCanvas'
 import { RUN } from './program'
 
-gsap.registerPlugin(ScrollTrigger, useGSAP)
+gsap.registerPlugin(useGSAP)
 
 const CAPS = [
-  'Write a few lines.',
-  'Press run.',
-  'Watch your code draw.',
-  'Then keep going: Python, robotics, game design, math, physics.',
+  'You write the code.',
+  'Run it.',
+  'The turtle draws it.',
+  'Then robotics, games, math, and physics.',
 ]
 const SCALE = 1.08
+const SEGS = RUN.segments.length
+// the loop starts on line 5 of the program (index 4); its body is stepped through like a debugger
+const LOOP_FIRST = 4
 
 // position of el inside root, ignoring transforms
 function offsetIn(el: HTMLElement, root: HTMLElement) {
@@ -40,6 +43,15 @@ export default function StoryStage() {
       const $ = (s: string) => hero.querySelector<HTMLElement>(s)!
       const $$ = (s: string) => gsap.utils.toArray<HTMLElement>(s, hero)
       const mm = gsap.matchMedia()
+      const lines = $$('.device .ln')
+      const terms = $$('.term em')
+      // one entry point: canvas progress, debugger line, terminal output
+      const setP = (p: number) => {
+        setProgress(p)
+        const on = p >= 1 ? lines.length - 1 : p <= 0 ? LOOP_FIRST : LOOP_FIRST + 1 + (Math.floor(p * SEGS * 3) % 6)
+        lines.forEach((l, i) => l.classList.toggle('on', i === on))
+        gsap.set(terms, { opacity: p >= 1 ? 1 : 0 })
+      }
 
       mm.add('(min-width: 900px) and (prefers-reduced-motion: no-preference)', () => {
         const wrap = $('.device-wrap')
@@ -49,10 +61,7 @@ export default function StoryStage() {
         const capFrom = { autoAlpha: 0, y: 26 }
         const capOut = { autoAlpha: 0, y: -26, duration: 0.4, ease: 'power2.in' }
 
-        // hide the untyped lines (6+) up front; the scrub types them in
-        gsap.set($$('.device .ln:nth-child(n+6) .ch'), { opacity: 0 })
-        gsap.set($('.device .term'), { opacity: 0 })
-        setProgress(0)
+        setP(0)
 
         // the trail runs from the CTA to the drawing's start point, over the laptop's final position
         const buildTrail = () => {
@@ -86,43 +95,40 @@ export default function StoryStage() {
           },
         })
 
-        // a) copy leaves, laptop glides to center, the trail starts to run toward it
+        // a) copy leaves, laptop glides to center, the trail runs to it
         tl.to($('.hero-copy'), { autoAlpha: 0, x: -90, duration: 1.1, ease: 'power2.in' }, 0)
           .to(wrap, { x: () => hero.clientWidth / 2 - (wrap.offsetLeft + wrap.offsetWidth / 2), scale: SCALE, duration: 1.4, ease: 'power2.inOut' }, 0)
-          .fromTo($('.trail path'), { strokeDashoffset: () => buildTrail() - 36 }, { strokeDashoffset: 0, duration: 5, ease: 'power1.inOut' }, 0.3)
+          .fromTo($('.trail path'), { strokeDashoffset: () => buildTrail() - 36 }, { strokeDashoffset: 0, duration: 3, ease: 'power1.inOut' }, 0.3)
           .fromTo(caps[0], capFrom, capIn, 0.9)
-          // type
-          .to($$('.device .ln:nth-child(n+6) .ch'), { opacity: 1, duration: 0.02, stagger: { amount: 2.8 } }, 1.3)
-          .to(caps[0], capOut, 4.3)
-          // b) run
-          .fromTo(caps[1], capFrom, capIn, 4.5)
-          .to($('.run-btn'), { scale: 0.88, backgroundColor: '#7c5cff', duration: 0.18, ease: 'power2.out' }, 4.9)
-          .to($('.run-btn'), { scale: 1, backgroundColor: '#a78bff', duration: 0.25, ease: 'back.out(3)' }, 5.1)
-          .to($('.trail'), { opacity: 0, duration: 0.8 }, 5.6)
-          .to(caps[1], capOut, 5.6)
-          // c) the drawing builds with the scroll
-          .fromTo(caps[2], capFrom, capIn, 6)
-          .to(prog, { p: 1, duration: 4, onUpdate: () => setProgress(prog.p) }, 5.6)
-          .to(caps[2], capOut, 9.6)
+          .to(caps[0], capOut, 3)
+          // b) run: the pill presses
+          .fromTo(caps[1], capFrom, capIn, 3.2)
+          .to($('.run-btn'), { scale: 0.92, backgroundColor: 'rgb(167 139 255 / 0.34)', duration: 0.18, ease: 'power2.out' }, 3.6)
+          .to($('.run-btn'), { scale: 1, backgroundColor: 'rgb(167 139 255 / 0.16)', duration: 0.3, ease: 'power2.out' }, 3.8)
+          .to($('.trail'), { opacity: 0, duration: 0.6 }, 3.5)
+          .to(caps[1], capOut, 4.2)
+          // c) execution: the active line walks the loop while the drawing builds
+          .fromTo(caps[2], capFrom, capIn, 4.4)
+          .to(prog, { p: 1, duration: 4, onUpdate: () => setP(prog.p) }, 4.2)
+          .to(caps[2], capOut, 8.3)
           // d) it printed, then keep going
-          .to($('.device .term'), { opacity: 1, duration: 0.3 }, 9.6)
-          .fromTo(caps[3], capFrom, capIn, 9.9)
-          .to({}, { duration: 0.25 }, 12.4)
+          .fromTo(caps[3], capFrom, capIn, 8.6)
+          .to({}, { duration: 0.3 }, 9.3)
 
-        return () => setProgress(1)
+        return () => setP(1)
       })
 
       // no pin: a short autoplay once the laptop is on screen (skipped under reduced motion)
       mm.add('(max-width: 899px) and (prefers-reduced-motion: no-preference)', () => {
         const prog = { p: 0 }
-        setProgress(0)
+        setP(0)
         const st = ScrollTrigger.create({
           trigger: $('.device-wrap'),
           start: 'top 75%',
           once: true,
-          onEnter: () => { gsap.to(prog, { p: 1, duration: 3.2, ease: 'power1.inOut', onUpdate: () => setProgress(prog.p) }) },
+          onEnter: () => { gsap.to(prog, { p: 1, duration: 3.2, ease: 'power1.inOut', onUpdate: () => setP(prog.p) }) },
         })
-        return () => { st.kill(); setProgress(1) }
+        return () => { st.kill(); setP(1) }
       })
 
       const refresh = () => ScrollTrigger.refresh()
@@ -140,7 +146,7 @@ export default function StoryStage() {
         <Trail pathRef={trail} />
         <div className="shot card" aria-hidden>
           <TurtleCanvas progress={progress} />
-          <p className="term"><span>$</span> {RUN.output.join('  ')}</p>
+          <p className="term"><span>$</span> <em>{RUN.output.join('  ')}</em></p>
         </div>
         <ol className="caps">
           {CAPS.map((c) => <li key={c} className="cap">{c}</li>)}

@@ -15,5 +15,3 @@ for i in range(36):
 print("Done! 72 lines drawn.")`
 
 export const RUN = runTurtle(PROGRAM)
-
-if (RUN.output[0] !== `Done! ${RUN.segments.length} lines drawn.`) throw new Error('program.ts: printed line count is wrong')

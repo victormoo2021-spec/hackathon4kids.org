@@ -1,9 +1,10 @@
 import { memo } from 'react'
 import { PROGRAM } from './program'
 
-// Every character is its own span so a scrubbed timeline can reveal it; without JS all of it is visible.
+// The full program, always visible. StoryStage moves the `on` class between lines like a debugger.
 const TOKEN = /(#.*)|("[^"]*")|\b(import|for|in)\b|\b(\d+)\b|([A-Za-z_]\w*)(?=\()/g
 const CLS = ['c', 's', 'k', 'n', 'f']
+const LINES = PROGRAM.split('\n')
 
 function tokens(line: string): [string, string?][] {
   const out: [string, string?][] = []
@@ -20,14 +21,12 @@ function tokens(line: string): [string, string?][] {
 export default memo(function CodeTyper() {
   return (
     <pre className="code-typer" aria-hidden>
-      {PROGRAM.split('\n').map((line, i) => (
-        <span className="ln" key={i}>
+      {LINES.map((line, i) => (
+        <span className={i === LINES.length - 1 ? 'ln on' : 'ln'} key={i}>
           <span className="no">{i + 1}</span>
           <span className="tx">
             {tokens(line).map(([text, cls], j) => (
-              <span key={j} className={cls && `t-${cls}`}>
-                {text.split('').map((ch, k) => <span className="ch" key={k}>{ch}</span>)}
-              </span>
+              <span key={j} className={cls && `t-${cls}`}>{text}</span>
             ))}
           </span>
         </span>
