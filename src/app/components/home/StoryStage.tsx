@@ -32,6 +32,8 @@ export default function StoryStage() {
         const wrap = $('.device-wrap')
         const caps = $$('.cap')
         const chars = $$('.device .ln:nth-child(n+3) .ch')
+        // hide every untyped char up front (pinned desktop story only); the scrub types them in
+        gsap.set(chars, { opacity: 0 })
         const cards = $$('.flyin li')
         const sparks = $$('.device .gs-spark')
         const robot = $('.device .gs-robot')
@@ -58,7 +60,7 @@ export default function StoryStage() {
           .to(wrap, { x: () => hero.clientWidth / 2 - (wrap.offsetLeft + wrap.offsetWidth / 2), scale: 1.08, duration: 1.4, ease: 'power2.inOut' }, 0)
           .fromTo(caps[0], capFrom, capIn, 0.9)
           // type
-          .fromTo(chars, { opacity: 0 }, { opacity: 1, duration: 0.02, stagger: { amount: 2.8 } }, 1.3)
+          .to(chars, { opacity: 1, duration: 0.02, stagger: { amount: 2.8 } }, 1.3)
           .to(caps[0], capOut, 4.3)
           // b) run
           .fromTo(caps[1], capFrom, capIn, 4.5)

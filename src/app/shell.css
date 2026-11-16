@@ -2,7 +2,7 @@
 .skip-link:focus{top:1rem}
 
 .site-header{position:sticky;top:0;z-index:50;border-bottom:1px solid transparent;transition:border-color .3s var(--ease-apple),background-color .3s}
-.site-header[data-scrolled="true"]{border-bottom-color:var(--color-hairline)}
+.site-header[data-scrolled="true"]{border-bottom-color:var(--color-hairline);background:rgb(255 255 255/.86)}
 .site-header[data-open="true"]{background:#fff}
 .nav-link-d{position:relative;padding:.5rem .25rem;font-size:.9375rem;font-weight:500;color:var(--color-ink-soft);transition:color .2s}
 .nav-link-d:hover,.nav-link-d[aria-current="page"]{color:var(--color-ink)}
