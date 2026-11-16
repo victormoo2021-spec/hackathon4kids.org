@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowRightIcon } from '@radix-ui/react-icons'
 import Reveal from '../motion/Reveal'
+import GlyphText from '../motion/GlyphText'
 import CourseHover from './CourseHover'
 import { DemoCard } from './CodeTyper'
 import type { DemoKind } from './demos'
@@ -24,7 +25,7 @@ export default function CourseGrid() {
   return (
     <Reveal as="section" stagger={0.07} id="courses" aria-labelledby="courses-title" className="container-x section-y relative">
       <div className="max-w-2xl">
-        <h2 id="courses-title" data-spectral data-reveal className="t-headline"><span className="hl">Courses</span></h2>
+        <h2 id="courses-title" data-spectral data-reveal className="t-headline"><GlyphText><span className="hl">Courses</span></GlyphText></h2>
       </div>
       {/* desktop with motion: list left, sticky slot right that the hero laptop travels into (StoryStage) */}
       <div className="courses-layout mt-12">
