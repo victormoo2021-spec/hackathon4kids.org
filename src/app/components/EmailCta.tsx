@@ -24,7 +24,7 @@ export default function EmailCta({ size = 'md', compact, reassure, align = 'star
         {!compact && <ArrowRightIcon aria-hidden width={18} height={18} />}
         <span className="sr-only"> (opens in a new tab)</span>
       </a>
-      {reassure && <p className="text-sm text-text-dim">No spam. Unsubscribe anytime.</p>}
+      {reassure && <p className="text-sm text-text-body">No spam. Unsubscribe anytime.</p>}
     </div>
   )
 }

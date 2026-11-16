@@ -3,9 +3,7 @@
 
 /*
   "Deep night" world. All dark. Contrast checked (WCAG AA):
-  text #f4f1fa: 17.9:1 on page, 16.7:1 on card
-  text-dim #9a93ad: 6.8:1 on page, 6.3:1 on card
-  purple-soft #a78bff (text links): 7.4:1 on page, 6.9:1 on card
+  text #f6f4fb, body #e4dff0, lede #cfc9de, dim #b9b2cc, purple-soft #a78bff: all >= 7:1 on page #0a0710 and card #15101f
   purple #7c5cff is for glows, borders and large text only (4.3:1 on card)
   page ink #0a0710 on yellow #ffd60a: 14.2:1 (primary button)
   Yellow is the eye path: primary button, the program's drawing, the scroll trail. Nothing else.
@@ -19,25 +17,27 @@
   --color-page: #0a0710;
   --color-card: #15101f;
   --color-raised: #2a1d47;
-  --color-text: #f4f1fa;
-  --color-text-dim: #9a93ad;
+  --color-text: #f6f4fb;
+  --color-text-body: #e4dff0;
+  --color-text-lede: #cfc9de;
+  --color-text-dim: #b9b2cc;
   --color-purple: #7c5cff;
   --color-purple-soft: #a78bff;
   --color-yellow: #ffd60a;
   --color-yellow-deep: #f5c400;
 
-  --text-display: clamp(3rem, 8vw, 7.5rem);
-  --text-headline: clamp(2.5rem, 5.4vw, 4.75rem);
-  --text-title: clamp(1.5rem, 2.2vw, 2rem);
-  --text-lede: clamp(1.125rem, 1.4vw, 1.3125rem);
+  --text-display: clamp(3.25rem, 9vw, 9rem);
+  --text-headline: clamp(2.5rem, 6vw, 5.5rem);
+  --text-title: clamp(1.5rem, 2.4vw, 2.25rem);
+  --text-lede: clamp(1.1875rem, 1.5vw, 1.375rem);
 
   --radius-card: 1.75rem;
   --radius-tile: 1.375rem;
   --radius-pill: 999px;
 
   /* depth on dark: neutral hairline + top-edge highlight + deep shadow (no colored glows) */
-  --color-line: rgb(255 255 255 / 0.08);
-  --color-line-strong: rgb(255 255 255 / 0.18);
+  --color-line: rgb(255 255 255 / 0.12);
+  --color-line-strong: rgb(255 255 255 / 0.24);
   --shadow-float: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 30px 80px -30px rgb(0 0 0 / 0.8);
   --shadow-lift: 0 1px 0 rgb(255 255 255 / 0.08) inset, 0 40px 90px -30px rgb(0 0 0 / 0.9);
   --shadow-yellow: 0 1px 0 rgb(255 255 255 / 0.5) inset, 0 8px 24px -10px rgb(255 214 10 / 0.35);
@@ -65,8 +65,10 @@
   }
 
   body {
-    background: var(--color-page);
+    background: transparent; /* html keeps the page colour; the fixed shader canvas shows through */
     font-size: 1.0625rem;
+    line-height: 1.55;
+    color: var(--color-text-body);
     overflow-x: clip;
   }
 
@@ -88,6 +90,9 @@
     font-weight: 600;
   }
 
+  @media (min-width: 48rem) { body { font-size: 1.125rem; } }
+  h1, h2, h3 { color: var(--color-text); }
+  h2[data-streak-anchor] { text-shadow: 0 0 28px rgb(10 7 16 / 0.9); }
   p { text-wrap: pretty; }
 
   a {
@@ -107,11 +112,10 @@
 
   .section-y { padding-block: clamp(5rem, 9vw, 8rem); }
 
-  /* Apple display tracking sits around -0.02 to -0.03em; tighter makes letters collide */
-  .t-display { font-size: var(--text-display); line-height: 1.04; font-weight: 600; letter-spacing: -0.03em; }
-  .t-headline { font-size: var(--text-headline); line-height: 1.06; font-weight: 600; letter-spacing: -0.028em; }
-  .t-title { font-size: var(--text-title); line-height: 1.18; font-weight: 600; letter-spacing: -0.02em; }
-  .t-lede { font-size: var(--text-lede); line-height: 1.5; color: var(--color-text-dim); }
+  .t-display { font-size: var(--text-display); line-height: 0.98; font-weight: 700; letter-spacing: -0.04em; }
+  .t-headline { font-size: var(--text-headline); line-height: 1.02; font-weight: 680; letter-spacing: -0.035em; }
+  .t-title { font-size: var(--text-title); line-height: 1.15; font-weight: 650; letter-spacing: -0.022em; }
+  .t-lede { font-size: var(--text-lede); line-height: 1.45; font-weight: 450; color: var(--color-text-lede); }
 
   .glass {
     background: color-mix(in oklab, var(--color-page) 72%, transparent);
@@ -141,9 +145,9 @@
 
   .card {
     border-radius: 1.5rem;
-    background: linear-gradient(180deg, rgb(255 255 255 / 0.045), rgb(255 255 255 / 0.015)), #120d1c;
+    background: var(--color-card);
     border: 1px solid var(--color-line);
-    box-shadow: var(--shadow-float);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.10) inset, 0 30px 80px -30px rgb(0 0 0 / 0.8);
   }
 
 .link {

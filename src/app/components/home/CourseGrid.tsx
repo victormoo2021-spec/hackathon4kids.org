@@ -21,7 +21,7 @@ export default function CourseGrid() {
   return (
     <Reveal as="section" id="courses" aria-labelledby="courses-title" className="container-x section-y">
       <div className="max-w-2xl">
-        <h2 id="courses-title" data-reveal className="t-headline">Courses</h2>
+        <h2 id="courses-title" data-streak-anchor="l" data-reveal className="t-headline">Courses</h2>
         <p data-reveal className="t-lede mt-5">
           Python, robotics, game design, math, and physics, from a first program to AP exams.
         </p>
@@ -34,7 +34,7 @@ export default function CourseGrid() {
               {c.courses.map((n) => (
                 <li key={n} data-reveal className="border-t border-line py-4 first:border-t-0 first:pt-0 md:py-5 md:first:pt-0">
                   <p className="text-base font-medium text-text">{n}</p>
-                  <p className="mt-1 text-text-dim">{blurbs[n]}</p>
+                  <p className="mt-1 text-text-body">{blurbs[n]}</p>
                 </li>
               ))}
             </ul>

@@ -5,7 +5,7 @@ import { contest } from './content/contest'
 const EMAIL = 'hackathon4kidsevent@gmail.com'
 
 export default function Footer() {
-  const col = 'mb-2 text-xs font-semibold tracking-normal text-text-dim'
+  const col = 'mb-2 text-sm font-semibold tracking-normal text-text-dim'
   return (
     <footer className="site-footer">
       <div className="container-x py-12">

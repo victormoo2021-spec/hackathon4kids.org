@@ -40,7 +40,7 @@ function Flyer({ src, file, alt, caption }: { src: StaticImageData; file: string
       >
         <Image src={src} alt={alt} sizes="280px" className="block h-auto w-full" />
       </a>
-      <figcaption className="mt-3 text-[0.8125rem] text-text-dim">{caption}</figcaption>
+      <figcaption className="mt-3 text-[0.875rem] text-text-body">{caption}</figcaption>
     </figure>
   )
 }
@@ -53,7 +53,7 @@ export default function Programs() {
         <p data-reveal data-delay="120" className="t-lede mt-5">
           Free computer science and STEM classes for kids in grades 3 to 8, taught by high-school students.
         </p>
-        <ul data-reveal data-delay="200" aria-label="At a glance" className="mt-10 flex flex-wrap gap-x-3 gap-y-1 text-text-dim">
+        <ul data-reveal data-delay="200" aria-label="At a glance" className="mt-10 flex flex-wrap gap-x-3 gap-y-1 text-text-body">
           {facts.map((f, i) => (
             <li key={f}>
               {i > 0 && <span aria-hidden className="mr-3">·</span>}
@@ -76,7 +76,7 @@ export default function Programs() {
                 {c.courses.map((name) => (
                   <li key={name} data-reveal className="py-4 first:pt-0 last:pb-0">
                     <span className="block text-base font-medium text-text">{name}</span>
-                    <span className="block text-text-dim">{blurbs[name]}</span>
+                    <span className="block text-text-body">{blurbs[name]}</span>
                   </li>
                 ))}
               </ul>
@@ -90,12 +90,12 @@ export default function Programs() {
         <div className="mt-12 grid gap-5 md:grid-cols-3">
           <div data-reveal className="card p-7 md:col-span-3 md:p-9">
             <h3 className="t-title">Summer 2021</h3>
-            <p className="mt-3 max-w-[60ch] text-lg text-text-dim">Our summer program in 2021.</p>
+            <p className="mt-3 max-w-[60ch] text-lg text-text-body">Our summer program in 2021.</p>
           </div>
           <div data-reveal className="card flex flex-col gap-6 p-7 md:p-9">
             <div>
               <h3 className="t-title text-text">Summer 2023</h3>
-              <p className="mt-3 text-lg text-text-dim">
+              <p className="mt-3 text-lg text-text-body">
                 Free STEM camps across the summer: AMC 10, AP Physics 1, AP CSA, Programming for Robotics, and Modern React.
               </p>
             </div>
@@ -106,7 +106,7 @@ export default function Programs() {
           <div data-reveal className="card flex flex-col gap-6 p-7 md:col-span-2 md:p-9">
             <div>
               <h3 className="t-title">Past coding contests</h3>
-              <p className="mt-3 text-lg text-text-dim">
+              <p className="mt-3 text-lg text-text-body">
                 A coding competition for grades K to 8 on Code.org, where students worked at their own pace and competed for awards.
               </p>
             </div>

@@ -12,13 +12,14 @@ type Props = {
   lines: readonly string[]
   /** lines from this index on render dim */
   dimFrom?: number
+  anchor?: 'l' | 'r'
   className?: string
   start?: string
   end?: string
 }
 
 /** Display headline whose lines slide up out of a mask, scrubbed to scroll. Static under reduced motion. */
-export default function MaskLines({ id, lines, dimFrom = Infinity, className = '', start = 'top 85%', end = 'top 45%' }: Props) {
+export default function MaskLines({ id, lines, dimFrom = Infinity, anchor, className = '', start = 'top 85%', end = 'top 45%' }: Props) {
   const ref = useRef<HTMLHeadingElement>(null)
   useGSAP(
     () => {
@@ -43,7 +44,7 @@ export default function MaskLines({ id, lines, dimFrom = Infinity, className = '
     { scope: ref },
   )
   return (
-    <h2 ref={ref} id={id} className={`t-display ${className}`}>
+    <h2 ref={ref} id={id} data-streak-anchor={anchor} className={`t-display ${className}`}>
       {lines.map((l, i) => (
         <span key={l} className="block overflow-hidden pb-[0.1em]">
           <span data-line className={`block ${i >= dimFrom ? 'text-text-dim' : ''}`}>{l}</span>

@@ -1,13 +1,9 @@
 /* Home sections. Transforms/opacity only for motion; reduced-motion safe. */
 
-/* Final CTA trail: own rules, not the hero's .trail. Draws in as it enters view where supported. */
-.cta-trail { display: block; margin-inline: auto; width: 2px; height: 96px; overflow: visible; }
-.cta-trail path { fill: none; stroke: var(--color-yellow); stroke-width: 2px; stroke-linecap: round; vector-effect: non-scaling-stroke; stroke-dasharray: 1; }
-
 /* Courses: divider scales in via --rule (set by Reveal); hover dims sibling items */
 .spec::after { content: ""; position: absolute; inset: auto 0 0 0; height: 1px; background: var(--color-line); transform: scaleX(var(--rule, 1)); transform-origin: left; }
 .spec li > p { transition: opacity 200ms var(--ease-apple); }
-@media (hover: hover) { .spec:hover li:not(:hover) > p { opacity: 0.5; } }
+@media (hover: hover) { .spec:hover li:not(:hover) > p { opacity: 0.6; } }
 
 /* Formats: vertical divider scales down from the top */
 @media (min-width: 768px) {

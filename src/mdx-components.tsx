@@ -7,13 +7,13 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     h1: ({ children }) => <h1 data-reveal className="t-headline mb-8 text-text">{children}</h1>,
     h2: ({ children }) => <h2 data-reveal className="t-title mt-16 mb-3 text-text">{children}</h2>,
     h3: ({ children }) => <h3 data-reveal className="mt-10 mb-2 text-xl font-semibold tracking-tight text-text">{children}</h3>,
-    p: ({ children }) => <p className="my-4 text-[1.0625rem] leading-[1.7] text-text-dim">{children}</p>,
+    p: ({ children }) => <p className="my-4 text-[1.0625rem] leading-[1.7] text-text-body">{children}</p>,
     ol: ({ children }) => <ol className="my-8 list-none space-y-4 [counter-reset:step]">{children}</ol>,
     ul: ({ children }) => (
-      <ul className="my-5 list-disc space-y-3 pl-6 text-[1.0625rem] leading-[1.7] text-text-dim marker:text-text-dim">{children}</ul>
+      <ul className="my-5 list-disc space-y-3 pl-6 text-[1.0625rem] leading-[1.7] text-text-body marker:text-text-body">{children}</ul>
     ),
     li: ({ children }) => (
-      <li data-reveal className="relative card p-6 pl-16 text-[1.0625rem] leading-[1.7] text-text-dim [counter-increment:step] before:absolute before:left-5 before:top-6 before:flex before:size-8 before:items-center before:justify-center before:rounded-full before:bg-white/[0.06] before:text-sm before:font-semibold before:text-text before:content-[counter(step)] [&>p]:my-0">
+      <li data-reveal className="relative card p-6 pl-16 text-[1.0625rem] leading-[1.7] text-text-body [counter-increment:step] before:absolute before:left-5 before:top-6 before:flex before:size-8 before:items-center before:justify-center before:rounded-full before:bg-white/[0.06] before:text-sm before:font-semibold before:text-text before:content-[counter(step)] [&>p]:my-0">
         {children}
       </li>
     ),

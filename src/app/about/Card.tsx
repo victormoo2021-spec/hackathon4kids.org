@@ -17,27 +17,27 @@ export default function Card({ person }: { person: Person }) {
         />
         <div className="min-w-0">
           <h3 className="t-title leading-tight text-text">{name}</h3>
-          <p className="text-text-dim">{role}</p>
+          <p className="text-text-body">{role}</p>
         </div>
       </div>
-      <p className="mt-4 w-fit rounded-full bg-white/[0.06] px-3 py-1 text-xs font-semibold text-text">
+      <p className="mt-4 w-fit rounded-full bg-white/[0.06] px-3 py-1 text-sm font-semibold text-text">
         {current ? 'Current team' : 'Former team'}
       </p>
       {bio.length > LONG ? (
         <details className="group mt-4">
           <summary className="cursor-pointer list-none">
-            <span className="bio-clamp leading-relaxed text-text-dim group-open:hidden">{bio}</span>
+            <span className="bio-clamp leading-relaxed text-text-body group-open:hidden">{bio}</span>
             <span className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-purple-soft group-open:hidden">Read more</span>
-            <span className="hidden leading-relaxed text-text-dim group-open:block">{bio}</span>
+            <span className="hidden leading-relaxed text-text-body group-open:block">{bio}</span>
             <span className="mt-2 hidden min-h-11 items-center text-sm font-semibold text-purple-soft group-open:inline-flex">Show less</span>
           </summary>
         </details>
       ) : (
-        <p className="mt-4 leading-relaxed text-text-dim">{bio}</p>
+        <p className="mt-4 leading-relaxed text-text-body">{bio}</p>
       )}
       <ul className="mt-5 flex flex-wrap gap-2" aria-label="Teaches">
         {tags.map((tag) => (
-          <li key={tag} className="rounded-full px-3 py-1 text-sm text-text-dim border border-line">{tag}</li>
+          <li key={tag} className="rounded-full px-3 py-1 text-sm text-text-body border border-line">{tag}</li>
         ))}
       </ul>
     </article>
