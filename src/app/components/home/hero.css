@@ -6,7 +6,8 @@
 .hl { color: var(--color-yellow); }
 @media (min-width: 900px) {
   .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 2rem; }
-  .stage-laptop { width: 100%; margin-left: auto; transform: scale(1.22); transform-origin: 60% 50%; }
+  /* sized by width, not transform: a scale would double-count in the 3D canvas measure */
+  .stage-laptop { width: 120%; margin-left: -6%; }
 }
 
 .hero-h1 { font-size: clamp(3rem, 7.2vw, 6.5rem); line-height: 0.98; font-weight: 700; letter-spacing: -0.04em; color: var(--color-text); max-width: 11ch; text-wrap: balance; }

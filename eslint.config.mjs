@@ -9,7 +9,7 @@ const eslintConfig = [
     extends: ['next/core-web-vitals'],
   }),
   {
-    ignores: ['node_modules/**', '.next/**', 'out/**', 'next-env.d.ts'],
+    ignores: ['node_modules/**', '.next/**', 'out/**', 'next-env.d.ts', '.claude/**', 'test-results/**', 'playwright-report/**'],
   },
 ]
 

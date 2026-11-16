@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 import { FINAL, brightPixels, expectNoOverflow, fxState, scrollThrough, settle, trackErrors } from './helpers'
 
 test.describe('motion allowed (desktop)', () => {
-  test.skip(({ isMobile }) => isMobile, 'pinned motion is desktop only')
+  test.skip(({ isMobile }) => isMobile, 'desktop motion tier')
 
   test('fixed full-viewport WebGL canvas exists, motion-ok is set', async ({ page }) => {
     await page.goto('/')
@@ -18,30 +18,23 @@ test.describe('motion allowed (desktop)', () => {
     expect(r.h).toBeGreaterThanOrEqual(r.vh - 1)
   })
 
-  test('story section pins while scrolling without overflow or errors', async ({ page }) => {
+  test('page scrolls without pinning, overflow or errors', async ({ page }) => {
     const errors = trackErrors(page)
     await page.goto('/')
     await scrollThrough(page, { step: 300 })
-    // the story stage pins with CSS sticky (no GSAP pin-spacer, so no layout shift)
-    await expect(page.locator('#hero .hero-pin:has(#story)')).toHaveCSS('position', 'sticky')
+    expect(await stickyInHero(page)).toEqual([])
     await expectNoOverflow(page)
     expect(errors.list).toEqual([])
   })
 
-  test('fx reaches the final state and the canvas paints light after the hero', async ({ page }) => {
+  test('the laptop types the sketch on its own and the canvas paints light', async ({ page }) => {
     await page.goto('/')
-    await scrollThrough(page, { step: 300 })
-    await page.locator('#hero').scrollIntoViewIfNeeded()
-    // scroll back is reversible, so read the state while at the bottom of the hero story
-    await page.evaluate(() => {
-      const h = document.querySelector('#hero')!.getBoundingClientRect()
-      window.scrollTo(0, scrollY + h.bottom - innerHeight - 50)
-    })
-    await expect.poll(() => fxState(page)).toMatchObject(FINAL)
+    // no scrolling: the hero types once after load and each finished line drives the shader
+    await expect.poll(() => fxState(page), { timeout: 15000 }).toMatchObject(FINAL)
     await expect.poll(() => brightPixels(page), { timeout: 8000 }).toBeGreaterThan(500)
   })
 
-  test('scrolling through the story causes no layout shift', async ({ page }) => {
+  test('scrolling the page causes no layout shift', async ({ page }) => {
     await page.goto('/')
     await page.evaluate(() => {
       ;(window as unknown as { __cls: number }).__cls = 0
@@ -56,8 +49,9 @@ test.describe('motion allowed (desktop)', () => {
   })
 })
 
-const heroPinPosition = (page: import('@playwright/test').Page) =>
-  page.locator('#hero .hero-pin').evaluate((el) => getComputedStyle(el).position)
+// the hero has no pinned story any more: nothing inside it may be position: sticky
+const stickyInHero = (page: import('@playwright/test').Page) =>
+  page.locator('#hero').evaluate((h) => Array.from(h.querySelectorAll('*')).filter((e) => getComputedStyle(e).position === 'sticky').map((e) => e.className))
 
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' })
@@ -65,7 +59,7 @@ test.describe('reduced motion', () => {
   test('no pinning, no motion-ok class', async ({ page }) => {
     await page.goto('/')
     await scrollThrough(page, { step: 600, delay: 20 })
-    expect(await heroPinPosition(page)).not.toBe('sticky')
+    expect(await stickyInHero(page)).toEqual([])
     await expect(page.locator('html.motion-ok')).toHaveCount(0)
   })
 
@@ -154,7 +148,7 @@ test.describe('mobile', () => {
   test('does not pin anything', async ({ page }) => {
     await page.goto('/')
     await page.locator('#story').scrollIntoViewIfNeeded()
-    expect(await heroPinPosition(page)).not.toBe('sticky')
+    expect(await stickyInHero(page)).toEqual([])
   })
 
   test('fx autoplays to the final state', async ({ page }) => {

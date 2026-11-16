@@ -19,7 +19,7 @@ export async function settle(page: Page) {
   let prev = ''
   for (let i = 0; i < 20; i++) {
     const snap = await page.evaluate(() =>
-      [...document.querySelectorAll<HTMLElement>('[style]')].map((e) => e.style.cssText).join('|'),
+      Array.from(document.querySelectorAll<HTMLElement>('[style]')).map((e) => e.style.cssText).join('|'),
     )
     if (snap === prev) break
     prev = snap
