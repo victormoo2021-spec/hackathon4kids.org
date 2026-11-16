@@ -30,17 +30,17 @@ const facts = ['Grades 3-8', 'In person and online', 'Free', 'Up to 20 kids per 
 
 function Flyer({ src, file, alt, caption }: { src: StaticImageData; file: string; alt: string; caption: string }) {
   return (
-    <figure className="w-full max-w-xs">
+    <figure className="w-full max-w-[280px]">
       <a
         href={`/${file}`}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Open full-size flyer: ${caption}`}
-        className="lift block overflow-hidden rounded-[1.75rem] border border-raised bg-card p-4 sm:p-5"
+        className="flyer block overflow-hidden rounded-xl border border-line opacity-90 transition-opacity hover:opacity-100 focus-visible:opacity-100"
       >
-        <Image src={src} alt={alt} sizes="(min-width: 640px) 24rem, 90vw" className="h-auto w-full rounded-2xl" />
+        <Image src={src} alt={alt} sizes="280px" className="block h-auto w-full" />
       </a>
-      <figcaption className="mt-3 text-center text-sm text-text-dim">{caption}</figcaption>
+      <figcaption className="mt-3 text-[0.8125rem] text-text-dim">{caption}</figcaption>
     </figure>
   )
 }
@@ -68,14 +68,14 @@ export default function Programs() {
         <p data-reveal className="t-lede mt-4 max-w-xl">
           Each program offers some of these. Get class dates by email to hear which ones are next.
         </p>
-        <div className="mt-12 grid gap-5 md:grid-cols-2">
+        <div className="mt-12 border-t border-line">
           {categories.map((c) => (
-            <section key={c.name} data-reveal className="card p-7 md:p-9" aria-labelledby={`cat-${c.name}`}>
-              <h3 id={`cat-${c.name}`} className="t-title">{c.name}</h3>
-              <ul className="mt-5 space-y-4">
+            <section key={c.name} data-reveal className="grid gap-4 border-b border-line py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-10 md:py-10" aria-labelledby={`cat-${c.name}`}>
+              <h3 id={`cat-${c.name}`} className="t-title text-text">{c.name}</h3>
+              <ul className="divide-y divide-line">
                 {c.courses.map((name) => (
-                  <li key={name}>
-                    <span className="block text-lg font-semibold text-text">{name}</span>
+                  <li key={name} className="py-4 first:pt-0 last:pb-0">
+                    <span className="block text-base font-medium text-text">{name}</span>
                     <span className="block text-text-dim">{blurbs[name]}</span>
                   </li>
                 ))}

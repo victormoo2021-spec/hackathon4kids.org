@@ -13,7 +13,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       <ul className="my-5 list-disc space-y-3 pl-6 text-[1.0625rem] leading-[1.7] text-text-dim marker:text-text-dim">{children}</ul>
     ),
     li: ({ children }) => (
-      <li className="relative rounded-3xl border border-raised bg-card p-6 pl-16 text-[1.0625rem] leading-[1.7] text-text-dim [counter-increment:step] before:absolute before:left-5 before:top-6 before:flex before:size-8 before:items-center before:justify-center before:rounded-full before:bg-raised before:text-sm before:font-semibold before:text-text before:content-[counter(step)] [&>p]:my-0">
+      <li className="relative card p-6 pl-16 text-[1.0625rem] leading-[1.7] text-text-dim [counter-increment:step] before:absolute before:left-5 before:top-6 before:flex before:size-8 before:items-center before:justify-center before:rounded-full before:bg-white/[0.06] before:text-sm before:font-semibold before:text-text before:content-[counter(step)] [&>p]:my-0">
         {children}
       </li>
     ),
@@ -22,7 +22,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       return (
         <a
           href={href}
-          className="link font-medium"
+          className="link py-[0.35em] font-medium"
           {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         >
           {children}
@@ -32,15 +32,15 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     strong: ({ children }) => <strong className="font-semibold text-text">{children}</strong>,
     em: ({ children }) => <em className="italic">{children}</em>,
     code: ({ children }) => (
-      <code className="rounded-md bg-raised px-1.5 py-0.5 font-mono text-[0.9em] text-text">{children}</code>
+      <code className="rounded-md bg-white/[0.06] px-1.5 py-0.5 font-mono text-[0.9em] text-text">{children}</code>
     ),
-    hr: () => <hr className="my-10 border-t border-raised" />,
+    hr: () => <hr className="my-10 border-t border-line" />,
     img: (props) => (
       <Image
         sizes="(min-width: 768px) 32rem, 100vw"
         width={0}
         height={0}
-        className="my-6 h-auto w-full max-w-lg rounded-3xl border border-raised bg-card p-4"
+        className="my-6 h-auto w-full max-w-lg rounded-2xl border border-line"
         {...(props as ImageProps)}
         alt={props.alt ?? ''}
       />
