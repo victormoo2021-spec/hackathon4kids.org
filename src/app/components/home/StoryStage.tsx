@@ -1,24 +1,37 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import Device from './Device'
-import GameScene from './GameScene'
-import CourseFlyIn, { allCourses } from './CourseFlyIn'
+import Trail from './Trail'
+import TurtleCanvas, { fit } from './TurtleCanvas'
+import { RUN } from './program'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
 const CAPS = [
   'Write a few lines.',
   'Press run.',
-  'Watch it come alive.',
+  'Watch your code draw.',
   'Then keep going: Python, robotics, game design, math, physics.',
 ]
+const SCALE = 1.08
+
+// position of el inside root, ignoring transforms
+function offsetIn(el: HTMLElement, root: HTMLElement) {
+  let x = 0, y = 0
+  for (let e: HTMLElement | null = el; e && e !== root; e = e.offsetParent as HTMLElement | null) {
+    x += e.offsetLeft; y += e.offsetTop
+  }
+  return { x, y }
+}
 
 export default function StoryStage() {
   const root = useRef<HTMLDivElement>(null)
+  const trail = useRef<SVGPathElement>(null)
+  const [progress, setProgress] = useState(1)
 
   useGSAP(
     () => {
@@ -31,17 +44,35 @@ export default function StoryStage() {
       mm.add('(min-width: 900px) and (prefers-reduced-motion: no-preference)', () => {
         const wrap = $('.device-wrap')
         const caps = $$('.cap')
-        const chars = $$('.device .ln:nth-child(n+3) .ch')
-        // hide every untyped char up front (pinned desktop story only); the scrub types them in
-        gsap.set(chars, { opacity: 0 })
-        const cards = $$('.flyin li')
-        const sparks = $$('.device .gs-spark')
-        const robot = $('.device .gs-robot')
-        const star = $('.device .gs-star')
+        const prog = { p: 0 }
         const capIn = { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }
         const capFrom = { autoAlpha: 0, y: 26 }
         const capOut = { autoAlpha: 0, y: -26, duration: 0.4, ease: 'power2.in' }
-        const cy = () => wrap.offsetTop + wrap.offsetHeight / 2
+
+        // hide the untyped lines (6+) up front; the scrub types them in
+        gsap.set($$('.device .ln:nth-child(n+6) .ch'), { opacity: 0 })
+        gsap.set($('.device .term'), { opacity: 0 })
+        setProgress(0)
+
+        // the trail runs from the CTA to the drawing's start point, over the laptop's final position
+        const buildTrail = () => {
+          const path = trail.current!
+          const cta = $('.hero-copy .btn')
+          const s = offsetIn(cta, hero)
+          const sx = s.x + cta.offsetWidth + 6, sy = s.y + cta.offsetHeight / 2
+          const canvas = $('.out canvas')
+          const o = offsetIn(canvas, wrap)
+          const f = fit(canvas.offsetWidth, canvas.offsetHeight)
+          const W = wrap.offsetWidth, H = wrap.offsetHeight
+          const cx = hero.clientWidth / 2, cy = wrap.offsetTop + H / 2
+          const ex = cx + (o.x + f.ox - W / 2) * SCALE, ey = cy + (o.y + f.oy - H / 2) * SCALE
+          const top = cy - (H * SCALE) / 2 - 60
+          const arc = Math.max(top, 80)
+          path.setAttribute('d', `M${sx} ${sy} C${sx + 220} ${sy - 30} ${ex - 40} ${arc} ${ex} ${ey}`)
+          const len = path.getTotalLength()
+          path.style.strokeDasharray = `${len}`
+          return len
+        }
 
         const tl = gsap.timeline({
           defaults: { ease: 'none' },
@@ -55,44 +86,43 @@ export default function StoryStage() {
           },
         })
 
-        // a) copy leaves, device glides to center
+        // a) copy leaves, laptop glides to center, the trail starts to run toward it
         tl.to($('.hero-copy'), { autoAlpha: 0, x: -90, duration: 1.1, ease: 'power2.in' }, 0)
-          .to(wrap, { x: () => hero.clientWidth / 2 - (wrap.offsetLeft + wrap.offsetWidth / 2), scale: 1.08, duration: 1.4, ease: 'power2.inOut' }, 0)
+          .to(wrap, { x: () => hero.clientWidth / 2 - (wrap.offsetLeft + wrap.offsetWidth / 2), scale: SCALE, duration: 1.4, ease: 'power2.inOut' }, 0)
+          .fromTo($('.trail path'), { strokeDashoffset: () => buildTrail() - 36 }, { strokeDashoffset: 0, duration: 5, ease: 'power1.inOut' }, 0.3)
           .fromTo(caps[0], capFrom, capIn, 0.9)
           // type
-          .to(chars, { opacity: 1, duration: 0.02, stagger: { amount: 2.8 } }, 1.3)
+          .to($$('.device .ln:nth-child(n+6) .ch'), { opacity: 1, duration: 0.02, stagger: { amount: 2.8 } }, 1.3)
           .to(caps[0], capOut, 4.3)
           // b) run
           .fromTo(caps[1], capFrom, capIn, 4.5)
-          .to($('.run-btn'), { scale: 0.88, backgroundColor: '#1d3bf0', duration: 0.18, ease: 'power2.out' }, 4.9)
-          .to($('.run-btn'), { scale: 1, duration: 0.25, ease: 'back.out(3)' }, 5.1)
-          // c) screen becomes the game
-          .to($('.editor'), { scale: 0.94, opacity: 0, duration: 0.8, ease: 'power2.in' }, 5.5)
-          .fromTo($('.game-layer'), { clipPath: 'inset(0 0 0 100%)' }, { clipPath: 'inset(0 0 0 0%)', duration: 0.9, ease: 'power2.inOut' }, 5.4)
+          .to($('.run-btn'), { scale: 0.88, backgroundColor: '#7c5cff', duration: 0.18, ease: 'power2.out' }, 4.9)
+          .to($('.run-btn'), { scale: 1, backgroundColor: '#a78bff', duration: 0.25, ease: 'back.out(3)' }, 5.1)
+          .to($('.trail'), { opacity: 0, duration: 0.8 }, 5.6)
           .to(caps[1], capOut, 5.6)
+          // c) the drawing builds with the scroll
           .fromTo(caps[2], capFrom, capIn, 6)
-          .to(robot, { x: 170, duration: 1.3, ease: 'power1.inOut' }, 6.4)
-          .to(robot, { y: -78, duration: 1, ease: 'power1.inOut' }, 7.7)
-          .to(robot, { y: -92, duration: 0.25, yoyo: true, repeat: 1, ease: 'power2.out' }, 8.7)
-          .to(star, { scale: 0, rotation: 180, duration: 0.4, ease: 'back.in(2)' }, 8.85)
-          .fromTo(sparks, { x: 0, y: 0, opacity: 1, scale: 1 }, {
-            x: (i) => Math.cos((i * Math.PI) / 4) * 42,
-            y: (i) => Math.sin((i * Math.PI) / 4) * 42,
-            opacity: 0, scale: 0.3, duration: 0.7, ease: 'power2.out',
-          }, 8.9)
+          .to(prog, { p: 1, duration: 4, onUpdate: () => setProgress(prog.p) }, 5.6)
           .to(caps[2], capOut, 9.6)
-          // d) courses fly out of the screen
+          // d) it printed, then keep going
+          .to($('.device .term'), { opacity: 1, duration: 0.3 }, 9.6)
           .fromTo(caps[3], capFrom, capIn, 9.9)
-          .fromTo(cards,
-            { xPercent: -50, yPercent: -50, x: () => hero.clientWidth / 2, y: () => Math.max(cy(), 120), scale: 0.2, autoAlpha: 0 },
-            {
-              x: (i, el: HTMLElement) => hero.clientWidth / 2 + parseFloat(el.dataset.fx!) * hero.clientWidth,
-              y: (i, el: HTMLElement) => Math.max(120, cy() + parseFloat(el.dataset.fy!) * hero.clientHeight),
-              scale: 1, autoAlpha: 1, duration: 1, ease: 'power3.out', stagger: 0.09,
-            }, 9.8)
-          // e) device settles back, then un-pins
-          .to(wrap, { scale: 0.88, duration: 1, ease: 'power2.inOut' }, 11)
-          .to({}, { duration: 0.25 }, 12)
+          .to({}, { duration: 0.25 }, 12.4)
+
+        return () => setProgress(1)
+      })
+
+      // no pin: a short autoplay once the laptop is on screen (skipped under reduced motion)
+      mm.add('(max-width: 899px) and (prefers-reduced-motion: no-preference)', () => {
+        const prog = { p: 0 }
+        setProgress(0)
+        const st = ScrollTrigger.create({
+          trigger: $('.device-wrap'),
+          start: 'top 75%',
+          once: true,
+          onEnter: () => { gsap.to(prog, { p: 1, duration: 3.2, ease: 'power1.inOut', onUpdate: () => setProgress(prog.p) }) },
+        })
+        return () => { st.kill(); setProgress(1) }
       })
 
       const refresh = () => ScrollTrigger.refresh()
@@ -105,18 +135,16 @@ export default function StoryStage() {
 
   return (
     <div ref={root} className="stage">
-      <Device />
+      <Device progress={progress} />
       <div id="story" className="story">
-        <div className="game-card"><GameScene loop /></div>
-        <ul className="chips" aria-label="Courses">
-          {allCourses.map((c) => (
-            <li key={c.name} className="course-chip"><i style={{ background: c.hue }} />{c.name}</li>
-          ))}
-        </ul>
+        <Trail pathRef={trail} />
+        <div className="shot card" aria-hidden>
+          <TurtleCanvas progress={progress} />
+          <p className="term"><span>$</span> {RUN.output.join('  ')}</p>
+        </div>
         <ol className="caps">
           {CAPS.map((c) => <li key={c} className="cap">{c}</li>)}
         </ol>
-        <CourseFlyIn />
       </div>
     </div>
   )

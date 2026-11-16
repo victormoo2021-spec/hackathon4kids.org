@@ -9,23 +9,23 @@ export default function Hero() {
   return (
     <section id="hero" className="hero" aria-labelledby="hero-h1">
       <div className="hero-pin">
-      <div className="container-x hero-grid">
-        <div className="hero-copy">
-          <h1 id="hero-h1" className="hero-h1">Free coding classes for <span className="hero-soft">grades 3-8.</span></h1>
-          <p className="hero-cont rise" style={{ animationDelay: '60ms' }}>
-            Taught by high-school students, in person and online.
-          </p>
-          <div className="rise" style={{ animationDelay: '140ms' }}>
-            <EmailCta size="lg" reassure />
+        <div className="container-x hero-grid">
+          <div className="hero-copy">
+            <h1 id="hero-h1" className="hero-h1">Free coding classes for grades 3-8.</h1>
+            <p className="hero-cont rise" style={{ animationDelay: '60ms' }}>
+              Taught by high-school students, in person and online.
+            </p>
+            <div className="rise" style={{ animationDelay: '140ms' }}>
+              <EmailCta size="lg" reassure />
+            </div>
+            <ul className="facts rise" style={{ animationDelay: '220ms' }}>
+              {FACTS.map((f, i) => (
+                <li key={f}>{i > 0 && <span className="dot" aria-hidden>·</span>}{f}</li>
+              ))}
+            </ul>
           </div>
-          <ul className="facts rise" style={{ animationDelay: '220ms' }}>
-            {FACTS.map((f, i) => (
-              <li key={f}>{i > 0 && <span className="dot" aria-hidden>·</span>}{f}</li>
-            ))}
-          </ul>
+          <StoryStage />
         </div>
-        <StoryStage />
-      </div>
       </div>
     </section>
   )
