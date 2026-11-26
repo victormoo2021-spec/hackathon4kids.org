@@ -22,13 +22,14 @@ interface Hero { tex: WebGLTexture[]; fbo: WebGLFramebuffer[]; cur: number; w: n
 interface S {
   cv: HTMLCanvasElement; kind: Program; o: MountOpts; ctx: CanvasRenderingContext2D | null; vals: Vals
   w: number; h: number; dirty: boolean; anim: boolean; vis: boolean; dead: boolean
-  seed?: number[]; keep?: number[]; hero?: Hero; api: Sheet; io: IntersectionObserver
+  fb: () => void; seed?: number[]; keep?: number[]; hero?: Hero; api: Sheet; io: IntersectionObserver
 }
 
 const sheets = new Set<S>()
 let cv: HTMLCanvasElement | null = null
 let gl: WebGL2RenderingContext | null = null
 let lost = false
+let inited = false
 let paper: WebGLTexture | null = null
 let pending = false
 let off: (() => void) | null = null
@@ -45,12 +46,17 @@ const LOAD: Record<Program, () => Promise<[string, string][]>> = {
   roller: () => import('./roller.frag').then((m) => [[m.rollerFrag, 'rollerMain']]),
 }
 
-function compile(body: string, main: string): Prog | null {
+// Start the link only; KHR_parallel_shader_compile lets the GPU process compile off the main thread (no long task).
+function link(body: string, main: string) {
   const g = gl!
   const mk = (t: number, s: string) => { const o = g.createShader(t)!; g.shaderSource(o, s); g.compileShader(o); return o }
   const p = g.createProgram()!
   const f = mk(g.FRAGMENT_SHADER, `#version 300 es\nprecision highp float;precision highp int;\n${RISO}\nout vec4 o;\n${body}\nvoid main(){${main}();}`)
   g.attachShader(p, mk(g.VERTEX_SHADER, VS)); g.attachShader(p, f); g.linkProgram(p)
+  return { p, f }
+}
+function finish({ p, f }: { p: WebGLProgram; f: WebGLShader }): Prog | null {
+  const g = gl!
   if (!g.getProgramParameter(p, g.LINK_STATUS)) { console.error('press: shader', g.getShaderInfoLog(f)); return null }
   const u: Prog['u'] = new Map()
   for (let i = 0, n = g.getProgramParameter(p, g.ACTIVE_UNIFORMS); i < n; i++) {
@@ -164,9 +170,13 @@ function draw(s: S, tick: boolean) {
   let P = progs.get(s.kind)
   if (!P) { // compile lazily on first use, then redraw everything waiting
     const k = s.kind
-    progs.set(k, LOAD[k]().then((src) => {
+    progs.set(k, LOAD[k]().then(async (src) => {
       if (!gl || lost) { progs.delete(k); return }
-      const ps = src.map(([b, m]) => compile(b, m))
+      const ls = src.map(([b, m]) => link(b, m))
+      const ext = gl.getExtension('KHR_parallel_shader_compile')
+      while (ext && !lost && !ls.every((l) => gl!.getProgramParameter(l.p, ext.COMPLETION_STATUS_KHR))) await new Promise((r) => setTimeout(r, 16))
+      if (!gl || lost) { progs.delete(k); return }
+      const ps = ls.map(finish)
       progs.set(k, ps.every(Boolean) ? (ps as Prog[]) : [])
       sheets.forEach((x) => x.kind === k && mark(x))
     }))
@@ -201,7 +211,7 @@ function runTick(tick: number, ms: number) {
 function sync() {
   let need = false
   sheets.forEach((s) => { if (s.anim && s.vis) need = true })
-  if (need && !off) off = clockTick(runTick)
+  if (need && inited && press.ok && !off) off = clockTick(runTick)
   else if (!need && off) { off(); off = null }
 }
 
@@ -220,12 +230,34 @@ function init() {
     sheets.forEach((s) => { s.seed = s.keep; mark(s) })
   })
 }
-init()
+// Software GL (SwiftShader/llvmpipe: headless Lighthouse, GPU-less boxes) pays ~300ms of GPU-process start-up on the main thread at the
+// first getContext, then 600ms+ per hero frame. Probe the renderer in a worker (its getContext blocks the worker, not the page) and
+// keep the static Poster (frame 0) on software GL. Until the probe answers press.ok is optimistic and sheets just stay dirty.
+function hardware(): Promise<boolean> {
+  return new Promise((res) => {
+    try {
+      const src = `try{const g=new OffscreenCanvas(1,1).getContext('webgl2'),d=g.getExtension('WEBGL_debug_renderer_info');postMessage(!/swiftshader|llvmpipe|software/i.test(g.getParameter(d?d.UNMASKED_RENDERER_WEBGL:g.RENDERER)))}catch(e){postMessage(true)}`
+      const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }))
+      const w = new Worker(url)
+      w.onmessage = (e) => { w.terminate(); URL.revokeObjectURL(url); res(e.data !== false) }
+      w.onerror = () => res(true)
+    } catch { res(true) }
+  })
+}
+if (typeof document !== 'undefined') {
+  press.ok = true
+  hardware().then((hw) => {
+    if (hw) init(); else press.ok = false
+    inited = true
+    sheets.forEach((s) => { if (s.dirty) press.ok ? mark(s) : s.vis && s.fb() })
+    sync()
+  })
+}
 
 export function mountSheet(canvas: HTMLCanvasElement, kind: Program, o: MountOpts): Sheet {
   const ctx = canvas.getContext('2d')
   const s = { cv: canvas, kind, o, ctx, vals: {}, w: 0, h: 0, dirty: false, anim: false, vis: false, dead: false } as S
-  const fallback = () => ctx && canvas.width && o.fallback(ctx, canvas.width, canvas.height)
+  const fallback = s.fb = () => { s.dirty = false; if (ctx && canvas.width) o.fallback(ctx, canvas.width, canvas.height) }
   s.api = {
     set(u) {
       for (const k in u) {
@@ -233,15 +265,14 @@ export function mountSheet(canvas: HTMLCanvasElement, kind: Program, o: MountOpt
         else s.vals[k] = u[k]
       }
     },
-    dirty() { press.ok ? mark(s) : fallback() },
-    animate(on) { s.anim = on && !press.reduced && press.ok; sync() },
+    dirty() { if (inited && press.ok) mark(s); else if (inited && s.vis) fallback(); else s.dirty = true }, // no GL: 2D paint only while on screen
+    animate(on) { s.anim = on && !press.reduced; sync() },
     destroy() {
       s.dead = true; s.io.disconnect(); sheets.delete(s); freeHero(s); sync()
     },
   }
-  s.io = new IntersectionObserver(([e]) => { s.vis = e.isIntersecting; if (s.vis && s.dirty) mark(s); sync() }, { rootMargin: '50%' })
+  s.io = new IntersectionObserver(([e]) => { s.vis = e.isIntersecting; if (inited && s.vis && s.dirty) press.ok ? mark(s) : fallback(); sync() }, { rootMargin: '50%' })
   sheets.add(s)
   s.io.observe(canvas)
-  if (!press.ok) fallback()
   return s.api
 }
