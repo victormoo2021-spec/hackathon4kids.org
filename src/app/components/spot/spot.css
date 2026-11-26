@@ -23,6 +23,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); }
 .plate::before { content: attr(data-t); content: attr(data-t) / ''; position: absolute; left: 0; top: 0; width: 100%; z-index: -1; color: var(--glow); pointer-events: none;
   transform: translate(1.5px, calc(1px + var(--slip, 0px))); }
 
+.band.accent .plate::before, .pg-final .plate::before { content: none; }
+
 /* ---- type helpers ---- */
 .lnk { position: relative; display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: var(--text); text-decoration: none; transition: color var(--t2) var(--ease-out); }
 .lnk::after { content: ''; position: absolute; left: 0; right: 0; bottom: 8px; height: 2px; background: currentColor; transform: scaleX(1); transform-origin: left; }
@@ -98,14 +100,15 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); }
 .tile-a:focus-visible { outline-offset: 4px; }
 
 /* ---- class band ---- */
+.hs { -webkit-mask-image: linear-gradient(black calc(100% - 72px), transparent); mask-image: linear-gradient(black calc(100% - 72px), transparent); }
 .class-grid { align-items: center; row-gap: 32px; }
-.class-text { grid-column: 1 / -1; order: 1; }
-.crowd { position: relative; grid-column: 1 / -1; order: 2; width: 100%; max-width: 27.5rem; justify-self: start; }
-.crowd-css { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8%; aspect-ratio: 5 / 4.4; padding: 6%; }
+.class-text { grid-column: 1 / -1; order: 2; }
+.crowd { position: relative; grid-column: 1 / -1; order: 1; width: 100%; max-width: 27.5rem; justify-self: start; }
+.crowd-css { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8%; aspect-ratio: 5 / 5.6; padding: 6%; }
 .crowd-css i { border-radius: 50%; background: var(--text); aspect-ratio: 1; align-self: center; }
-.crowd-css b { position: absolute; right: 2%; bottom: 0; width: 15%; aspect-ratio: 1; border-radius: 50%; background: var(--accent); }
+.crowd-css b { position: absolute; right: auto; left: 42.5%; bottom: 0; width: 15%; aspect-ratio: 1; border-radius: 50%; background: var(--accent); }
 .band .class-fact { margin: 0 0 24px; font-size: clamp(2.5rem, 11.6vw, 6rem); overflow-wrap: normal; color: var(--text); }
-.class-fact span { display: block; }
+.class-fact > span { display: block; }
 .class-text .t-body { margin: 0; color: var(--text-2); }
 [data-crowd-n] { display: inline-block; min-width: 2ch; font-variant-numeric: tabular-nums; }
 @media (min-width: 64rem) {

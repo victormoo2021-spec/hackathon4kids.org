@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 
 export const Crowd = dynamic(() => import('./Crowd'), {
   ssr: false,
-  loading: () => <canvas aria-hidden style={{ display: 'block', width: '100%', aspectRatio: '1.25' }} />, // same box, no layout shift
+  loading: () => <canvas aria-hidden style={{ display: 'block', width: '100%', aspectRatio: '1.1161' }} />, // same box, no layout shift
 })
 const JoinFxLoaded = dynamic(() => import('./JoinFx'), { ssr: false })
 // Mounts (and paints its canvases) only once the band is within ~1 screen, so it costs nothing in the load window.

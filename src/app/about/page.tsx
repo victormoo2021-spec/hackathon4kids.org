@@ -28,9 +28,9 @@ export default function About() {
             </p>
           </div>
           <ul aria-label="At a glance" className="pg-slabs t-slab pg-col-4" style={{ marginTop: 0, alignContent: 'flex-start' }}>
-            <li data-m="rise" className="s-blue">Grades 3-8</li>
-            <li data-m="rise" className="s-y">Free</li>
-            <li data-m="rise" className="s-k">Taught by students</li>
+            <li data-m="rise">Grades 3-8</li>
+            <li data-m="rise">Free</li>
+            <li data-m="rise">Taught by students</li>
           </ul>
         </div>
       </section>

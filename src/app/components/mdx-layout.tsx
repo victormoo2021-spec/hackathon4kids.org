@@ -5,7 +5,6 @@ import '../pages.css'
 export default function MdxLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="pg">
-      <div className="pg-bar" aria-hidden />
       <div className="grid-x pg-prose">
         <div className="pg-col-8">
           <article>{children}</article>

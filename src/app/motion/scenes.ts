@@ -41,8 +41,8 @@ export function dom(k: Kit, c: Conditions, ctx: gsap.Context): void | (() => voi
     })
     tl.fromTo(para, { scale: 0.96, transformOrigin: '0% 50%' }, { scale: 1, duration: 1, ease: 'none' }, 0)
       .fromTo(para.querySelectorAll('.w'), { opacity: 0.55, yPercent: 14 }, { opacity: 1, yPercent: 0, duration: 0.2, ease: 'power2.out', stagger: each }, 0)
-      .to(para.querySelector('.acc'), { scale: 1.12, duration: 0.07, ease: 'power2.out', transformOrigin: '50% 80%' }, accIdx * each + 0.08)
-      .to(para.querySelector('.acc'), { scale: 1, duration: 0.12, ease: 'power2.inOut' })
+      .to(para.querySelector('.acc'), { scale: 1.06, duration: 0.07, ease: 'power2.out', transformOrigin: '0% 80%' }, accIdx * each + 0.08)
+      .to(para.querySelector('.acc'), { scale: 1, duration: 0.12, ease: 'power2.inOut' }, '>')
     toTake.push([tl, 1])
   }
 

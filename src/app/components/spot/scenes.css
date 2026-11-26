@@ -6,7 +6,7 @@
   .hero-h1 .ln::before { animation: h-reg 350ms steps(5) 640ms backwards; }
   .hero-slab { animation: h-up8 var(--t4) var(--spring) 560ms backwards; }
   .hero-cta .cta { animation: h-up12 var(--t4) var(--spring) 680ms backwards; }
-  .hero-cta .lnk, .slug { animation: h-fade var(--t3) var(--ease-out) 760ms backwards; }
+  .hero-cta .lnk { animation: h-fade var(--t3) var(--ease-out) 760ms backwards; }
 }
 @keyframes h-rise { from { clip-path: inset(0 0 100% 0); transform: translateY(.35em); } to { clip-path: inset(0); transform: none; } }
 @keyframes h-reg { from { transform: translate(.07em, .045em); } to { transform: translate(1.5px, calc(1px + var(--slip, 0px))); } }
@@ -15,7 +15,7 @@
 @keyframes h-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* ---- statement layout ---- */
-.statement { min-height: 90svh; display: grid; align-content: center; }
+.statement { min-height: clamp(420px, 68svh, 720px); display: grid; align-content: center; }
 .statement .t-stmt { grid-column: 1 / -1; margin: 0; }
 .w { display: inline-block; }
 .acc { color: var(--accent); }

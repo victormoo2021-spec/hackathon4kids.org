@@ -25,9 +25,6 @@ export function Hero() {
           <Link href="#courses" className="lnk t-body">See the courses</Link>
         </div>
       </div>
-      <p className="slug t-mono" aria-hidden>
-        <span data-plate-angle="B">trail 15°</span><span data-plate-angle="K">beam 45°</span>
-      </p>
     </section>
   )
 }
@@ -53,7 +50,7 @@ export function Statement() {
 
 const { bg, s2, text, accent, glow } = INK
 // [paper, ink, ghost]
-const INKS: Record<string, [string, string, string]> = {
+export const INKS: Record<string, [string, string, string]> = {
   Code: [s2, accent, glow],
   Build: [accent, bg, glow],
   Math: [s2, text, glow],

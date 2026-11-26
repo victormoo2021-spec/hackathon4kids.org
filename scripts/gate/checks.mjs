@@ -217,7 +217,7 @@ export const checks = {
     return R(notes.some((n) => /^FAIL/.test(n)) ? 'FAIL' : 'PASS', notes, files)
   },
 
-  // 8: touch scroll over the hero is never blocked; mouse drag moves the readout. 1:1 grab + release velocity stay with a human.
+  // 8: touch scroll over the hero is never blocked; readout part N/A (removed). 1:1 grab + release velocity stay with a human.
   async 8({ browser, base }) {
     const notes = []
     const m = await openPage(browser, base + '/', { w: 390, h: 844, settle: 2500 })
@@ -227,16 +227,7 @@ export const checks = {
     const y = await m.page.evaluate(() => scrollY)
     F(y > 100, `touch swipe over the hero scrolled only ${y}px (blocked?)`, notes)
     await m.ctx.close()
-    const { ctx, page } = await openPage(browser, base + '/', { w: 1440, h: 900, settle: 3000 })
-    const read = () => page.evaluate(() => document.querySelector('[data-plate-angle="B"]')?.textContent || null)
-    const r0 = await read()
-    await page.mouse.move(720, 450); await page.mouse.down()
-    for (let i = 1; i <= 12; i++) { await page.mouse.move(720 + i * 24, 450 - i * 6); await page.waitForTimeout(40) }
-    const r1 = await read()
-    await page.mouse.up(); await ctx.close()
-    F(r0 !== null, 'no [data-plate-angle="B"] readout in the hero', notes)
-    if (r0 !== null) F(r0 !== r1, `readout did not move with a mouse drag (${r0} -> ${r1})`, notes)
-    notes.push(`touch swipe scrolled ${y}px; readout ${r0} -> ${r1}; grab 1:1 and release velocity (<= 4px jump) need a mouse pass on :port`)
+    notes.push(`touch swipe scrolled ${y}px; readout drag check N/A (hero readout removed, review1 fix 3); grab 1:1 and release velocity (<= 4px jump) need a mouse pass on :port`)
     return R(notes.some((n) => /^FAIL/.test(n)) ? 'FAIL' : 'MANUAL', notes)
   },
 

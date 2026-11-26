@@ -6,15 +6,16 @@ import { INK } from '../../press/ink'
 import { pack, type Prim } from './fields'
 import { paintProof, rgb } from './paint2d'
 
-// 20 kids in a 5x4 grid (x 0.14..0.94, y 0.16..0.76, r .07) + 1 instructor. The instructor sits clear of the grid,
-// right of and below dot 20: centre distance .23 > .07 + .10 + gap, so the two never touch (the old CSS crowd overlapped them).
-const A = 1.25 // sheet aspect w/h; unit = height
-const kids: Prim[] = Array.from({ length: 20 }, (_, i) => [1, 0.14 + (i % 5) * 0.2, 0.16 + Math.floor(i / 5) * 0.2, 0, 0, 0.07, 1, 0])
+// 20 kids in a 5x4 grid (x 0.14..0.94, y 0.16..0.76, r .07) + 1 instructor. The instructor stands front and centre
+// below the last row: centre distance .23 > .07 + .10 + gap, so they never touch. Coordinates are in grid units / S.
+const S = 1.12 // sheet height in grid units: the instructor stands at the front, centred below the last row
+const A = 1.25 / S // sheet aspect w/h (1.1161; keep in sync with Lazy.tsx placeholder); unit = height
+const kids: Prim[] = Array.from({ length: 20 }, (_, i) => [1, (0.14 + (i % 5) * 0.2) / S, (0.16 + Math.floor(i / 5) * 0.2) / S, 0, 0, 0.07 / S, 1, 0])
 // n kids in reading order, plus the instructor when gain > 0. A flat disc has no dot gain, so the pulse swells its radius (1.5 -> +8%, stays inside the sheet).
 const dots = (n: number, gain: number, pop = 1): Prim[] => [
   ...kids.slice(0, Math.floor(n)).map((k) => k.slice() as Prim),
-  ...(n % 1 && n < 20 ? [[1, kids[Math.floor(n)][1], kids[Math.floor(n)][2], 0, 0, 0.07 * pop, 1, 0] as Prim] : []), // the next kid pops in
-  ...(gain ? [[1, 1.13, 0.89, 0, 0, 0.1 * (1 + (gain - 1) * 0.16), 1, 2] as Prim] : []),
+  ...(n % 1 && n < 20 ? [[1, kids[Math.floor(n)][1], kids[Math.floor(n)][2], 0, 0, 0.07 / S * pop, 1, 0] as Prim] : []), // the next kid pops in
+  ...(gain ? [[1, 0.54 / S, 0.99 / S, 0, 0, (0.1 / S) * (1 + (gain - 1) * 0.16), 1, 2] as Prim] : []),
 ]
 
 // Fills with scroll (direction 7.4): mounts at the finished 20 + instructor (SSR parity); the GSAP scrub scene replays 0 -> 20, reversibly.

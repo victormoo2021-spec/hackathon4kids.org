@@ -50,7 +50,6 @@ export default function HeroSheet() {
       let samples: { t: number; th: number }[] = []
       let mx = 0.5, my = 0.5, tx = 0.5, ty = 0.5, px = 0, py = 0, lx = 0, ly = 0, lr = 0, lt = 0
       let jolt = 0, smear = 0, loadOff = 26, clr = 0, lastX = -1, lastMove = 0, nextBlip = 0, calls = 0, shown = false
-      let lastLabel = ''
       let tap: { x: number; y: number; t: number } | null = null
       const rect = () => el.getBoundingClientRect()
       const bobAt = () => ({ x: g.px + g.len * Math.sin(th), y: g.py + g.len * Math.cos(th) })
@@ -65,13 +64,6 @@ export default function HeroSheet() {
           uTh: th, uOff: [ox * d, oy * d], uA: (mx - 0.5) * 2 * 6 * RAD, uGain: 0.06,
           uLens: [lx * d, ly * d, lr * d], uSep: 7 * d, uPass: pass, uDecay: decay, uSub: sub, uClr: clr,
         })
-      }
-      const labels = () => {
-        const a = Math.round((mx - 0.5) * 2 * 6)
-        const key = String(a)
-        if (key === lastLabel) return
-        lastLabel = key
-        host.querySelectorAll('[data-plate-angle]').forEach((n) => { const b = n.getAttribute('data-plate-angle') === 'B'; n.textContent = `${b ? 'trail' : 'beam'} ${(b ? 15 : 45) + a}\u00b0` })
       }
       const seed = () => s.set({ uSeed: [0, 1, 2, 3, 4, 5].map((i) => th - i * 0.07) })
 
@@ -93,7 +85,6 @@ export default function HeroSheet() {
         if (!nextBlip) nextBlip = T + 9000
         const hold = held || (!swinging && !grabbing) // frozen photograph / fan holds until the swing starts
         push([plate(T, LOAD_MS.y), plate(T, LOAD_MS.b), plate(T, LOAD_MS.k)], hold ? 1 : 0.93, hold ? 0 : 0.004) // tuned: decay 0.88 -> 0.93
-        labels()
         s.dirty()
         void tick
       }
@@ -116,7 +107,7 @@ export default function HeroSheet() {
           s.set({ uTh: th }); s.dirty() // 1:1: the K figure follows between ticks; the blue exposures print at the tick
         } else {
           if (lastX >= 0 && inside) smear = Math.max(-14, Math.min(14, smear + (e.clientX - lastX) * 0.35))
-          if (fine && inside && !held) { if (!lt && !lr) { lx = x; ly = y } lt = 120 } else lt = 0
+          if (fine && inside && !held && !interactive(e) && !(e.target as Element).closest?.('header')) { if (!lt && !lr) { lx = x; ly = y } lt = 120 } else lt = 0
           host.style.cursor = fine && inside && near(x, y) ? 'grab' : ''
         }
         if (held) moved += Math.abs(e.movementX) + Math.abs(e.movementY)

@@ -6,6 +6,7 @@ import flyerSummer2023 from 'public/flyer-summer-2023.png'
 import flyerContestWinter24 from 'public/H4K_Coding_Competition_Flyer_Winter_24.jpg'
 import flyerContest from 'public/H4K_Coding_Competition_Flyer.png'
 import ProofStatic from '../components/spot/ProofStatic'
+import { INKS } from '../components/spot/Sections'
 import '../pages.css'
 
 export const metadata = {
@@ -30,9 +31,9 @@ const blurbs: Record<Course, string> = {
 const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
 const facts: [string, string][] = [
-  ['Grades 3-8', 's-blue'],
-  ['Free', 's-y'],
-  ['In person and online', 's-k'],
+  ['Grades 3-8', ''],
+  ['Free', ''],
+  ['In person and online', ''],
   ['Up to 20 kids per class', ''],
   ['One instructor per class', ''],
 ]
@@ -73,7 +74,7 @@ export default function Programs() {
                 <ul className="pg-courses">
                   {c.courses.map((name, i) => (
                     <li key={name} id={slug(name)} data-m="rise" className="pg-course">
-                      <ProofStatic name={name as Course} className={`pg-proof cat-${c.name.toLowerCase()}`} />
+                      <ProofStatic name={name as Course} paper={INKS[c.name][0]} ink={INKS[c.name][1]} ghost={INKS[c.name][2]} className={`pg-proof cat-${c.name.toLowerCase()}`} />
                       <div>
                         <h4 className="t-h3">{name}</h4>
                         <p className="t-body">{blurbs[name]}</p>
