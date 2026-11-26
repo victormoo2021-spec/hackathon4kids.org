@@ -1,6 +1,6 @@
 import Faq from './components/Faq'
 import { Hero, Courses, Class, FinalCta } from './components/spot/Sections'
-import StepObserver from './components/spot/StepObserver'
+import { Impression } from './components/spot/Impression'
 
 export default function Home() {
   return (
@@ -8,13 +8,11 @@ export default function Home() {
       <Hero />
       <Courses />
       <Class />
-      <section id="faq" aria-labelledby="faq-title" className="spot-sec stock">
-        <div className="wrap spot-faq">
-          <Faq headingId="faq-title" />
-        </div>
+      <section id="faq" aria-labelledby="faq-title" className="band stock">
+        <Faq headingId="faq-title" />
       </section>
       <FinalCta />
-      <StepObserver />
+      <Impression />
     </div>
   )
 }

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Cross2Icon, HamburgerMenuIcon } from '@radix-ui/react-icons'
 import logo from 'public/logo.png'
 import EmailCta from './components/EmailCta'
 import { contest, MAILING_LIST } from './content/contest'
@@ -19,8 +18,11 @@ const links = [
 
 export default function Navigation() {
   const pathname = usePathname()
+  const home = pathname === '/'
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  // on home the nav CTA waits until the hero CTA has left the screen
+  const [heroCta, setHeroCta] = useState(home)
   const btn = useRef<HTMLButtonElement>(null)
 
   useEffect(() => setOpen(false), [pathname])
@@ -31,6 +33,14 @@ export default function Navigation() {
     window.addEventListener('scroll', on, { passive: true })
     return () => window.removeEventListener('scroll', on)
   }, [])
+
+  useEffect(() => {
+    const el = home ? document.getElementById('hero-cta') : null
+    if (!el) return setHeroCta(false)
+    const io = new IntersectionObserver(([e]) => setHeroCta(e.isIntersecting))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [home])
 
   useEffect(() => {
     if (!open) return
@@ -52,63 +62,57 @@ export default function Navigation() {
 
   return (
     <header className="site-header" data-scrolled={scrolled} data-open={open}>
-      <div className="container-x flex h-12 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 rounded-md text-[1rem] font-semibold text-text">
-          <Image src={logo} alt="" sizes="24px" priority className="logo-mark h-6 w-6" />
+      <div className="nav-bar">
+        <Link href="/" className="brand t-h3">
+          <Image src={logo} alt="" sizes="28px" priority className="logo-mark" />
           Hackathon4Kids
         </Link>
 
-        <nav aria-label="Main" className="hidden md:block">
-          <ul className="flex items-center gap-6">
+        <nav aria-label="Main" className="nav-main">
+          <ul>
             {links.map((l) => (
               <li key={l.href}>
-                <Link href={l.href} aria-current={current(l.href)} className="nav-link-d relative">
+                <Link href={l.href} aria-current={current(l.href)} className="nav-link t-h3">
                   {l.label}
-                  {current(l.href) && <span className="nav-pill" aria-hidden />}
                 </Link>
               </li>
             ))}
           </ul>
         </nav>
 
-        <div className="flex items-center gap-2">
-          <a href={MAILING_LIST} target="_blank" rel="noopener noreferrer" className="nav-cta hidden md:inline-flex">
+        <div className="nav-end">
+          <a href={MAILING_LIST} target="_blank" rel="noopener noreferrer" className="nav-cta t-h3" data-hidden={heroCta}>
             Get class dates
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
           <button
             ref={btn}
             type="button"
-            className="-mr-2.5 flex h-11 w-11 items-center justify-center rounded-full md:hidden"
+            className="menu-btn"
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? 'Close menu' : 'Open menu'}
             onClick={() => setOpen((o) => !o)}
           >
-            <span className="menu-ico" aria-hidden>
-              <HamburgerMenuIcon width={22} height={22} />
-              <Cross2Icon width={22} height={22} />
-            </span>
+            <span className="menu-ico" aria-hidden><i /><i /></span>
           </button>
         </div>
       </div>
 
-      <div id="mobile-menu" className="mobile-sheet md:hidden" data-open={open} inert={!open}>
+      <div id="mobile-menu" className="mobile-sheet" data-open={open} inert={!open}>
         <ul>
-          {links.map((l, i) => (
-            <li key={l.href} style={{ '--i': i } as React.CSSProperties}>
-              <Link href={l.href} aria-current={current(l.href)} className="m-link">
+          {links.map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} aria-current={current(l.href)} className="m-link t-h2">
                 {l.label}
               </Link>
             </li>
           ))}
-          <li style={{ '--i': links.length } as React.CSSProperties} className="pt-6">
-            <EmailCta />
-          </li>
         </ul>
-        <p className="m-contact">
-          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
-        </p>
+        <div className="m-foot">
+          <EmailCta size="lg" />
+          <a href={`mailto:${EMAIL}`} className="lnk t-body">{EMAIL}</a>
+        </div>
       </div>
     </header>
   )

@@ -1,46 +1,41 @@
 import Link from 'next/link'
 import EmailCta from '../EmailCta'
-import { categories } from '../../content/courses'
-import HeroGL from './HeroGL'
-import Halftone from './Halftone'
-
-// Static poster, same geometry and first pendulum state as the shader's first frame (see geo() in pendulum.ts:
-// wide pivot 66% / len min(.82H, 1.15W), amp .8; phone pivot 50% / len min(.6H, 1.15W), amp .55; start angle .55*amp).
-// Shown first, and kept if WebGL is missing. cq units are the hero's own size.
-function Poster() {
-  return (
-    <div className="spot-poster" aria-hidden>
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        <i key={i} className={i ? 'pr b' : 'pr'} style={{ '--k': i, '--f': 1 - i / 6 } as React.CSSProperties} />
-      ))}
-    </div>
-  )
-}
+import { categories, type Course } from '../../content/courses'
+import HeroSheet from './HeroSheet'
+import Proof from './Proof'
+import Crowd from './Crowd'
+import { Roller } from '../../press/Roller'
+import { Stamp } from './Stamp'
 
 const H1 = ['Free', 'coding', 'classes']
 
 export function Hero() {
   return (
-    <section id="hero" className="spot-hero" aria-labelledby="hero-h1">
-      <Poster />
-      <HeroGL />
-      <div className="spot-hero-in">
-        <h1 id="hero-h1" className="spot-h1">
+    <section id="hero" className="hero" aria-labelledby="hero-h1">
+      <HeroSheet />
+      <div className="hero-in grid-x">
+        <h1 id="hero-h1" className="t-h1 hero-h1">
           {H1.map((w, i) => (
-            <span key={w} data-t={w} className={`ln w${i + 1}`} style={{ '--i': i } as React.CSSProperties}>{w}</span>
+            <span key={w} data-t={w} className="ln" style={{ '--n': i } as React.CSSProperties}>{w}</span>
           ))}
-          <span className="sr-only">.</span>{' '}
-          <span className="ln slab" style={{ '--i': 3 } as React.CSSProperties}>Grades 3–8</span>
         </h1>
-        <div className="spot-cta"><EmailCta size="lg" /></div>
-        <p className="spot-cta spot-alt"><a href="#courses" className="spot-link">See the courses</a></p>
+        <p className="t-slab hero-slab">Grades 3–8</p>
+        <div className="hero-cta" id="hero-cta">
+          <EmailCta size="lg" />
+          <Link href="#courses" className="lnk t-body">See the courses</Link>
+        </div>
       </div>
-      <i className="swatch" aria-hidden><b /><b /><b /><b /></i>
+      <i className="crop l" aria-hidden />
+      <i className="crop r" aria-hidden />
+      <p className="slug t-mono" aria-hidden>
+        <span><b className="y" />Y</span><span><b className="b" />B</span><span><b className="k" />K</span>
+      </p>
     </section>
   )
 }
 
-// category -> tile inks [paper, ink]
+const TILE: Record<string, string> = { Code: 'yk', Build: 'bs', Math: 'sb', Physics: 'ky' }
+// [paper, ink, ghost]
 const INKS: Record<string, [string, string, string]> = {
   Code: ['#FFD60A', '#111114', '#1F3FCF'],
   Build: ['#1F3FCF', '#F2EDE1', '#FFD60A'],
@@ -51,23 +46,23 @@ const INKS: Record<string, [string, string, string]> = {
 export function Courses() {
   let n = 0
   return (
-    <section id="courses" aria-labelledby="courses-title" className="spot-sec stock">
-      <div className="wrap">
+    <section id="courses" aria-labelledby="courses-title" className="band stock">
+      <div className="grid-x">
         <div className="courses-head">
-          <h2 id="courses-title" className="spot-h2" data-rv>Courses</h2>
-          <p className="more" data-rv>
-            <Link href="/programs" className="spot-link">All programs</Link>
-          </p>
+          <h2 id="courses-title" className="t-h2 plate" data-ink="wipe" data-plate="blue" data-t="Courses">Courses</h2>
+          <Link href="/programs" className="lnk t-body">All programs</Link>
         </div>
         <ul className="tiles">
           {categories.flatMap((c) =>
-            c.courses.map((name, ci) => {
+            (c.courses as readonly Course[]).map((name, ci) => {
               const [bg, fg, ghost] = INKS[c.name]
+              const i = n++ % 5
               return (
-                <li key={name} className="tile" data-rv style={{ '--bg': bg, '--fg': fg, '--i': n++ % 5 } as React.CSSProperties}>
-                  <Halftone name={name} fg={fg} ghost={ghost} />
-                  {ci === 0 && <p className="cat">{c.name}</p>}
-                  <h3>{name}</h3>
+                <li key={name} className={`tile ${TILE[c.name]}`} data-ink="develop" data-i={i}>
+                  <Proof name={name} col={i} paper={bg} ink={fg} ghost={ghost} className="tile-a">
+                    {ci === 0 && <span className="cat t-mono" style={{ background: fg, color: bg }}>{c.name}</span>}
+                    <span className="bar t-h3">{name}</span>
+                  </Proof>
                 </li>
               )
             }),
@@ -80,17 +75,18 @@ export function Courses() {
 
 export function Class() {
   return (
-    <section id="class-size" aria-labelledby="class-title" className="spot-sec blue" data-pass>
-      <div className="wrap class-grid">
-        <div className="crowd" aria-hidden data-rv>
-          {Array.from({ length: 20 }, (_, i) => <i key={i} />)}
-          <b />
+    <section id="class-size" aria-labelledby="class-title" className="band blue" data-ink="roll">
+      <Roller ink="blue" />
+      <div className="grid-x class-grid">
+        <div className="crowd">
+          <Crowd paper="#1F3FCF" ink="#F2EDE1" yellow="#FFD60A" />
+          <noscript><div className="crowd-css" aria-hidden>{Array.from({ length: 20 }, (_, i) => <i key={i} />)}<b /></div></noscript>
         </div>
         <div className="class-text">
-          <h2 id="class-title" className="spot-h2 big" data-rv>
-            <span>One instructor.</span> <span>Up to 20 kids</span>
+          <h2 id="class-title" className="t-fact class-fact" data-ink="wipe">
+            <span>One instructor</span> <span>Up to 20 kids</span>
           </h2>
-          <p className="fact" data-rv style={{ '--i': 2 } as React.CSSProperties}>Classes run in person and online.</p>
+          <p className="t-body">Classes run in person and online</p>
         </div>
       </div>
     </section>
@@ -99,10 +95,14 @@ export function Class() {
 
 export function FinalCta() {
   return (
-    <section id="join" aria-labelledby="join-title" className="spot-sec yellow">
-      <div className="wrap">
-        <h2 id="join-title" className="spot-h2 big" data-rv>Get class dates</h2>
-        <div className="spot-cta" data-rv style={{ '--i': 2 } as React.CSSProperties}><EmailCta size="lg" /></div>
+    <section id="join" aria-labelledby="join-title" className="band yellow final" data-ink="roll">
+      <Roller ink="yellow" />
+      <Stamp pivot="80%" />
+      <div className="grid-x">
+        <div className="final-in">
+          <h2 id="join-title" className="t-h2 plate" data-ink="wipe" data-plate="blue" data-t="Get class dates">Get class dates</h2>
+          <div className="final-cta" data-ink="stamp" data-i={4}><EmailCta size="lg" /></div>
+        </div>
       </div>
     </section>
   )
