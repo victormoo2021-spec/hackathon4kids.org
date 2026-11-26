@@ -3,13 +3,14 @@ export const TICK_MS = 1000 / 15
 type Fn = (tick: number, ms: number) => void
 const subs = new Set<Fn>()
 let raf = 0
+let timer = 0 // sleeps between ticks so rAF fires ~15x/s, not at display rate
 let last = 0
 let tick = 0
 
 export const reduced = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
 
 function loop(t: number) {
-  raf = 0
+  raf = timer = 0
   if (!subs.size || document.hidden || reduced()) return
   if (!last) last = t
   if (t - last >= TICK_MS) {
@@ -17,10 +18,10 @@ function loop(t: number) {
     tick++
     subs.forEach((f) => f(tick, t))
   }
-  raf = requestAnimationFrame(loop)
+  timer = window.setTimeout(() => { timer = 0; raf = requestAnimationFrame(loop) }, Math.max(0, TICK_MS - (t - last) - 6))
 }
 function wake() {
-  if (!raf && subs.size && !document.hidden && !reduced()) {
+  if (!raf && !timer && subs.size && !document.hidden && !reduced()) {
     last = 0
     raf = requestAnimationFrame(loop)
   }
@@ -32,9 +33,9 @@ export function onTick(fn: Fn): () => void {
   wake()
   return () => {
     subs.delete(fn)
-    if (!subs.size && raf) {
-      cancelAnimationFrame(raf)
-      raf = 0
+    if (!subs.size) {
+      cancelAnimationFrame(raf); clearTimeout(timer)
+      raf = timer = 0
     }
   }
 }

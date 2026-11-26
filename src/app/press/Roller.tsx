@@ -42,7 +42,7 @@ export function Roller({ ink }: { ink: 'blue' | 'yellow' }) {
       sheet.animate(true)
       offTick = onTick(() => {
         n++
-        if (n >= TICKS) return finish()
+        if (n >= TICKS) { offTick?.(); offTick = undefined; sheet?.animate(false); return finish() }
         line = (h * n) / TICKS
         offY *= 0.55
         draw()
