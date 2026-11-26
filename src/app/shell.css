@@ -22,6 +22,7 @@
 .nav-cta { display: none; align-items: center; min-height: 44px; padding: 0 16px; background: var(--k); color: var(--stock); font-weight: 700; }
 .nav-cta:hover { background: var(--blue); }
 .nav-cta[data-hidden="true"] { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) { .nav-cta[data-hidden="true"] { visibility: visible; } }
 .nav-cta:not([data-hidden="true"]) { animation: stampin 140ms steps(2) backwards; }
 @media (min-width: 64rem) { .nav-cta { display: inline-flex; } }
 
@@ -53,6 +54,7 @@
 .f-link:hover { text-decoration-color: currentColor; }
 .f-y { color: var(--y); font-weight: 700; }
 .foot-fine { margin: 0; font-size: .9375rem; max-width: 60ch; }
+.site-footer h2 { color: var(--stock); }
 .site-footer :focus-visible { outline-color: var(--stock); }
 @media (min-width: 64rem) {
   .foot-about { grid-column: 1 / 6; } .foot-nav { grid-column: 6 / 9; } .foot-contact { grid-column: 9 / -1; }

@@ -80,7 +80,7 @@ export function Class() {
       <div className="grid-x class-grid">
         <div className="crowd">
           <Crowd paper="#1F3FCF" ink="#F2EDE1" yellow="#FFD60A" />
-          <noscript><div className="crowd-css" aria-hidden>{Array.from({ length: 20 }, (_, i) => <i key={i} />)}<b /></div></noscript>
+          <noscript><div className="crowd-css" aria-hidden>{Array.from({ length: 20 }, (_, i) => <i key={i} className="dot" />)}<b className="dot" /></div></noscript>
         </div>
         <div className="class-text">
           <h2 id="class-title" className="t-fact class-fact" data-ink="wipe">

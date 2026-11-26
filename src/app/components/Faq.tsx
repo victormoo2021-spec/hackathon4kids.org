@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import { faq } from '../content/faq'
+import { MAILING_LIST } from '../content/contest'
 
 function FaqLink({ href, label }: { href: string; label: string }) {
   if (href.startsWith('/')) return <Link href={href} className="lnk">{label}</Link>
   if (href.startsWith('http'))
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" className="lnk">
-        {label}<span className="sr-only"> (opens in a new tab)</span>
+        {href === MAILING_LIST ? 'Get class dates by email' : label}<span className="sr-only"> (opens in a new tab)</span>
       </a>
     )
   return <a href={href} className="lnk">{label}</a>

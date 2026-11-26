@@ -64,7 +64,7 @@ export default function Navigation() {
     <header className="site-header" data-scrolled={scrolled} data-open={open}>
       <div className="nav-bar">
         <Link href="/" className="brand t-h3">
-          <Image src={logo} alt="" sizes="28px" priority className="logo-mark" />
+          <Image src={logo} alt="" sizes="28px" priority className="logo-mark logo" />
           Hackathon4Kids
         </Link>
 
@@ -110,7 +110,7 @@ export default function Navigation() {
           ))}
         </ul>
         <div className="m-foot">
-          <EmailCta size="lg" />
+          <EmailCta size="lg" compact />
           <a href={`mailto:${EMAIL}`} className="lnk t-body">{EMAIL}</a>
         </div>
       </div>

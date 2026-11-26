@@ -16,7 +16,7 @@ export default function Footer() {
           <ul>
             <li><Link href="/programs" className="f-link t-body">Programs</Link></li>
             <li><Link href="/about" className="f-link t-body">About</Link></li>
-            {contest.active && <li><Link href={contest.href} className="f-link t-body">Contest guide</Link></li>}
+            {contest.active && <li><Link href={contest.href} className="f-link t-body">{contest.navLabel}</Link></li>}
             <li><Link href="/#faq" className="f-link t-body">FAQ</Link></li>
           </ul>
         </nav>
