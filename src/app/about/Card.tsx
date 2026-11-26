@@ -1,45 +1,19 @@
-import Image from 'next/image'
+import { categories } from '../content/courses'
 import type { Person } from './team'
 
-const LONG = 200
+const catOf = (course?: string) => categories.find((c) => (c.courses as readonly string[]).includes(course ?? ''))?.name.toLowerCase() ?? 'code'
 
-// One team member: dark card, ringed photo, status pill, bio with disclosure when long.
-export default function Card({ person }: { person: Person }) {
-  const { name, role, photo, bio, current, tags } = person
+// One instructor: first name, role + grade, courses. No photo.
+export default function Card({ person, i }: { person: Person; i: number }) {
+  const { name, role, grade, tags } = person
   return (
-    <article data-reveal className="card lift flex w-full flex-col p-7 md:w-[calc((100%-1.5rem)/2)] xl:w-[calc((100%-3rem)/3)]">
-      <div className="flex items-center gap-4">
-        <Image
-          src={photo}
-          alt={`Portrait of ${name}`}
-          sizes="80px"
-          className="size-20 shrink-0 rounded-full object-cover ring-1 ring-white/[0.12] ring-offset-2 ring-offset-card"
-        />
-        <div className="min-w-0">
-          <h3 className="t-title leading-tight text-text">{name}</h3>
-          <p className="text-text-body">{role}</p>
-        </div>
+    <li data-ink="develop" data-i={i % 4} className="pg-card">
+      <div aria-hidden className={`pg-proof cat-${catOf(tags[0])}`} />
+      <div>
+        <h3 className="t-h3">{name}</h3>
+        <p className="t-body">{role}, {grade}</p>
+        {tags.length > 0 && <p className="t-body">{tags.join(', ')}</p>}
       </div>
-      <p className="mt-4 w-fit rounded-full bg-white/[0.06] px-3 py-1 text-sm font-semibold text-text">
-        {current ? 'Current team' : 'Former team'}
-      </p>
-      {bio.length > LONG ? (
-        <details className="group mt-4">
-          <summary className="cursor-pointer list-none">
-            <span className="bio-clamp leading-relaxed text-text-body group-open:hidden">{bio}</span>
-            <span className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-yellow group-open:hidden">Read more</span>
-            <span className="hidden leading-relaxed text-text-body group-open:block">{bio}</span>
-            <span className="mt-2 hidden min-h-11 items-center text-sm font-semibold text-yellow group-open:inline-flex">Show less</span>
-          </summary>
-        </details>
-      ) : (
-        <p className="mt-4 leading-relaxed text-text-body">{bio}</p>
-      )}
-      <ul className="mt-5 flex flex-wrap gap-2" aria-label="Teaches">
-        {tags.map((tag) => (
-          <li key={tag} className="rounded-full px-3 py-1 text-sm text-text-body border border-line">{tag}</li>
-        ))}
-      </ul>
-    </article>
+    </li>
   )
 }

@@ -1,53 +1,47 @@
-import EmailCta from '../components/EmailCta'
-import Reveal from '../components/reveal/Reveal'
+import { FinalBand } from '../components/mdx-layout'
 import Card from './Card'
 import { team } from './team'
 import '../pages.css'
 
 export const metadata = {
   title: 'About',
-  description:
-    'Hackathon4Kids was founded in 2018 by two high-school students and is still built and run by students. Meet the instructors.',
+  description: 'Founded in 2018 by two high-school students. Still built and run by students.',
 }
 
 export default function About() {
+  const people = team.filter((p) => !p.hidden)
   return (
-    <div className="text-text">
-      <Reveal className="container-x page-hero">
-        <h1 data-reveal className="t-headline max-w-[20ch]">Built and run by students</h1>
-        <div data-reveal className="t-lede mt-6 space-y-5">
-          <p>
-            Hackathon4Kids was founded in 2018 by two high-school students who wanted to help kids in their community by teaching programming.
-          </p>
-          <p>
-            Since then the team has grown, and so have our outreach and our offerings. It is a labor of love, built and run by students who want to make a real impact in their local community and beyond.
-          </p>
-        </div>
-      </Reveal>
-
-      <section id="instructors" className="container-x page-section scroll-mt-24" aria-labelledby="instructors-h">
-        <Reveal>
-          <h2 id="instructors-h" data-reveal className="t-headline">Our instructors</h2>
-          <p data-reveal className="t-lede mt-4 max-w-xl">
-            The students, alumni, and advisors who teach our classes and keep Hackathon4Kids running.
-          </p>
-        </Reveal>
-        <Reveal className="mt-12 flex flex-wrap items-start justify-start gap-6">
-          {team
-            .filter((p) => !p.hidden)
-            .map((p) => (
-              <Card key={p.name} person={p} />
-            ))}
-        </Reveal>
+    <div className="pg">
+      <section className="pg-yellow pg-hero grid-x">
+        <h1 data-ink="wipe" className="t-h1 pg-col-8">Built and run by students</h1>
+        <p data-ink="stamp" data-i="3" className="t-fact pg-year pg-col-4" aria-label="Founded in 2018">2018</p>
       </section>
 
-      <Reveal as="section" className="container-x page-section pb-28">
-        <h2 data-reveal className="t-headline">Get class dates</h2>
-        <div data-reveal className="mt-8 flex flex-wrap items-center gap-4">
-          <EmailCta size="lg" />
-          <a href="/programs" className="btn btn-secondary btn-lg">See our programs</a>
+      <section className="pg-sec">
+        <div className="grid-x">
+          <div className="pg-col-8" style={{ maxWidth: '60ch' }}>
+            <p data-ink="wipe" className="t-body">
+              Hackathon4Kids was founded in 2018 by two high-school students who wanted to help kids in their community by teaching programming.
+            </p>
+            <p data-ink="wipe" data-i="1" className="t-body mt-4">
+              Since then the team has grown, and so have our outreach and our offerings. It is built and run by students.
+            </p>
+          </div>
         </div>
-      </Reveal>
+      </section>
+
+      {people.length > 0 && (
+        <section id="instructors" className="pg-sec scroll-mt-24" style={{ paddingTop: 0 }} aria-labelledby="instructors-h">
+          <div className="grid-x">
+            <h2 id="instructors-h" data-ink="wipe" className="t-h2 pg-col-8" style={{ gridColumn: '1 / -1' }}>Instructors</h2>
+            <ul className="pg-people" style={{ gridColumn: '1 / -1' }}>
+              {people.map((p, i) => <Card key={p.name} person={p} i={i} />)}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      <FinalBand />
     </div>
   )
 }
