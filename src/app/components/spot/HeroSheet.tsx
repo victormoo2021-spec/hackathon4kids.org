@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import Poster from './Poster'
+import { now } from '../../press/clock'
 import { LOAD_MS, Pendulum, REST, frame0, geo, plate } from './pendulum'
 
 // Hero strobe sheet. Mount as a child of the (position:relative) hero section; it fills it. Poster is frame 0 and stays if GL is missing.
@@ -43,8 +44,8 @@ export default function HeroSheet() {
 
     function boot(mountSheet: typeof import('../../press/gl/press').mountSheet, press: typeof import('../../press/gl/press').press) {
       const dpr = () => Math.min(devicePixelRatio || 1, innerWidth < 768 ? 1.25 : 1.5)
-      const bootT = performance.now() - t0
-      const skipY = bootT > 350
+      const bootT = now() - t0
+      el.setAttribute('data-gl-t0', t0.toFixed(0)); el.setAttribute('data-gl-boot', bootT.toFixed(0))
       let th = sim.th, grabbing = false, grabOff = 0, held = false, downAt = 0, downX = 0, downY = 0, moved = 0
       let samples: { t: number; th: number }[] = []
       let mx = 0.5, my = 0.5, tx = 0.5, ty = 0.5, px = 0, py = 0, lx = 0, ly = 0, lr = 0, lt = 0
@@ -76,7 +77,7 @@ export default function HeroSheet() {
 
       const frame = (tick: number, ms: number) => {
         void ms
-        const T = performance.now() - t0
+        const T = now() - t0
         calls++
         if (calls === 2 && !shown) { shown = true; el.setAttribute('data-gl', '') } // GL has drawn: Poster steps aside
         const swinging = T >= LOAD_MS.swing
@@ -91,7 +92,7 @@ export default function HeroSheet() {
         if (fine && T > nextBlip && performance.now() - lastMove > 3000 && document.hasFocus() && !held) { jolt = 7; nextBlip = T + 8000 + Math.random() * 3000 }
         if (!nextBlip) nextBlip = T + 9000
         const hold = held || (!swinging && !grabbing) // frozen photograph / fan holds until the swing starts
-        push([skipY ? 1 : plate(T, LOAD_MS.y), plate(T, LOAD_MS.b), plate(T, LOAD_MS.k)], hold ? 1 : 0.93, hold ? 0 : 0.004) // tuned: decay 0.88 -> 0.93
+        push([plate(T, LOAD_MS.y), plate(T, LOAD_MS.b), plate(T, LOAD_MS.k)], hold ? 1 : 0.93, hold ? 0 : 0.004) // tuned: decay 0.88 -> 0.93
         labels()
         s.dirty()
         void tick
@@ -176,7 +177,7 @@ export default function HeroSheet() {
       if (reduce) { draw0(); setTimeout(() => el.setAttribute('data-gl', ''), 200) } else {
         const f = frame0(g.amp); void f
         s.set({ uSeed: f.exposures.map((e) => e.th) })
-        push([skipY ? 1 : plate(bootT, LOAD_MS.y), plate(bootT, LOAD_MS.b), plate(bootT, LOAD_MS.k)], 1, 0)
+        push([plate(bootT, LOAD_MS.y), plate(bootT, LOAD_MS.b), plate(bootT, LOAD_MS.k)], 1, 0)
         s.dirty(); s.animate(true)
       }
       const ro = new ResizeObserver(() => {

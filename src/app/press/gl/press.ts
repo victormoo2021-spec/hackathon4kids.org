@@ -188,7 +188,7 @@ function mark(s: S) {
   s.dirty = true
   if (pending) return
   pending = true
-  requestAnimationFrame(() => { pending = false; sheets.forEach((x) => x.dirty && x.vis && draw(x, false)) })
+  ;(press.reduced ? queueMicrotask : requestAnimationFrame)(() => { pending = false; sheets.forEach((x) => x.dirty && x.vis && draw(x, false)) })
 }
 
 function runTick(tick: number, ms: number) {
