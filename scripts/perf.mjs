@@ -67,9 +67,9 @@ for (const form of FORMS) {
   }
 }
 
-const fpsRun = process.env.PERF_NOFPS ? { stdout: '' } : sh('node', ['scripts/bench-fps.mjs'], { env: { ...process.env, BASE_URL: BASE } })
+const fpsRun = process.env.PERF_NOFPS ? { stdout: '' } : sh(process.execPath, ['scripts/bench-fps.mjs'], { env: { ...process.env, BASE_URL: BASE } })
 let fps = null
-try { fps = JSON.parse(fpsRun.stdout).results } catch { fps = { error: fpsRun.stderr.slice(0, 200) } }
+try { fps = JSON.parse(fpsRun.stdout).results } catch { fps = { error: String(fpsRun.stderr ?? fpsRun.error ?? '').slice(0, 200) } }
 kill()
 
 writeFileSync(out, JSON.stringify({ firstLoadJsKbGzip: firstLoad, lighthouse: lh, fps }, null, 2))
