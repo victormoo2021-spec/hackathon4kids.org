@@ -7,7 +7,8 @@
 .pg-col-8 { grid-column: 1 / -1; }
 .pg-col-4 { grid-column: 1 / -1; }
 @media (min-width: 64rem) { .pg-col-8 { grid-column: 1 / span 8; } .pg-col-4 { grid-column: 9 / span 4; } }
-.pg-hero { min-height: 64svh; align-content: end; row-gap: 24px; }
+.pg-hero { align-content: end; row-gap: 24px; }
+@media (min-width: 64rem) { .pg-hero { min-height: 64svh; } } /* phones: the bottom-aligned 64svh box left ~300px of black over the title */
 .pg-year { color: var(--accent); text-align: right; align-self: end; }
 
 .pg h2.t-h2 + * { margin-top: 32px; }

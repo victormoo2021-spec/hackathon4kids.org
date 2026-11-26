@@ -9,7 +9,7 @@
 .site-header[data-scrolled="true"]::before, .site-header[data-open="true"]::before { opacity: 1; }
 /* translucent by default (browsers without prefers-reduced-transparency would otherwise never get it); the reduce query opts out */
 @media (min-width: 48rem) {
-  .site-header::before { background: rgb(5 8 6 / .72); backdrop-filter: blur(var(--nav-blur)) saturate(1.4); }
+  .site-header::before { background: color-mix(in srgb, var(--bg) 72%, transparent); backdrop-filter: blur(var(--nav-blur)) saturate(1.4); }
 }
 @media (prefers-reduced-transparency: reduce) {
   .site-header::before { background: var(--bg); backdrop-filter: none; }

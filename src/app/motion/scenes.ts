@@ -46,8 +46,8 @@ export function dom(k: Kit, c: Conditions, ctx: gsap.Context): void | (() => voi
     toTake.push([tl, 1])
   }
 
-  // ---- 3a headings (rest 1)
-  all('[data-m="head"]').forEach((el) => {
+  // ---- 3a headings (rest 1). In view at arm time => left static, like rise: a heading peeking over the fold must not sit at opacity ~0.
+  all('[data-m="head"]').filter(below).forEach((el) => {
     const tw = gsap.fromTo(
       el,
       { opacity: 0, yPercent: 35 },

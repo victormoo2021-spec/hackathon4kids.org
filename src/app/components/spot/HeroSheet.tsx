@@ -120,7 +120,10 @@ export default function HeroSheet() {
         if (near(x, y)) {
           grabbing = true; grabOff = th - angleAt(x, y); samples = [{ t: performance.now(), th }]; lt = 0
           host.style.cursor = 'grabbing'; e.preventDefault()
-        } else { held = true; downAt = performance.now(); moved = 0; downX = x; downY = y; lt = 0 }
+        } else {
+          held = true; downAt = performance.now(); moved = 0; downX = x; downY = y; lt = 0
+          if (!(e.target as Element).closest?.('.hero-in')) e.preventDefault() // a hold-drag on the sheet must not select the headline; text itself stays selectable
+        }
       }
       const onUp = (e: PointerEvent) => {
         if (grabbing) {
