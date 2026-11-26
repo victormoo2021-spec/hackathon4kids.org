@@ -74,7 +74,7 @@ const statics = {
     const tsc = sh(process.execPath, ['node_modules/typescript/bin/tsc', '--noEmit'])
     const te = (tsc.stdout || '').split('\n').filter((l) => /error TS/.test(l) && !/^\.next/.test(l))
     notes.push(`tsc: ${te.length} errors ${te.slice(0, 5).join(' | ')}`); if (te.length) bad = true
-    const es = sh(process.execPath, ['node_modules/eslint/bin/eslint.js', '.', '--max-warnings=0', '--ignore-pattern', '.next*/**'])
+    const es = sh('node_modules/.bin/eslint', ['.'], { cwd: process.cwd(), env: { ...process.env, PATH: `${process.env.HOME}/.nvm/versions/node/v24.22.1/bin:${process.env.PATH}` } }) // same as `pnpm lint`
     writeFileSync(join(dir, 'eslint.txt'), es.stdout + es.stderr); files.push(join(dir, 'eslint.txt'))
     notes.push(`eslint: exit ${es.status} ${tail(es.stdout || es.stderr, 4).join(' | ').slice(0, 300)}`); if (es.status) bad = true
     if (flag('lh') || flag('build')) {

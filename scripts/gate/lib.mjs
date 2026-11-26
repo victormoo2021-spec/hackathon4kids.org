@@ -11,7 +11,7 @@ export const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16
 
 // Installed before any page script: WebGL context counter, rAF counter, CLS, frame probe.
 const INIT = () => {
-  const g = (window.__gate = { gl: 0, raf: 0, cls: 0, probe: [], probing: false })
+  const g = (window.__gate = { gl: 0, raf: 0, frames: 0, all: 0, lastT: -1, cls: 0, probe: [], probing: false })
   const wrap = (proto) => {
     if (!proto) return
     const o = proto.getContext
@@ -19,7 +19,13 @@ const INIT = () => {
   }
   wrap(window.HTMLCanvasElement?.prototype); wrap(window.OffscreenCanvas?.prototype)
   const raf = window.requestAnimationFrame.bind(window)
-  window.requestAnimationFrame = (cb) => raf((t) => { g.raf++; cb(t) })
+  // Classify by registration stack: app = src/app code (press clock, sheets); Next dev overlay/HMR/React/node_modules excluded.
+  // raf = app callbacks, frames = distinct app frame timestamps, all = every callback (incl. framework).
+  window.requestAnimationFrame = (cb) => {
+    const st = new Error().stack || ''
+    const app = /[\/_]src[\/_]app|press[\/_]clock|press[\/_]gl/.test(st) && !/node_modules|next[\/_]dist|react-dom|react-refresh|devtools|hot-reloader/i.test(st)
+    return raf((t) => { g.all++; if (app) { g.raf++; if (t !== g.lastT) { g.lastT = t; g.frames++ } } cb(t) })
+  }
   let last = 0
   const loop = (t) => { if (g.probing) { if (last) g.probe.push(t - last); last = t } else last = 0; raf(loop) }
   raf(loop) // probe uses the unwrapped raf so it never counts as app work
@@ -94,6 +100,26 @@ export async function diff(browser, a, b) {
     let n = 0; for (let i = 0; i < A.data.length; i += 4) if (Math.abs(A.data[i] - B.data[i]) + Math.abs(A.data[i + 1] - B.data[i + 1]) + Math.abs(A.data[i + 2] - B.data[i + 2]) > 60) n++
     return { frac: +(n / (A.width * A.height)).toFixed(4) }
   }, { a: b64(a), b: b64(b) })
+}
+
+/** Item 6 metric: 6px gaussian blur both, pixel differs if any channel delta > 32. Also K-mask centroid shift (px). */
+export async function blurDiff(browser, a, b) {
+  const p = await az(browser)
+  return p.evaluate(async ({ a, b, k }) => {
+    const ld = async (s) => { const i = new Image(); i.src = s; await i.decode(); const c = document.createElement('canvas'); c.width = i.width; c.height = i.height; const x = c.getContext('2d', { willReadFrequently: true }); x.filter = 'blur(6px)'; x.drawImage(i, 0, 0); x.filter = 'none'
+      const raw = document.createElement('canvas'); raw.width = i.width; raw.height = i.height; const rx = raw.getContext('2d', { willReadFrequently: true }); rx.drawImage(i, 0, 0)
+      return { blur: x.getImageData(0, 0, c.width, c.height), raw: rx.getImageData(0, 0, c.width, c.height) } }
+    const A = await ld(a), B = await ld(b)
+    if (A.blur.width !== B.blur.width || A.blur.height !== B.blur.height) return { error: 'size mismatch' }
+    let n = 0; const d1 = A.blur.data, d2 = B.blur.data
+    for (let i = 0; i < d1.length; i += 4) if (Math.abs(d1[i] - d2[i]) > 32 || Math.abs(d1[i + 1] - d2[i + 1]) > 32 || Math.abs(d1[i + 2] - d2[i + 2]) > 32) n++
+    // bob K-mask: text is identical in both, so compare centroids of the K pixels unique to each frame
+    const isK = (D, i) => (D[i] - k[0]) ** 2 + (D[i + 1] - k[1]) ** 2 + (D[i + 2] - k[2]) ** 2 < 40 * 40 * 3 / 4
+    const W = A.raw.width, ra = A.raw.data, rb = B.raw.data; const ao = [0, 0, 0], bo = [0, 0, 0]
+    for (let i = 0; i < ra.length; i += 4) { const x = isK(ra, i), y = isK(rb, i); if (x === y) continue; const t = x ? ao : bo, q = i / 4; t[0] += q % W; t[1] += (q / W) | 0; t[2]++ }
+    const ca = ao[2] ? { x: ao[0] / ao[2], y: ao[1] / ao[2], n: ao[2] } : null, cb = bo[2] ? { x: bo[0] / bo[2], y: bo[1] / bo[2], n: bo[2] } : null
+    return { frac: n / (A.blur.width * A.blur.height), ca, cb, shift: ca && cb ? Math.hypot(ca.x - cb.x, ca.y - cb.y) : 0 }
+  }, { a: b64(a), b: b64(b), k: hexRgb(INKS.k) })
 }
 
 export const save = (dir, name, buf) => { mkdirSync(dir, { recursive: true }); const f = join(dir, name); writeFileSync(f, buf); return f }

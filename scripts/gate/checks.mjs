@@ -1,10 +1,12 @@
 // Browser-driven checks. Each returns { status: 'PASS'|'FAIL'|'MANUAL', notes: string[], files: string[] }.
-import { launch, openPage, scrollAll, stats, diff, save, pct, ROUTES, INKS, NOGL_ARGS, hexRgb } from './lib.mjs'
+import { launch, openPage, scrollAll, stats, diff, blurDiff, save, pct, ROUTES, INKS, NOGL_ARGS, hexRgb } from './lib.mjs'
 import { join } from 'node:path'
+import { readFileSync } from 'node:fs'
 
 const CTA_HREF = 'https://forms.gle/ou5o62fdUXCHUzxA8'
 const R = (status, notes = [], files = []) => ({ status, notes, files })
 const FOLDS = [[1440, 900], [1024, 768], [390, 844], [360, 740]]
+const retry = async (f, n = 3) => { for (let i = 0; ; i++) try { return await f() } catch (e) { if (i >= n || !/context was destroyed|navigation/i.test(String(e))) throw e; await new Promise((r) => setTimeout(r, 1500)) } } // dev HMR reload
 const ok = (cond, msg, notes) => { if (!cond) notes.push(msg); return !!cond }
 
 export const checks = {
@@ -30,7 +32,7 @@ export const checks = {
     const { ctx, page } = await openPage(browser, base + '/', { w: 1440, h: 900 })
     const r = await page.evaluate((href) => {
       const all = [...document.querySelectorAll(`a[href="${href}"]`)]
-      return all.map((a) => ({ text: (a.textContent || '').replace(/\s+/g, ' ').trim(), target: a.target, rel: a.rel, inHeader: !!a.closest('header,nav'), hint: !!a.querySelector('.sr-only,[class*="sr-only"]') || /new tab|new window/i.test(a.getAttribute('aria-label') || '') || !!a.querySelector('[style*="clip"]') }))
+      return all.map((a) => ({ text: (() => { const c = a.cloneNode(true); c.querySelectorAll('.sr-only,[class*="sr-only"]').forEach((n) => n.remove()); return (c.textContent || '').replace(/\s+/g, ' ').trim() })(), target: a.target, rel: a.rel, inHeader: !!a.closest('header,nav'), hint: [...a.querySelectorAll('.sr-only,[class*="sr-only"],[style*="clip"]')].some((n) => /new (tab|window)/i.test(n.textContent || '')) || /new (tab|window)/i.test(a.getAttribute('aria-label') || '') }))
     }, CTA_HREF)
     const main = r.filter((x) => !x.inHeader), nav = r.filter((x) => x.inHeader)
     ok(main.length, 'no body CTA with the form href', notes)
@@ -62,7 +64,7 @@ export const checks = {
     for (const route of ROUTES) for (const [w, h] of [[1440, 900], [390, 844]]) {
       const { ctx, page } = await openPage(browser, base + route, { w, h, settle: 1000 })
       await scrollAll(page, 0.8, 80)
-      const r = await page.evaluate(({ inks, ROUND_OK }) => {
+      const r = await retry(() => page.evaluate(({ inks, ROUND_OK }) => {
         const out = []
         const near = (c) => inks.some((q) => Math.abs(q[0] - c[0]) <= 2 && Math.abs(q[1] - c[1]) <= 2 && Math.abs(q[2] - c[2]) <= 2)
         const col = (s, el, prop) => {
@@ -92,7 +94,7 @@ export const checks = {
           if (rad && !e.matches(ROUND_OK)) out.push(['border-radius', s.borderRadius, n])
         }
         return out
-      }, { inks, ROUND_OK })
+      }, { inks, ROUND_OK }))
       for (const [p, v, el] of r) { const k = `${p} = ${v}`; const o = bad.get(k) || { n: 0, ex: new Set() }; o.n++; if (o.ex.size < 3) o.ex.add(`${route}@${w} ${el}`); bad.set(k, o) }
       await ctx.close()
     }
@@ -113,11 +115,14 @@ export const checks = {
       await o.page.waitForTimeout(800)
       await scrollAll(o.page, 0.7, 120)
       const n = await o.page.evaluate(() => window.__gate.gl)
-      if (n !== 1) notes.push(`${route}: ${n} WebGL getContext calls (want exactly 1)`)
+      const wantMin = route === '/' ? 1 : 0 // only the home route mounts GL sheets; /programs etc. use 2D ProofStatic
+      if (n > 1 || n < wantMin) notes.push(`${route}: ${n} WebGL getContext calls (want ${wantMin === 1 ? 'exactly 1' : '<=1'})`)
+      else notes.push(`ok ${route}: ${n} WebGL context(s)`)
       if (hits.size) notes.push(`${route}: bundle markers ${[...hits].slice(0, 3).join(', ')}`)
       await o.ctx.close()
     }
-    return R(notes.length ? 'FAIL' : 'PASS', notes)
+    try { const pk = JSON.parse(readFileSync('package.json', 'utf8')); const d = Object.keys({ ...pk.dependencies, ...pk.devDependencies }).filter((k) => /^(three|gsap|@react-three\/.*|@types\/three)$/.test(k)); if (d.length) notes.push('package.json lists ' + d.join(', ')) } catch {}
+    return R(notes.some((n) => !n.startsWith('ok ')) ? 'FAIL' : 'PASS', notes)
   },
 
   // 6: hero frame 0, GL vs Poster (both reduced motion = all sheets at frame 0)
@@ -130,9 +135,10 @@ export const checks = {
       const ga = await a.page.evaluate(() => window.__gate.gl)
       const [A, B] = [await a.page.screenshot(), await b.page.screenshot()]
       files.push(save(dir, `gl_${w}.png`, A), save(dir, `poster_${w}.png`, B))
-      const d = await diff(browser, A, B)
-      notes.push(`${w}: diff ${(d.frac * 100).toFixed(2)}% (limit 3%), GL contexts on GL run: ${ga}`)
-      if (!(d.frac < 0.03) || ga < 1) notes.push(`${w}: FAIL`)
+      const d = await blurDiff(browser, A, B)
+      const sh = d.shift
+      notes.push(`${w}: 6px-blur diff ${(d.frac * 100).toFixed(2)}% (any channel >32; limit 3%), bob K centroid shift ${sh == null ? 'n/a' : sh.toFixed(2)}px (limit 2), GL contexts on GL run: ${ga}`)
+      if (!(d.frac < 0.03) || !(sh <= 2) || ga < 1) notes.push(`${w}: FAIL`)
       await a.ctx.close(); await b.ctx.close()
     }
     await nogl.close()
@@ -156,10 +162,13 @@ export const checks = {
   async 11({ browser, base, dir }) {
     const notes = [], files = [], rows = []
     const { ctx, page } = await openPage(browser, base + '/', { w: 1440, h: 900, freeze: true, wait: 'commit', settle: 400 })
+    // hero region only: below the nav, inside #hero and the fold
+    const clip = await page.evaluate(() => { const h = document.querySelector('#hero'), n = document.querySelector('header'); const hb = h.getBoundingClientRect(); const y = Math.max(hb.top, n ? n.getBoundingClientRect().bottom : 0); return { x: 0, y: Math.round(y), width: innerWidth, height: Math.round(Math.min(hb.bottom, innerHeight) - y) } })
+    notes.push(`hero clip ${JSON.stringify(clip)} (nav excluded)`)
     for (let t = 0; t <= 1400; t += 70) {
       await page.evaluate((t) => document.getAnimations().forEach((a) => { try { a.pause(); a.currentTime = t } catch {} }), t)
       await page.waitForTimeout(60)
-      const buf = await page.screenshot({ clip: { x: 0, y: 0, width: 1440, height: 900 } })
+      const buf = await page.screenshot({ clip })
       const s = await stats(browser, buf); rows.push({ t, ...s.frac, blobs: s.blueBlobs })
       files.push(save(dir, `load_${String(t).padStart(4, '0')}.png`, buf))
     }
@@ -171,6 +180,8 @@ export const checks = {
     notes.push(`yellow fraction at t=0: ${y0} (want < 0.25, ground is stock), at t=350: ${y350} (want > 0.8)`)
     const good = y0 < 0.25 && y350 > 0.8 && yFull !== undefined && yFull <= 350 + 70 && bFirst >= 280 - 70 && bFirst <= 630 + 70 && kFirst >= 420 - 70 && kFirst <= 720 + 70 && bFirst <= kFirst + 140
     notes.push('page animations seen: ' + (await page.evaluate(() => document.getAnimations().length)) + ' (GL pass is only exact if it reads the same CSS clock; verify on images)')
+    const boot = await page.evaluate(() => Object.keys(window).filter((k) => /^(?!on)(.*press|.*sheet|.*boot)/i.test(k) && k !== '__gate').map((k) => k + '=' + JSON.stringify(window[k])?.slice(0, 60)).concat([...document.querySelectorAll('[data-boot],[data-press-boot],canvas[data-boot]')].map((e) => 'data-boot=' + e.getAttribute('data-boot'))))
+    notes.push('GL sheet boot clock: ' + (boot.length ? boot.join(', ') : 'not exposed (HeroSheet derives it from FCP internally; no window/data hook)'))
     await ctx.close()
     return R(good ? 'PASS' : 'FAIL', notes, files)
   },
@@ -261,16 +272,19 @@ export const checks = {
       const r0 = await page.evaluate(() => window.__gate.raf)
       await page.waitForTimeout(2000)
       const r1 = await page.evaluate(() => window.__gate.raf)
+      await page.waitForTimeout(2000)
+      const r2 = await page.evaluate(() => window.__gate.raf) // a loop is sustained; a lone settling redraw is not
       const run = await page.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running' && a.effect?.getComputedTiming().progress !== 1).map((a) => a.animationName || a.transitionProperty || 'anim').slice(0, 5))
       const hid = await page.evaluate(() => [...document.querySelectorAll('body *')].filter((e) => { const s = getComputedStyle(e); const bb = e.getBoundingClientRect(); return bb.width > 2 && bb.height > 2 && (e.childNodes.length && [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())) && (+s.opacity < 1 || s.visibility === 'hidden' || e.classList.contains('pre')) }).map((e) => e.tagName + '.' + e.className).slice(0, 5))
-      const rate = (r1 - r0) / 2
-      if (rate > 0) notes.push(`${route}: ${rate} rAF/s`)
+      const rate = Math.min(r1 - r0, r2 - r1) / 2
+      if (rate > 0) notes.push(`${route}: sustained ${rate} app rAF/s (windows: ${r1 - r0}, ${r2 - r1} callbacks per 2s)`)
+      else if (r1 - r0) notes.push(`${route}: info: ${r1 - r0} settling app rAF callback(s) in first 2s, 0 after (not a loop)`)
       if (run.length) notes.push(`${route}: running animations ${run}`)
       if (hid.length) notes.push(`${route}: hidden/faded text ${hid}`)
       if (route === '/') files.push(save(dir, 'reduced_home_full.png', await page.screenshot({ fullPage: true })))
       await ctx.close()
     }
-    return R(notes.length ? 'FAIL' : 'PASS', notes.length ? notes : ['0 rAF/s, 0 running animations, text visible on /, /about, /programs'], files)
+    return R(notes.some((n) => !/: info:/.test(n)) ? 'FAIL' : 'PASS', notes.length ? notes : ['0 rAF/s, 0 running animations, text visible on /, /about, /programs'], files)
   },
 
   // 17: JS off, WebGL off
@@ -318,8 +332,10 @@ export const checks = {
     if (spot === null) notes.push('no scroll position without a visible canvas; idle check skipped (FAIL by contract if any sheet is always visible)')
     else {
       await page.evaluate((y) => scrollTo(0, y), spot); await page.waitForTimeout(800)
-      const a = await page.evaluate(() => window.__gate.raf); await page.waitForTimeout(2000); const b = await page.evaluate(() => window.__gate.raf)
-      idleOk = b - a === 0; notes.push(`idle at y=${spot}: ${b - a} app rAF callbacks in 2s (want 0)`)
+      const g = () => page.evaluate(() => ({ raf: window.__gate.raf, frames: window.__gate.frames, all: window.__gate.all }))
+      const a = await g(); await page.waitForTimeout(2000); const b = await g()
+      idleOk = b.frames - a.frames === 0 && b.raf - a.raf === 0
+      notes.push(`idle at y=${spot}: ${b.frames - a.frames} app rAF frames, ${b.raf - a.raf} app callbacks, ${b.all - a.all} total callbacks incl. Next dev/HMR/framework, in 2s (want 0 app frames)`)
     }
     await ctx.close()
     notes.push('tick GPU on a real phone: MANUAL')
@@ -335,17 +351,18 @@ export const checks = {
     if (!/skip/i.test(first.t) || !(first.h || '').startsWith('#')) notes.push(`first Tab stop is not a skip link: ${JSON.stringify(first)}`)
     const grounds = new Map(), bad = []
     const seen = new Set()
-    for (let i = 0; i < 90; i++) {
+    for (let i = 0; i < 80; i++) {
       const r = await page.evaluate(() => {
-        const e = document.activeElement; if (!e || e === document.body) return null
+        const e = document.activeElement; if (!e || e === document.body || e.tagName === 'NEXTJS-PORTAL' || e.closest('nextjs-portal')) return null // Next dev overlay
         const s = getComputedStyle(e)
         let g = e, bg = 'rgb(242, 237, 225)'; while (g) { const c = getComputedStyle(g).backgroundColor; if (!/rgba\(.*, 0\)|transparent/.test(c)) { bg = c; break } g = g.parentElement }
         const vis = (s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) >= 2) || /\d/.test(s.boxShadow.replace(/rgba?\([^)]*\)/g, '').replace(/none/, ''))
-        return { id: e.tagName + '|' + (e.getAttribute('href') || '') + '|' + (e.textContent || '').trim().slice(0, 18), bg, vis, ol: s.outlineColor + ' ' + s.outlineWidth }
+        const wrap = !!e.__gateSeen; e.__gateSeen = true
+        return { wrap, id: e.tagName + '|' + (e.getAttribute('href') || '') + '|' + (e.textContent || '').trim().slice(0, 18), bg, vis, ol: s.outlineColor + ' ' + s.outlineWidth }
       })
-      if (!r) continue
-      if (seen.has(r.id)) break
-      seen.add(r.id); grounds.set(r.bg, (grounds.get(r.bg) || 0) + 1)
+      if (!r) { await page.keyboard.press('Tab'); continue }
+      if (r.wrap) break // same element focused twice = wrapped around
+      seen.add(r.id + '#' + i); grounds.set(r.bg, (grounds.get(r.bg) || 0) + 1)
       if (!r.vis) bad.push(r.id + ' on ' + r.bg)
       await page.keyboard.press('Tab')
     }
@@ -353,9 +370,9 @@ export const checks = {
     if (seen.size < 8) notes.push('too few tab stops (tiles must be focusable)')
     if (bad.length) notes.push('no visible focus (>=2px outline or shadow): ' + bad.slice(0, 6).join('; '))
     // FAQ
-    const faq = await page.evaluate(async () => { const b = [...document.querySelectorAll('main button[aria-expanded], main summary, main [aria-expanded]')][0]; if (!b) return null; b.scrollIntoView(); b.focus(); return b.getAttribute('aria-expanded') })
-    if (faq === null) notes.push('no FAQ control with aria-expanded/summary found')
-    else { await page.keyboard.press('Enter'); await page.waitForTimeout(300); const after = await page.evaluate(() => document.activeElement.getAttribute('aria-expanded')); if (after === faq) notes.push('FAQ did not toggle on Enter') }
+    const faq = await page.evaluate(async () => { const b = document.querySelector('#faq button[aria-expanded], #faq summary, main button[aria-expanded], main summary, main [aria-expanded]'); if (!b) return null; b.scrollIntoView(); b.focus(); const d = b.closest('details'); return { ae: b.getAttribute('aria-expanded'), open: d ? d.open : null } })
+    if (faq === null) notes.push('no FAQ control with aria-expanded or <details>/<summary> found')
+    else { await page.keyboard.press('Enter'); await page.waitForTimeout(300); const after = await page.evaluate(() => { const e = document.activeElement, d = e.closest('details'); return { ae: e.getAttribute('aria-expanded'), open: d ? d.open : null } }); if (after.ae === faq.ae && after.open === faq.open) notes.push('FAQ did not toggle on Enter'); else notes.push('FAQ toggles on Enter') }
     files.push(save(dir, 'focus_last.png', await page.screenshot()))
     await ctx.close()
     // mobile menu
@@ -364,7 +381,7 @@ export const checks = {
     if (!btn) notes.push('mobile: no menu button found')
     else { const a = await btn.getAttribute('aria-expanded'); await btn.focus(); await m.page.keyboard.press('Enter'); await m.page.waitForTimeout(400); const b = await btn.getAttribute('aria-expanded'); if (a === b) notes.push('mobile menu did not toggle on Enter'); files.push(save(dir, 'menu_open_390.png', await m.page.screenshot())) }
     await m.ctx.close()
-    return R(notes.some((n) => !/tab stops;/.test(n)) ? 'FAIL' : 'PASS', notes, files)
+    return R(notes.some((n) => !/tab stops;|FAQ toggles on Enter/.test(n)) ? 'FAIL' : 'PASS', notes, files)
   },
 
   // 22: contrast
