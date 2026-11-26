@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useEffect, useRef, type ReactNode } from 'react'
-import { mountSheet } from '../../press/stub' // ponytail: switch to '../../press/gl/press' once L1 lands it
+import { mountSheet } from '../../press/gl/press'
 import type { Sheet } from '../../press/types'
 import type { Course } from '../../content/courses'
 import { fields, pack, rest, slug } from './fields'

@@ -1,7 +1,7 @@
 // Web slip (4.3): scroll velocity -> blue plate tear. Quantised to the 15Hz tick, decays x0.6, snaps to 0 inside 3 ticks.
 // Consumers: GL sheets read press.slip.y; DOM headings/buttons get --slip on the element ([data-plate], .btn-primary).
 import { onTick, reduced } from './clock'
-import { press } from './stub'
+import { press } from './gl/press'
 
 const MAX = 10
 const DECAY = 0.6

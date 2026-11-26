@@ -28,7 +28,7 @@ export function Hero() {
       <i className="crop l" aria-hidden />
       <i className="crop r" aria-hidden />
       <p className="slug t-mono" aria-hidden>
-        <span><b className="y" />Y</span><span><b className="b" />B</span><span><b className="k" />K</span>
+        <span><b className="y" />Y</span><span><b className="b" /><span data-plate-angle="B">B 15</span></span><span><b className="k" /><span data-plate-angle="K">K 45</span></span>
       </p>
     </section>
   )

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import { mountSheet } from '../../press/stub' // ponytail: switch to '../../press/gl/press' once L1 lands it
+import { mountSheet } from '../../press/gl/press'
 import { pack, type Prim } from './fields'
 import { paintProof, rgb } from './paint2d'
 

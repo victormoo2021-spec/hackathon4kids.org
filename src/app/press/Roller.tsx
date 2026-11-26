@@ -3,7 +3,7 @@
 // At 20% visible: 6 ticks, roller line advances H/6, then the band bg becomes the ink, the canvas is removed and 'rolled' bubbles.
 import { useEffect, useRef, useState } from 'react'
 import { onTick, reduced } from './clock'
-import { mountSheet, press } from './stub'
+import { mountSheet, press } from './gl/press'
 import { initSlip } from './slip'
 
 const INK = { blue: { css: 'var(--blue)', rgb: [0x1f / 255, 0x3f / 255, 0xcf / 255] }, yellow: { css: 'var(--y)', rgb: [1, 0xd6 / 255, 0x0a / 255] } }
