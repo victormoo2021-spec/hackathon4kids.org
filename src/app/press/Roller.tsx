@@ -1,22 +1,25 @@
 'use client'
-// Roller pass (4.3): put <Roller ink="blue"/> as a direct child of a band ([data-ink="roll"], position:relative, CSS bg stock).
+// Roller pass (4.3): put <Roller ink="accent"/> as a direct child of a band ([data-ink="roll"], position:relative, CSS bg --bg).
 // At 20% visible: 6 ticks, roller line advances H/6, then the band bg becomes the ink, the canvas is removed and 'rolled' bubbles.
 import { useEffect, useRef, useState } from 'react'
 import { onTick, reduced } from './clock'
 import type { mountSheet as MountSheet } from './gl/press'
+import { INK } from './ink'
 import { initSlip } from './slip'
 
-const INK = { blue: { css: 'var(--blue)', rgb: [0x1f / 255, 0x3f / 255, 0xcf / 255] }, yellow: { css: 'var(--y)', rgb: [1, 0xd6 / 255, 0x0a / 255] } }
+const INKS = { accent: { css: 'var(--accent)', rgb: [1, 3, 5].map((i) => parseInt(INK.accent.slice(i, i + 2), 16) / 255) } } // parsed here so paint2d stays out of the first-load chunk
 const TICKS = 6
 
-export function Roller({ ink }: { ink: 'blue' | 'yellow' }) {
+// 'blue' | 'yellow' are the pre-Phosphor names Sections.tsx still passes until L3 lands; every roller is accent. Narrow to 'accent' after the merge.
+export function Roller({ ink: _legacy }: { ink: keyof typeof INKS | 'blue' | 'yellow' }) {
   const ref = useRef<HTMLCanvasElement>(null)
   const [done, setDone] = useState(false)
+  void _legacy
 
   useEffect(() => {
     const cv = ref.current!
     const band = cv.parentElement!
-    const { css, rgb } = INK[ink]
+    const { css, rgb } = INKS.accent
     const finish = () => {
       band.style.background = css
       band.classList.add('rolled')
@@ -56,7 +59,7 @@ export function Roller({ ink }: { ink: 'blue' | 'yellow' }) {
       dead = true; io.disconnect(); offTick?.(); sheet?.destroy(); offSlip()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ink])
+  }, [])
 
   return done ? null : <canvas ref={ref} aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />
 }

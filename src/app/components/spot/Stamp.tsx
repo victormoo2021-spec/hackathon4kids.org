@@ -5,6 +5,7 @@
 // Hovering a .btn-primary in the band kicks the bob (A += .8). Reduced motion / no tick: static at rest, `.stamped` immediately.
 import { useEffect, useRef } from 'react'
 import { onTick, reduced } from '../../press/clock'
+import { INK } from '../../press/ink'
 
 const PULSE = [1.5, 1.2, 1]
 
@@ -29,9 +30,8 @@ export function Stamp({ pivot = '50%' }: { pivot?: string }) {
       g.setTransform(dpr, 0, 0, dpr, 0, 0)
       g.clearRect(0, 0, cv.width, cv.height)
       const bx = px + Math.sin(th) * (rod + R), by = Math.cos(th) * (rod + R)
-      g.strokeStyle = '#111114'; g.lineWidth = R * 0.045; g.lineCap = 'square'
+      g.strokeStyle = INK.bg; g.fillStyle = INK.bg; g.lineWidth = R * 0.045; g.lineCap = 'square' // on the accent band the stamp stays subtractive
       g.beginPath(); g.moveTo(px, 0); g.lineTo(px + Math.sin(th) * rod, Math.cos(th) * rod); g.stroke()
-      g.fillStyle = '#1F3FCF'
       // halftone disc: lattice cell 10 rotated 15deg, dot size follows a lit-from-upper-left tone ramp (gain swells the dots)
       const c15 = Math.cos(0.2618), s15 = Math.sin(0.2618), N = Math.ceil((R * 1.5) / cell)
       for (let j = -N; j <= N; j++) for (let i = -N; i <= N; i++) {
@@ -40,7 +40,6 @@ export function Stamp({ pivot = '50%' }: { pivot?: string }) {
         const tone = 0.2 + 0.8 * Math.min(Math.max(0.5 - 0.5 * ((x / R) * -0.58 + (y / R) * -0.81), 0), 1)
         g.beginPath(); g.arc(bx + x, by + y, Math.sqrt(tone) * cell * 0.72 * Math.min(gain, 1.2), 0, 7); g.fill()
       }
-      g.fillStyle = '#111114'
       g.beginPath(); g.arc(px + Math.sin(th) * rod, Math.cos(th) * rod, 4, 0, 7); g.fill()
     }
     size()
