@@ -30,6 +30,7 @@
 @media (min-width: 48rem) { .grid-x { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
 @media (min-width: 64rem) { .grid-x { grid-template-columns: repeat(12, minmax(0, 1fr)); } }
 @media (min-width: 90rem) { .grid-x { max-width: calc(76rem + 2 * var(--margin)); } }
+@media (min-width: 120rem) { :root { --margin: 160px; } .grid-x { max-width: calc(88rem + 2 * var(--margin)); } }
 
 /* type roles */
 .t-h1, .t-h2, .t-fact, .t-slab { font-family: var(--sans); font-weight: 900; text-transform: uppercase; }

@@ -5,6 +5,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); }
 ::selection { background: var(--accent); color: var(--bg); }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 .band.accent :focus-visible { outline-color: var(--bg); }
+/* accent-filled controls: ring sits inside the fill in --bg (11:1 on accent) so it reads on both the fill and the dark page */
+.btn:focus-visible, .skip-link:focus-visible { outline-color: var(--bg); outline-offset: -4px; }
 @media (prefers-contrast: more) {
   :root { --line: var(--text-3); --line-2: var(--text-3); --text-2: var(--text); --text-3: var(--text); }
 }
@@ -51,7 +53,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); }
 
 /* ---- hero: ground is the canvas; no flood ---- */
 .hero { position: relative; isolation: isolate; overflow: hidden; background: var(--bg); color: var(--text);
-  min-height: clamp(640px, 100svh, 920px); margin-top: -64px; padding-top: 64px; display: flex; flex-direction: column; }
+  min-height: clamp(600px, 100svh, 1080px); margin-top: -64px; padding-top: 64px; display: flex; flex-direction: column; }
 .hero-in { position: relative; z-index: 3; flex: 1; align-content: start; padding-top: 48px; padding-bottom: 24px; pointer-events: none; }
 .hero-in > * { pointer-events: auto; }
 .hero-h1 { grid-column: 1 / -1; width: fit-content; margin: 0; }

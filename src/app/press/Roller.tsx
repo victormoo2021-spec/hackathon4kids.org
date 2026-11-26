@@ -10,8 +10,7 @@ import { initSlip } from './slip'
 const INKS = { accent: { css: 'var(--accent)', rgb: [1, 3, 5].map((i) => parseInt(INK.accent.slice(i, i + 2), 16) / 255) } } // parsed here so paint2d stays out of the first-load chunk
 const TICKS = 6
 
-// 'blue' | 'yellow' are the pre-Phosphor names Sections.tsx still passes until L3 lands; every roller is accent. Narrow to 'accent' after the merge.
-export function Roller({ ink: _legacy }: { ink: keyof typeof INKS | 'blue' | 'yellow' }) {
+export function Roller({ ink: _legacy }: { ink: 'accent' }) {
   const ref = useRef<HTMLCanvasElement>(null)
   const [done, setDone] = useState(false)
   void _legacy

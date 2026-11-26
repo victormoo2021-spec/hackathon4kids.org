@@ -18,6 +18,7 @@
 }
 .nav-bar { height: 64px; margin-inline: auto; width: 100%; max-width: 76rem; padding-inline: var(--margin); display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 16px; }
 @media (min-width: 90rem) { .nav-bar { max-width: calc(76rem + 2 * var(--margin)); } }
+@media (min-width: 120rem) { .nav-bar { max-width: calc(88rem + 2 * var(--margin)); } }
 @media (min-width: 64rem) { .nav-bar { grid-template-columns: 1fr auto 1fr; } }
 .brand { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; justify-self: start; color: var(--text); }
 .logo-mark { width: 28px; height: 28px; border-radius: 50%; background: var(--text); padding: 1px; }
