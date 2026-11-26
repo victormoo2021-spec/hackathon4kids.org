@@ -1,8 +1,8 @@
 // Real pendulum: theta'' = -k sin(theta). Semi-implicit Euler, small substeps. Period ~3.6s.
 // Idle: kept inside an energy band so it never dies. Grabbed: theta is set by the hand; release hands over velocity.
 const K = (2 * Math.PI / 3.6) ** 2
-export const REST = { x: 1.5, y: 1.0 } // blue plate rest offset, css px (never zero)
-export const LOAD_MS = { y: [0, 350, 5], b: [280, 630, 5], k: [420, 720, 4], swing: 980 } as const
+export const REST = { x: 1.5, y: 1.0 } // trail plate rest offset, css px (never zero)
+export const LOAD_MS = { y: [0, 560, 8], b: [140, 700, 8], k: [420, 840, 6], swing: 980 } as const
 
 export class Pendulum {
   th: number

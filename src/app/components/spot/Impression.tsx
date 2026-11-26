@@ -3,11 +3,14 @@
 // (gain 1.5, 1.2, 1 over 3 ticks), every blue plate flinches 10px. Reduced motion: translate only. Also keeps web slip alive (initSlip).
 import { useEffect } from 'react'
 import { onTick, reduced } from '../../press/clock'
+import { INK } from '../../press/ink'
 import { initSlip, jolt } from '../../press/slip'
+import { rgb } from './paint2d'
 
 const GAIN = [1.5, 1.2, 1]
 const BLEED = 48
 const cell = 8
+const ON_ACCENT = `rgb(${rgb(INK.accent).map((v) => Math.round(v * 255)).join(', ')})` // computed-style form of the accent ground
 
 export function Impression() {
   useEffect(() => {
@@ -27,10 +30,10 @@ export function Impression() {
       if (!cv.isConnected) document.body.appendChild(cv)
       const g = cv.getContext('2d')!
       g.setTransform(dpr, 0, 0, dpr, 0, 0)
-      // ink: blue, or yellow when the button sits on blue
+      // ring: accent, or the ground colour when the button sits on the accent band
       let bg = '', e: HTMLElement | null = b.parentElement
       for (; e && !bg; e = e.parentElement) { const c = getComputedStyle(e).backgroundColor; if (c !== 'rgba(0, 0, 0, 0)') bg = c }
-      g.fillStyle = bg === 'rgb(31, 63, 207)' ? '#FFD60A' : '#1F3FCF'
+      g.fillStyle = bg === ON_ACCENT ? INK.bg : INK.accent
       for (let y = 0; y < h; y += cell) for (let x = 0; x < w; x += cell) {
         // distance outside the button box; ring band 4..44px
         const dx = Math.max(BLEED - x, x - (BLEED + r.width), 0), dy = Math.max(BLEED - y, y - (BLEED + r.height), 0)

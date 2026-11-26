@@ -62,7 +62,7 @@ export default function HeroSheet() {
         const oy = REST.y + (my - 0.5) * 12 + jolt * 0.5 + slip + loadOff * 0.4
         s.set({
           uP: [g.px * d, g.py * d], uL: g.len * d, uC: Math.max(8, Math.min(11, g.len / 62)) * d,
-          uTh: th, uOff: [ox * d, oy * d], uA: (mx - 0.5) * 2 * 6 * RAD, uGain: 0.12,
+          uTh: th, uOff: [ox * d, oy * d], uA: (mx - 0.5) * 2 * 6 * RAD, uGain: 0.06,
           uLens: [lx * d, ly * d, lr * d], uSep: 7 * d, uPass: pass, uDecay: decay, uSub: sub, uClr: clr,
         })
       }
@@ -71,7 +71,7 @@ export default function HeroSheet() {
         const key = String(a)
         if (key === lastLabel) return
         lastLabel = key
-        host.querySelectorAll('[data-plate-angle]').forEach((n) => { n.textContent = `${n.getAttribute('data-plate-angle')} ${(n.getAttribute('data-plate-angle') === 'B' ? 15 : 45) + a}` })
+        host.querySelectorAll('[data-plate-angle]').forEach((n) => { const b = n.getAttribute('data-plate-angle') === 'B'; n.textContent = `${b ? 'trail' : 'beam'} ${(b ? 15 : 45) + a}\u00b0` })
       }
       const seed = () => s.set({ uSeed: [0, 1, 2, 3, 4, 5].map((i) => th - i * 0.07) })
 
@@ -82,7 +82,7 @@ export default function HeroSheet() {
         if (calls === 2 && !shown) { shown = true; el.setAttribute('data-gl', '') } // GL has drawn: Poster steps aside
         const swinging = T >= LOAD_MS.swing
         if (!grabbing && !held && swinging) { sim.step(1 / 15); th = sim.th }
-        if (T >= 630) loadOff = loadOff > 0.5 ? loadOff * 0.55 : 0
+        if (T >= LOAD_MS.b[1]) loadOff = loadOff > 0.5 ? loadOff * 0.55 : 0
         mx = lerp(mx, tx, 0.4); my = lerp(my, ty, 0.4)
         jolt = jolt > 0.5 ? jolt * 0.55 : 0
         smear = Math.abs(smear) > 0.5 ? smear * 0.8 : 0

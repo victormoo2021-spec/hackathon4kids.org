@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import type { mountSheet as MountSheet } from '../../press/gl/press'
 import type { Sheet } from '../../press/types'
 import type { Course } from '../../content/courses'
+import { INK } from '../../press/ink'
 import { fields, pack, rest, slug } from './fields'
 import { paintProof, rgb } from './paint2d'
 
@@ -24,7 +25,7 @@ function ensureCheck() {
   }, 2400)
 }
 
-export default function Proof({ name, col = 0, paper = '#111114', ink = '#F2EDE1', ghost = '#1F3FCF', yellow = '#FFD60A', className, children }: {
+export default function Proof({ name, col = 0, paper = INK.s2, ink = INK.text, ghost = INK.glow, yellow = INK.accent, className, children }: {
   name: Course; col?: number; paper?: string; ink?: string; ghost?: string; yellow?: string; className?: string; children?: ReactNode
 }) {
   const link = useRef<HTMLAnchorElement>(null)
@@ -69,7 +70,7 @@ export default function Proof({ name, col = 0, paper = '#111114', ink = '#F2EDE1
         upload()
       },
     })
-    sheet.set({ uInk: rgb(ink), uPaperCol: rgb(paper), uGhost: rgb(ghost), uYel: rgb(yellow), uGain: 0.12, uSolid: 0, uRes: [c.width, c.height], uDpr: dpr, uOff: [1.5 * dpr, dpr] })
+    sheet.set({ uInk: rgb(ink), uPaperCol: rgb(paper), uGhost: rgb(ghost), uYel: rgb(yellow), uGain: 0.06, uSolid: 0, uRes: [c.width, c.height], uDpr: dpr, uOff: [1.5 * dpr, dpr] })
     upload()
     const me = { halt }
     function halt() {
