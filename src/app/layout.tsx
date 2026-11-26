@@ -7,11 +7,12 @@ import { archivo, ibmPlexMono } from './fonts'
 import Navigation from './Navigation'
 import Footer from './Footer'
 import Observe from './press/ObserveMount'
+import { INK } from './press/ink'
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#FFD60A',
+  themeColor: INK.bg,
 }
 
 export const metadata: Metadata = {
@@ -35,7 +36,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${archivo.variable} ${ibmPlexMono.variable}`}>
+    <html lang="en" className={`${archivo.variable} ${ibmPlexMono.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: "if(CSS.supports('animation-timeline: view()')&&!/[?&]sda=off/.test(location.search))document.documentElement.dataset.sda='on'" }} />
+      </head>
       <body className="flex min-h-screen flex-col font-sans text-text">
         <a href="#main" className="skip-link">
           Skip to content

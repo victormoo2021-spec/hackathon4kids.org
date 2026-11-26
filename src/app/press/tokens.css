@@ -1,7 +1,17 @@
-/* Press Check tokens (L0). Six inks only; type roles; grid. Radius 0, no blur, no gradients. */
+/* Phosphor tokens. Light on black: one accent, tinted neutral ramp. No shadows, gradients or filters in the DOM. */
 :root {
-  --stock: #F2EDE1; --y: #FFD60A; --k: #111114; --blue: #1F3FCF; --over: #1F3508; --k2: #504F4D;
-  --tick: 70ms; --rule: 2px;
+  --bg: #050806; --s1: #0B110D; --s2: #121A15; --s3: #1A241D;
+  --line: #232E26; --line-2: #3D4D42;
+  --text: #F2F5F2; --text-2: #A9B4AC; --text-3: #7F8B83;
+  --accent: #30D158; --accent-hi: #5EE07F; --glow: #0F5F2A;
+  --on-accent: var(--bg); --focus: var(--text);
+  --r-chip: 8px; --r-tile: 20px; --r-pill: 999px;
+  --t1: 100ms; --t2: 160ms; --t3: 240ms; --t4: 480ms; --t5: 720ms; --tick: 70ms; --rule: 2px;
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-io: cubic-bezier(.65, 0, .35, 1);
+  --spring: linear(0, .228 10%, .537 20%, .751 30%, .874 40%, .939 50%, .971 60%, .987 70%, .994 80%, .997 90%, 1);
+  --bounce: linear(0, .449 10%, .995 20%, 1.163 30%, 1.092 40%, 1.002 50%, .974 60%, .985 70%, .999 80%, 1.004 90%, 1);
+  --nav-blur: 20px;
   --sans: var(--font-archivo), Archivo, Arial, sans-serif;
   --mono: var(--font-plex), "IBM Plex Mono", ui-monospace, monospace;
   --gutter: 16px; --margin: 20px;
@@ -30,8 +40,9 @@
 .t-slab { font-size: clamp(1.375rem, 1rem + 1.6vw, 2.5rem); line-height: 1; letter-spacing: -.01em; font-weight: 800; font-stretch: 112%; }
 .t-h3 { font-family: var(--sans); font-size: clamp(1rem, .92rem + .35vw, 1.25rem); line-height: 1.15; letter-spacing: -.01em; font-weight: 650; font-stretch: 100%; }
 .t-body { font-family: var(--sans); font-size: clamp(1.0625rem, 1rem + .25vw, 1.1875rem); line-height: 1.5; font-weight: 450; font-stretch: 100%; max-width: 60ch; }
+.t-stmt { font-family: var(--sans); font-size: clamp(2rem, 1.1rem + 4.2vw, 5rem); line-height: 1.08; letter-spacing: -.025em; font-weight: 700; font-stretch: 100%; max-width: 20ch; }
 .t-mono { font-family: var(--mono); font-size: .75rem; line-height: 1.3; letter-spacing: .02em; font-weight: 500; }
 
-/* motion attribute base (L4 spot.css supplies the per-ink keyframes; .pre is JS-only so no-JS shows everything) */
+/* motion attribute base (scenes.css supplies the per-ink animations; .pre is JS-only so no-JS shows everything) */
 [data-ink].pre { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) { [data-ink].pre { visibility: visible; } }

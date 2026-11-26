@@ -1,7 +1,7 @@
 import EmailCta from './EmailCta'
 import '../pages.css'
 
-// Shared layout for .mdx pages: stock ground, 24px yellow bar, prose column, mailing-list action.
+// Shared layout for .mdx pages: dark ground, hairline, prose column, mailing-list action.
 export default function MdxLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="pg">
@@ -18,7 +18,7 @@ export default function MdxLayout({ children }: { children: React.ReactNode }) {
   )
 }
 
-// Yellow closing band shared by /about and /programs.
+// Accent closing band shared by /about and /programs.
 export function FinalBand({ children }: { children?: React.ReactNode }) {
   return (
     <section className="pg-final" aria-labelledby="final-h">
