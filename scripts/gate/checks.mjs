@@ -511,7 +511,7 @@ export const checks = {
       const r = await page.evaluate(() => {
         const e = document.activeElement; if (!e || e === document.body || e.tagName === 'NEXTJS-PORTAL' || e.closest('nextjs-portal')) return null // Next dev overlay
         const s = getComputedStyle(e)
-        let g = e, bg = 'rgb(5, 8, 6)'; while (g) { const c = getComputedStyle(g).backgroundColor; if (!/rgba\(.*, 0\)|transparent/.test(c)) { bg = c; break } g = g.parentElement }
+        let g = e, bg = 'rgb(5, 7, 12)'; while (g) { const c = getComputedStyle(g).backgroundColor; if (!/rgba\(.*, 0\)|transparent/.test(c)) { bg = c; break } g = g.parentElement }
         const P = (x) => (x.match(/[\d.]+/g) || []).map(Number)
         const lum = ([r, g, b]) => { const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4 }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b) }
         const [a, b2] = [lum(P(s.outlineColor)), lum(P(bg))].sort((x, y) => y - x)
@@ -556,7 +556,7 @@ export const checks = {
         const b = e.getBoundingClientRect(), s = getComputedStyle(e)
         if (!b.width || !b.height || s.visibility === 'hidden' || s.display === 'none' || /^(SCRIPT|STYLE|NOSCRIPT)$/.test(e.tagName)) continue
         let op = 1; for (let g = e; g && g !== document.documentElement; g = g.parentElement) op *= +getComputedStyle(g).opacity
-        let bg = [5, 8, 6], g = e
+        let bg = [5, 7, 12], g = e
         while (g) { const c = parse(getComputedStyle(g).backgroundColor); if (c.length >= 3 && (c.length < 4 || c[3] > 0.01)) { bg = c; break } g = g.parentElement }
         const fg0 = parse(s.color), fa = (fg0.length > 3 ? fg0[3] : 1) * op
         const fg = [0, 1, 2].map((i) => fg0[i] * fa + bg[i] * (1 - fa)) // composite text colour over its ground
@@ -576,7 +576,7 @@ export const checks = {
         await page.evaluate((y) => scrollTo(0, y), y); await page.waitForTimeout(350)
         const r = await retry(() => page.evaluate(measure))
         for (const x of r) {
-          const why = x.ratio < 4.5 ? `${x.ratio}:1` : (x.fg === '#F2F5F2' && x.bg === '#30D158') ? '--text on --accent' : (x.fg === '#0F5F2A' && /^#0[0-9A-F]/.test(x.bg) && x.bg !== '#30D158') ? '--glow text on dark' : null
+          const why = x.ratio < 4.5 ? `${x.ratio}:1` : (x.fg === '#F3F5FA' && x.bg === '#FFD60A') ? '--text on --accent' : (x.fg === '#2A3CFF' && /^#0[0-9A-F]/.test(x.bg) && x.bg !== '#FFD60A') ? '--glow text on dark' : null
           if (why) { const k = `${x.fg} (eff ${x.eff}, op ${x.op}) on ${x.bg} (${why})`; const o = bad.get(k) || { n: 0, ex: `${route}@${w} y=${y} "${x.t}"` }; o.n++; bad.set(k, o) }
         }
       }

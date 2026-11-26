@@ -9,7 +9,7 @@ export const GL_ARGS = ['--use-gl=angle', `--use-angle=${ANGLE}`, ...(ANGLE === 
 export const NOGL_ARGS = ['--disable-webgl', '--disable-webgl2', '--disable-3d-apis']
 export const ROUTES = ['/', '/about', '/programs', '/code.org', '/this-route-does-not-exist']
 // The 12 Phosphor token hexes (direction.md D3). Keep in sync with src/app/press/tokens.css.
-export const INKS = { bg: '#050806', s1: '#0B110D', s2: '#121A15', s3: '#1A241D', line: '#232E26', line2: '#3D4D42', text: '#F2F5F2', text2: '#A9B4AC', text3: '#7F8B83', accent: '#30D158', accentHi: '#5EE07F', glow: '#0F5F2A' }
+export const INKS = { bg: '#05070C', s1: '#0A0E19', s2: '#111626', s3: '#192035', line: '#222B45', line2: '#505D82', text: '#F3F5FA', text2: '#AAB2C5', text3: '#8089A0', accent: '#FFD60A', accentHi: '#FFE55C', glow: '#2A3CFF' }
 export const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
 
 // Installed before any page script: WebGL context counter, rAF counter, CLS, frame probe.
@@ -126,8 +126,8 @@ export async function emissive(browser, buf, slack = 3) {
     let under = 0, over = 0
     for (let i = 0; i < d.length; i += 4) {
       if (d[i] < bg[0] - slack || d[i + 1] < bg[1] - slack || d[i + 2] < bg[2] - slack) under++
-      // brighter than accent while still green-dominant (overlap of two accent exposures), not the white beam
-      if (d[i + 1] > ac[1] + 6 && d[i] < 200 && d[i + 2] < 200 && d[i] >= ac[0] - 4) over++
+      // brighter than accent while still yellow (overlap of two accent exposures lifts g), not the white beam (b >= 200)
+      if (d[i + 1] > ac[1] + 6 && d[i + 2] < 200 && d[i] >= ac[0] - 4) over++
     }
     return { under, over, total: c.width * c.height }
   }, { src: b64(buf), bg: hexRgb(INKS.bg), ac: hexRgb(INKS.accent), slack })

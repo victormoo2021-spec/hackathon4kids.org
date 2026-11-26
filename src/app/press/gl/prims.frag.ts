@@ -20,6 +20,6 @@ void primsMain(){
   vec2 u = p/uRes.y, uo = uOff/uRes.y; float C = uRes.x/34.;
   float g = uSolid > .5 ? 0. : screen(p - uOff, field(u - uo).x*.55*uDev, radians(15.)+uAng, C*1.15, uGain);
   float k = uSolid > .5 ? field(u).x : screen(p, field(u).x*uDev, radians(45.)+uAng, C, uGain); // uSolid: crowd discs print flat
-  vec3 col = mix(mix(uPaperCol + vec3(.010,.014,.011)*(texture(uPaper, p/256.).r-.5)*(1.-uSolid), uGhost, g*.9), uInk, k*.96);
+  vec3 col = mix(mix(uPaperCol + vec3(.010,.011,.016)*(texture(uPaper, p/256.).r-.5)*(1.-uSolid), uGhost, g*.9), uInk, k*.96);
   o = vec4(mix(col, uYel, field(u).y), 1.);
 }`

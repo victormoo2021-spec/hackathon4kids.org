@@ -1,9 +1,9 @@
-/* Phosphor tokens. Light on black: one accent, tinted neutral ramp. No shadows, gradients or filters in the DOM. */
+/* Phosphor tokens (Signal palette, color.md). Light on blue-black: yellow accent, logo-blue afterglow, navy-tinted neutral ramp. No shadows, gradients or filters in the DOM. */
 :root {
-  --bg: #050806; --s1: #0B110D; --s2: #121A15; --s3: #1A241D;
-  --line: #232E26; --line-2: #3D4D42;
-  --text: #F2F5F2; --text-2: #A9B4AC; --text-3: #7F8B83;
-  --accent: #30D158; --accent-hi: #5EE07F; --glow: #0F5F2A;
+  --bg: #05070C; --s1: #0A0E19; --s2: #111626; --s3: #192035;
+  --line: #222B45; --line-2: #505D82;
+  --text: #F3F5FA; --text-2: #AAB2C5; --text-3: #8089A0;
+  --accent: #FFD60A; --accent-hi: #FFE55C; --glow: #2A3CFF;
   --on-accent: var(--bg); --focus: var(--text);
   --r-chip: 8px; --r-tile: 20px; --r-pill: 999px;
   --t1: 100ms; --t2: 160ms; --t3: 240ms; --t4: 480ms; --t5: 720ms; --tick: 70ms; --rule: 2px;

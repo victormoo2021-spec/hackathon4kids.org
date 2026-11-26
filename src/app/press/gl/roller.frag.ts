@@ -8,6 +8,6 @@ void rollerMain(){
   float d = uLine - p.y;
   float tone = d > 0. ? 1. : clamp(1. + d/(120.*uDpr), 0., 1.);
   float c = screen(p - uOff, tone, 0., 12.*uDpr, .3);
-  vec3 col = mix(mix(BG + vec3(.010,.014,.011)*(n.r-.5), uInk, c), W, step(abs(d), 1.5*uDpr)); // leading line is the beam
+  vec3 col = mix(mix(BG + vec3(.010,.011,.016)*(n.r-.5), uInk, c), W, step(abs(d), 1.5*uDpr)); // leading line is the beam
   o = vec4(col, 1.);
 }`
