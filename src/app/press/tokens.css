@@ -43,7 +43,3 @@
 .t-body { font-family: var(--sans); font-size: clamp(1.0625rem, 1rem + .25vw, 1.1875rem); line-height: 1.5; font-weight: 450; font-stretch: 100%; max-width: 60ch; }
 .t-stmt { font-family: var(--sans); font-size: clamp(2rem, 1.1rem + 4.2vw, 5rem); line-height: 1.08; letter-spacing: -.025em; font-weight: 700; font-stretch: 100%; max-width: 20ch; }
 .t-mono { font-family: var(--mono); font-size: .75rem; line-height: 1.3; letter-spacing: .02em; font-weight: 500; }
-
-/* motion attribute base (scenes.css supplies the per-ink animations; .pre is JS-only so no-JS shows everything) */
-[data-ink].pre { visibility: hidden; }
-@media (prefers-reduced-motion: reduce) { [data-ink].pre { visibility: visible; } }
