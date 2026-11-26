@@ -73,6 +73,9 @@ test.describe('FAQ', () => {
 
   test('toggles with the keyboard', async ({ page }) => {
     const item = faq(page).locator('details').first()
+    // below-fold [data-ink] items are hidden (.pre) until scrolled in, and hidden elements can't take focus
+    await item.locator('summary').scrollIntoViewIfNeeded()
+    await expect(item).not.toHaveClass(/\bpre\b/)
     await item.locator('summary').focus()
     await page.keyboard.press('Enter')
     await expect(item).toHaveAttribute('open', '')

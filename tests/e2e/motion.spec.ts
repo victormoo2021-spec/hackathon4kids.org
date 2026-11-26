@@ -1,18 +1,26 @@
 import { expect, test } from '@playwright/test'
 import { expectNoOverflow, scrollThrough, settle } from './helpers'
 
-// The only motion left on the lean base is the CSS reveal (data-reveal) and the hero load animation.
+// Motion runtime is [data-ink] (src/app/press/observe.ts): JS adds .pre below the fold, .in on entry.
 for (const reducedMotion of ['no-preference', 'reduce'] as const) {
-  test.describe(`reveal (${reducedMotion})`, () => {
+  test.describe(`ink reveal (${reducedMotion})`, () => {
     test.use({ reducedMotion })
 
-    test('every [data-reveal] ends visible after scrolling through', async ({ page }) => {
+    test('every [data-ink] ends visible after scrolling through', async ({ page }) => {
       await page.goto('/')
       await scrollThrough(page, { step: 600, delay: 20 })
       await settle(page)
-      const els = page.locator('[data-reveal]')
+      const els = page.locator('[data-ink]')
       expect(await els.count()).toBeGreaterThan(0)
-      for (const o of await els.evaluateAll((e) => e.map((x) => getComputedStyle(x).opacity))) expect(o).toBe('1')
+      const bad = await els.evaluateAll((e) =>
+        e.flatMap((x) => {
+          const c = getComputedStyle(x)
+          return x.classList.contains('pre') || c.visibility !== 'visible' || c.opacity !== '1'
+            ? [`${x.tagName}.${x.className} vis=${c.visibility} op=${c.opacity}`]
+            : []
+        }),
+      )
+      expect(bad).toEqual([])
       await expectNoOverflow(page)
     })
   })

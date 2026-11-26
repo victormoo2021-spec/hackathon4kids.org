@@ -125,17 +125,23 @@ test.describe('navigation', () => {
 })
 
 test.describe('page content', () => {
-  test('about has an instructors section with team images', async ({ page }) => {
+  test('about lists instructors by first name with no photos', async ({ page }) => {
     await page.goto('/about#instructors')
     const section = page.locator('#instructors')
     await expect(section).toBeAttached()
-    expect(await section.locator('img').count()).toBeGreaterThan(0)
+    const people = section.locator('ul > li')
+    expect(await people.count()).toBeGreaterThan(0)
+    // minors' privacy: first name + role/grade only, no images
+    const first = await people.first().textContent()
+    expect(first).toContain('Johnny')
+    expect(first).toMatch(/Senior/)
+    expect(first).toMatch(/Instructor/)
+    expect(await section.locator('img, picture, [style*="background-image"]').count()).toBe(0)
   })
 
   test('contest page links to Code.org resources', async ({ page }) => {
     await page.goto('/code.org')
     await expect(page.locator('a[href="https://studio.code.org/"]').first()).toBeAttached()
-    await expect(page.locator('a[href="https://code.org/athome"]').first()).toBeAttached()
   })
 
   test('programs page links flyers to full-size images', async ({ page }) => {
