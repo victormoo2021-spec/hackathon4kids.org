@@ -1,27 +1,20 @@
-import Hero from './components/home/Hero'
-import CourseGrid from './components/home/CourseGrid'
-import Statement from './components/home/Statement'
-import DarkBand from './components/home/DarkBand'
-import Formats from './components/home/Formats'
-import FinalCta from './components/home/FinalCta'
 import Faq from './components/Faq'
-import Reveal from './components/reveal/Reveal'
-import './components/home/sections.css'
+import { Hero, Courses, Class, FinalCta } from './components/spot/Sections'
+import StepObserver from './components/spot/StepObserver'
 
 export default function Home() {
   return (
-    <>
+    <div className="spot">
       <Hero />
-      <CourseGrid />
-      <Statement />
-      <DarkBand />
-      <Formats />
-      <section id="faq" aria-labelledby="faq-title">
-        <Reveal className="container-x section-y">
+      <Courses />
+      <Class />
+      <section id="faq" aria-labelledby="faq-title" className="spot-sec stock">
+        <div className="wrap spot-faq">
           <Faq headingId="faq-title" />
-        </Reveal>
+        </div>
       </section>
       <FinalCta />
-    </>
+      <StepObserver />
+    </div>
   )
 }
