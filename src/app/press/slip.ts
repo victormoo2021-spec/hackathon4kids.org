@@ -25,6 +25,7 @@ function step(_t: number, ms: number) {
   const dt = lastMs ? ms - lastMs : 1000 / 15
   lastMs = ms
   const dy = scrollY - lastY
+  lastY = scrollY
   const target = clamp((dy / dt) * 12)
   y = Math.abs(target) > Math.abs(y) ? target : y * DECAY
   if (Math.abs(y) < SNAP && Math.abs(target) < SNAP) y = 0

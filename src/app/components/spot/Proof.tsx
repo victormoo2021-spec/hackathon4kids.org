@@ -90,6 +90,7 @@ export default function Proof({ name, col = 0, paper = '#111114', ink = '#F2EDE1
       if (e.isIntersecting && !dev && !reduce) { dev = 1; develop() }
     }), { threshold: 0.2 })
     io.observe(el)
+    timers.push(window.setTimeout(() => { if (!dev) { dev = 1; st.dev = 1; upload() } }, 2500))
     const ro = new ResizeObserver(size); ro.observe(c)
     let enter = 0
     const on = () => { if (!enter++) hovered++; start(1e9) }

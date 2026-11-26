@@ -29,15 +29,16 @@ export function Stamp({ pivot = '50%' }: { pivot?: string }) {
       g.setTransform(dpr, 0, 0, dpr, 0, 0)
       g.clearRect(0, 0, cv.width, cv.height)
       const bx = px + Math.sin(th) * (rod + R), by = Math.cos(th) * (rod + R)
-      g.strokeStyle = '#111114'; g.lineWidth = 3; g.lineCap = 'square'
+      g.strokeStyle = '#111114'; g.lineWidth = R * 0.045; g.lineCap = 'square'
       g.beginPath(); g.moveTo(px, 0); g.lineTo(px + Math.sin(th) * rod, Math.cos(th) * rod); g.stroke()
       g.fillStyle = '#1F3FCF'
-      // disc: solid core + halftone rim whose dot size swells with gain (the stamp's ink gain pulse)
-      g.beginPath(); g.arc(bx + 1.5, by + 1, R - cell * 0.9, 0, 7); g.fill()
-      for (let y = -R; y <= R; y += cell) for (let x = -R; x <= R; x += cell) {
-        const d = Math.hypot(x, y)
-        if (d < R - cell * 0.9 || d > R) continue
-        g.beginPath(); g.arc(bx + x + 1.5, by + y + 1, Math.min(cell * 0.62, cell * 0.4 * gain), 0, 7); g.fill()
+      // halftone disc: lattice cell 10 rotated 15deg, dot size follows a lit-from-upper-left tone ramp (gain swells the dots)
+      const c15 = Math.cos(0.2618), s15 = Math.sin(0.2618), N = Math.ceil((R * 1.5) / cell)
+      for (let j = -N; j <= N; j++) for (let i = -N; i <= N; i++) {
+        const x = (i * c15 - j * s15) * cell, y = (i * s15 + j * c15) * cell
+        if (Math.hypot(x, y) > R) continue
+        const tone = 0.2 + 0.8 * Math.min(Math.max(0.5 - 0.5 * ((x / R) * -0.58 + (y / R) * -0.81), 0), 1)
+        g.beginPath(); g.arc(bx + x, by + y, Math.sqrt(tone) * cell * 0.72 * Math.min(gain, 1.2), 0, 7); g.fill()
       }
       g.fillStyle = '#111114'
       g.beginPath(); g.arc(px + Math.sin(th) * rod, Math.cos(th) * rod, 4, 0, 7); g.fill()

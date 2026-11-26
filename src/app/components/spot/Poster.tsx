@@ -16,10 +16,10 @@ const CSS = `
 .poster i.b{--c:#1F3FCF;--rt:calc(.72*var(--s));--rb:calc(.72*var(--sb));--C:calc(clamp(8px,calc(var(--L)/62),11px)*1.15);translate:1.5px 1px;
  animation:pw 350ms steps(5) 280ms both,pr 350ms steps(5) 630ms both}
 /* floor halftone: tone .22 ramped in from 80% height / 30% width (floorT in hero.frag.ts) */
-.poster::after{content:'';position:absolute;left:30%;right:0;bottom:0;height:20%;
+.poster::after{content:'';position:absolute;left:30%;right:0;bottom:0;height:14%;
  background:radial-gradient(circle,#111114 calc(var(--C)*.36),transparent calc(var(--C)*.36 + 1px)) 0 0/var(--C) var(--C);
- -webkit-mask-image:linear-gradient(to top,#000,transparent),linear-gradient(to right,transparent,#000 50%);-webkit-mask-composite:source-in;
- mask-image:linear-gradient(to top,#000,transparent),linear-gradient(to right,transparent,#000 50%);mask-composite:intersect;animation:pw 280ms steps(4) 420ms both}
+ -webkit-mask-image:linear-gradient(to right,transparent 0 15%,#000 15%);
+ mask-image:linear-gradient(to right,transparent 0 15%,#000 15%);animation:pw 280ms steps(4) 420ms both}
 @keyframes pw{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
 @keyframes pr{from{translate:26px 1px}}
 @media (prefers-reduced-motion:reduce){.poster i{animation:none}}

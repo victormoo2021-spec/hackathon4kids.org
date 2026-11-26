@@ -4,7 +4,8 @@ const BOB = /* glsl */ `
 uniform vec2 uR, uP; uniform float uL, uTh;
 float bob(vec2 q, float th){ vec2 b = uP + uL*vec2(sin(th), cos(th)); float rr = uL*.10; vec2 n = (q-b)/rr;
   float shade = clamp(.5 - .5*dot(n, normalize(vec2(-.5,-.7))), 0., 1.)*.7 + .06;
-  float rod = (1.-smoothstep(uL*.008-1., uL*.008+1., seg(q, uP, b)))*.35;
+  float rod = (1.-smoothstep(uL*.008-1., uL*.008+1., seg(q, uP, b)))*.55; // tuned: .35 -> .55
+
   return max(rod, (1.-smoothstep(rr-1., rr+1., length(q-b)))*shade); }
 `
 export const accFrag = /* glsl */ `${BOB}

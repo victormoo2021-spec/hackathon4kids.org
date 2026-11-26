@@ -31,7 +31,7 @@ export default function HeroSheet() {
     sim.th = frame0(g.amp).th0
 
     let dead = false, cleanup = () => {}
-    let t0 = performance.now() - 600, started = false
+    let t0 = performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? performance.now() - 600, started = false
     const go = async () => {
       if (started) return
       started = true
@@ -39,14 +39,7 @@ export default function HeroSheet() {
       if (dead || !press.ok) return
       boot(mountSheet, press)
     }
-    const onAnim = (e: Event) => {
-      const a = (e.target as Element).getAnimations?.()[0]
-      t0 = performance.now() - (Number(a?.currentTime) || 0)
-      clearTimeout(fail); go()
-    }
-    const fail = setTimeout(go, reduce ? 0 : 600) // failsafe: no animationstart -> boot as if 600ms in (skips the Y pass)
-    if (!reduce) host.addEventListener('animationstart', onAnim, { once: true })
-    else started = false
+    go()
 
     function boot(mountSheet: typeof import('../../press/gl/press').mountSheet, press: typeof import('../../press/gl/press').press) {
       const dpr = () => Math.min(devicePixelRatio || 1, innerWidth < 768 ? 1.25 : 1.5)
@@ -98,7 +91,7 @@ export default function HeroSheet() {
         if (fine && T > nextBlip && performance.now() - lastMove > 3000 && document.hasFocus() && !held) { jolt = 7; nextBlip = T + 8000 + Math.random() * 3000 }
         if (!nextBlip) nextBlip = T + 9000
         const hold = held || (!swinging && !grabbing) // frozen photograph / fan holds until the swing starts
-        push([skipY ? 1 : plate(T, LOAD_MS.y), plate(T, LOAD_MS.b), plate(T, LOAD_MS.k)], hold ? 1 : 0.88, hold ? 0 : 0.004)
+        push([skipY ? 1 : plate(T, LOAD_MS.y), plate(T, LOAD_MS.b), plate(T, LOAD_MS.k)], hold ? 1 : 0.93, hold ? 0 : 0.004) // tuned: decay 0.88 -> 0.93
         labels()
         s.dirty()
         void tick
@@ -175,21 +168,21 @@ export default function HeroSheet() {
         void d
         th = sim.th
         s.set({ uSeed: f.exposures.map((e) => e.th) })
-        push([1, 1, 1], 0.88, 0.004)
+        push([1, 1, 1], 0.93, 0.004)
         s.set({ uOff: [REST.x * dpr(), REST.y * dpr()], uA: 0, uLens: [0, 0, 0], uClr: 0 })
         s.dirty()
       }
-      loadOff = reduce ? 0 : 26
+      loadOff = reduce || bootT > 980 ? 0 : 26
       if (reduce) { draw0(); setTimeout(() => el.setAttribute('data-gl', ''), 200) } else {
         const f = frame0(g.amp); void f
         s.set({ uSeed: f.exposures.map((e) => e.th) })
-        push([skipY ? 1 : 0, 0, 0], 1, 0)
+        push([skipY ? 1 : plate(bootT, LOAD_MS.y), plate(bootT, LOAD_MS.b), plate(bootT, LOAD_MS.k)], 1, 0)
         s.dirty(); s.animate(true)
       }
       const ro = new ResizeObserver(() => {
         measure(); fit()
         if (reduce) draw0()
-        else { seed(); push([1, 1, 1], 0.88, 0.004); s.dirty() }
+        else { seed(); push([1, 1, 1], 0.93, 0.004); s.dirty() }
       })
       ro.observe(el)
       cleanup = () => {
@@ -201,7 +194,7 @@ export default function HeroSheet() {
     }
     const ro0 = new ResizeObserver(measure)
     ro0.observe(el)
-    return () => { dead = true; clearTimeout(fail); host.removeEventListener('animationstart', onAnim); ro0.disconnect(); cleanup() }
+    return () => { dead = true; ro0.disconnect(); cleanup() }
   }, [])
 
   return (
