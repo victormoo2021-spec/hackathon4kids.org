@@ -32,7 +32,7 @@ for (const { w, h } of VIEWPORTS) {
         const offenders = await page.evaluate(() => {
           const vw = document.documentElement.clientWidth
           const out: string[] = []
-          for (const el of document.body.querySelectorAll('*')) {
+          for (const el of Array.from(document.body.querySelectorAll('*'))) {
             const r = el.getBoundingClientRect()
             if (r.width === 0 || r.height === 0 || r.right <= vw + 1) continue
             let clipped = false

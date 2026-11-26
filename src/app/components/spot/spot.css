@@ -1,4 +1,10 @@
 /* Spot Yellow: a two-ink riso flyer. Inks: yellow #FFD60A, ink #111114, stock #F2EDE1, blue #1F3FCF. Home only (scoped by :has). */
+/* subpages use the lean tokens; re-ink them for the paper stock */
+:root {
+  --color-page: #F2EDE1; --color-card: #EAE3D2; --color-raised: #E2DAC6; --color-editor: #111114;
+  --color-text: #111114; --color-text-body: #2b2b31; --color-text-lede: #2b2b31; --color-text-dim: #4d4d55;
+  --color-line: rgb(17 17 20 / .25); --color-line-strong: rgb(17 17 20 / .5);
+}
 html {
   --y: #FFD60A; --ink: #111114; --stock: #F2EDE1; --blue: #1F3FCF;
   --disp: var(--font-archivo), "Archivo", system-ui, sans-serif;
@@ -172,7 +178,8 @@ h3 { font-weight: 800; font-stretch: 112%; letter-spacing: -.015em; }
 .link { color: var(--blue); }
 .skip-link { background: var(--y); color: var(--ink); }
 .site-footer .link, .site-footer a { color: inherit; }
-.hl { color: var(--blue); }
+.hl { color: var(--ink); }
+.hl::before { background: var(--y); }
 /* ink dropout: tiny pinholes in big solid ink, the way a riso drum prints */
 .spot-h1, .spot-h2, .spot-faq h2 { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -9 0 0 0 7.6'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -9 0 0 0 7.6'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"); }
 
