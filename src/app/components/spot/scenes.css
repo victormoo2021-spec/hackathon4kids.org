@@ -1,0 +1,95 @@
+/* Phosphor scenes (L3): hero power-on, statement scrub, tiles, join band. Animates transform, opacity, clip-path only. */
+
+/* ---- load: hero entrance (D7.1). Backwards fill: everything is clickable at t=0. ---- */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-h1 .ln { animation: h-rise var(--t5) var(--spring) calc(80ms * (var(--n) + 1)) backwards; }
+  .hero-h1 .ln::before { animation: h-reg 350ms steps(5) 640ms backwards; }
+  .hero-slab { animation: h-up8 var(--t4) var(--spring) 560ms backwards; }
+  .hero-cta .cta { animation: h-up12 var(--t4) var(--spring) 680ms backwards; }
+  .hero-cta .lnk, .slug { animation: h-fade var(--t3) var(--ease-out) 760ms backwards; }
+}
+@keyframes h-rise { from { clip-path: inset(0 0 100% 0); transform: translateY(.35em); } to { clip-path: inset(0); transform: none; } }
+@keyframes h-reg { from { transform: translate(.07em, .045em); } to { transform: translate(1.5px, calc(1px + var(--slip, 0px))); } }
+@keyframes h-up8 { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes h-up12 { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes h-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---- statement layout ---- */
+.statement { min-height: 90svh; display: grid; align-content: center; view-timeline-name: --stmt; }
+.statement .t-stmt { grid-column: 1 / -1; margin: 0; }
+.w { display: inline-block; }
+.acc { color: var(--accent); }
+[data-crowd-n] { display: inline-block; min-width: 2ch; font-variant-numeric: tabular-nums; }
+
+/* ---- scroll: native scroll-driven, linear, reversible (D7) ---- */
+@supports (animation-timeline: view()) {
+@media (prefers-reduced-motion: no-preference) {
+  html[data-sda="on"] .hero-in { animation: x-hero linear both; animation-timeline: scroll(root); animation-range: 0 80svh; }
+  html[data-sda="on"] .hs { animation: x-hs linear both; animation-timeline: scroll(root); animation-range: 0 80svh; }
+  html[data-sda="on"] [data-scrub="head"] { animation: x-head linear both; animation-timeline: view(); animation-range: entry 20% cover 30%; }
+  html[data-sda="on"] .t-stmt .w { animation: x-word linear both; animation-timeline: --stmt; }
+  html[data-sda="on"] .t-stmt > :nth-child(1) .w { animation-range: cover 18% cover 26%; }
+  html[data-sda="on"] .t-stmt > :nth-child(2) .w { animation-range: cover 20% cover 28%; }
+  html[data-sda="on"] .t-stmt > :nth-child(3) .w { animation-range: cover 22% cover 30%; }
+  html[data-sda="on"] .t-stmt > :nth-child(4) .w { animation-range: cover 24% cover 32%; }
+  html[data-sda="on"] .t-stmt > :nth-child(5) .w { animation-range: cover 26% cover 34%; }
+  html[data-sda="on"] .t-stmt > :nth-child(6) .w { animation-range: cover 28% cover 36%; }
+  html[data-sda="on"] .t-stmt > :nth-child(7) .w { animation-range: cover 30% cover 38%; }
+  html[data-sda="on"] .t-stmt > :nth-child(8) .w { animation-range: cover 32% cover 40%; }
+  html[data-sda="on"] .t-stmt > :nth-child(9) .w { animation-range: cover 34% cover 42%; }
+  html[data-sda="on"] .t-stmt > :nth-child(10) .w { animation-range: cover 36% cover 44%; }
+  html[data-sda="on"] .t-stmt > :nth-child(11) .w { animation-range: cover 38% cover 46%; }
+  html[data-sda="on"] .t-stmt > :nth-child(12) .w { animation-range: cover 40% cover 48%; }
+  html[data-sda="on"] .t-stmt > :nth-child(13) .w { animation-range: cover 42% cover 50%; }
+  html[data-sda="on"] .t-stmt > :nth-child(14) .w { animation-range: cover 44% cover 52%; }
+  html[data-sda="on"] .t-stmt > :nth-child(15) .w { animation-range: cover 46% cover 54%; }
+  html[data-sda="on"] .t-stmt > :nth-child(16) .w { animation-range: cover 48% cover 56%; }
+  html[data-sda="on"] .t-stmt > :nth-child(17) .w { animation-range: cover 50% cover 58%; }
+  html[data-sda="on"] .t-stmt > :nth-child(18) .w { animation-range: cover 52% cover 60%; }
+  html[data-sda="on"] [data-scrub="tile"] { animation: x-tile linear backwards; animation-timeline: view(); } /* backwards: hover transform works at rest */
+  html[data-sda="on"] .tiles > :nth-child(2n+1) { animation-range: entry 0% cover 20%; }
+  html[data-sda="on"] .tiles > :nth-child(2n+2) { animation-range: entry 15% cover 28%; }
+  html[data-sda="on"] .tiles > :nth-child(-n+10) { --dx: 0px; }
+@media (min-width: 48rem) {
+  html[data-sda="on"] .tiles > :nth-child(5n+1) { animation-range: entry 0% cover 22%; }
+  html[data-sda="on"] .tiles > :nth-child(5n+2) { animation-range: entry 8% cover 26%; }
+  html[data-sda="on"] .tiles > :nth-child(5n+3) { animation-range: entry 16% cover 30%; }
+  html[data-sda="on"] .tiles > :nth-child(5n+4) { animation-range: entry 24% cover 34%; }
+  html[data-sda="on"] .tiles > :nth-child(5n+5) { animation-range: entry 32% cover 38%; }
+}
+@media (min-width: 64rem) {
+  html[data-sda="on"] .tiles > :nth-child(-n+5) { --dx: -40px; }
+  html[data-sda="on"] .tiles > :nth-child(n+6) { --dx: 40px; }
+}
+}
+@keyframes x-hero { 0%, 30% { opacity: 1; transform: none; } 90%, 100% { opacity: 0; transform: translateY(-8svh); } }
+@keyframes x-hs { from { opacity: 1; transform: scale(1); } to { opacity: .35; transform: scale(1.08); } }
+@keyframes x-head { from { opacity: 0; transform: translateY(.4em); } to { opacity: 1; transform: none; } }
+@keyframes x-word { from { opacity: .52; transform: translateY(.12em); } to { opacity: 1; transform: none; } }
+@keyframes x-tile { from { transform: translate3d(var(--dx, 0), 48px, 0) scale(.9); } to { transform: none; } }
+}
+
+/* ---- fallback: one-shot .in reveals when scroll timelines are off (D7.2, D7.3) ---- */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-sda="on"]) .t-stmt.in .w { animation: f-word var(--t3) var(--ease-out) calc(var(--w) * 40ms) backwards; }
+  html:not([data-sda="on"]) .tile.in { animation: f-tile var(--t4) var(--spring) calc(var(--i, 0) * 60ms) backwards; }
+}
+@keyframes f-word { from { opacity: .52; } to { opacity: 1; } }
+@keyframes f-tile { from { opacity: 1; transform: translateY(24px) scale(.96); } to { transform: none; } }
+
+/* ---- join band (D7.5): same in both modes. No-JS: accent band, all visible. ---- */
+.final .btn-primary { background: var(--bg); color: var(--text); }
+.final .plate::before { color: var(--glow); }
+@media (prefers-reduced-motion: no-preference) {
+  .final[data-ink="roll"].in:not(.rolled) { background: var(--bg); }
+  .final[data-ink="roll"].in:not(.rolled) .final-in { visibility: hidden; }
+  .final.rolled #join-title { animation: h-rise var(--t5) var(--spring) backwards; }
+  .final.rolled .final-cta { animation: h-up12 var(--t4) var(--spring) 120ms backwards; }
+  .final.stamped .btn-primary { animation: j-pop var(--t4) var(--bounce) backwards; }
+}
+@keyframes j-pop { from { transform: scale(1.06); } to { transform: none; } }
+
+/* ---- reduced motion (D8): cross-fades only ---- */
+@media (prefers-reduced-motion: reduce) {
+  .hero-in { animation: h-fade var(--t3) linear backwards; }
+}

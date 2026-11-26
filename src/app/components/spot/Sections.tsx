@@ -5,6 +5,8 @@ import HeroSheet from './HeroSheet'
 import Proof from './Proof'
 import { Crowd, Stamp } from './Lazy'
 import { Roller } from '../../press/Roller'
+import { INK } from '../../press/ink'
+import './scenes.css'
 
 const H1 = ['Free', 'coding', 'classes']
 
@@ -24,31 +26,48 @@ export function Hero() {
           <Link href="#courses" className="lnk t-body">See the courses</Link>
         </div>
       </div>
-      <i className="crop l" aria-hidden />
-      <i className="crop r" aria-hidden />
       <p className="slug t-mono" aria-hidden>
-        <span><b className="y" />Y</span><span><b className="b" /><span data-plate-angle="B">B 15</span></span><span><b className="k" /><span data-plate-angle="K">K 45</span></span>
+        <span data-plate-angle="B">trail 15°</span><span data-plate-angle="K">beam 45°</span>
       </p>
     </section>
   )
 }
 
-const TILE: Record<string, string> = { Code: 'yk', Build: 'bs', Math: 'sb', Physics: 'ky' }
+const STMT = 'Started in 2018 by two high-school students. Still taught by high-school students. Still free, in the Bay Area.'.split(' ')
+
+export function Statement() {
+  return (
+    <section id="statement" className="band statement">
+      <div className="grid-x">
+        <p className="t-stmt" data-ink="wipe" data-scrub="stmt">
+          {STMT.map((w, i) => (
+            <span key={i}>
+              {i > 0 && ' '}
+              <span className={w.startsWith('free') ? 'w acc' : 'w'} style={{ '--w': i } as React.CSSProperties}>{w}</span>
+            </span>
+          ))}
+        </p>
+      </div>
+    </section>
+  )
+}
+
+const { bg, s2, text, accent, glow } = INK
 // [paper, ink, ghost]
 const INKS: Record<string, [string, string, string]> = {
-  Code: ['#FFD60A', '#111114', '#1F3FCF'],
-  Build: ['#1F3FCF', '#F2EDE1', '#FFD60A'],
-  Math: ['#F2EDE1', '#1F3FCF', '#FFD60A'],
-  Physics: ['#111114', '#FFD60A', '#1F3FCF'],
+  Code: [s2, accent, glow],
+  Build: [accent, bg, glow],
+  Math: [s2, text, glow],
+  Physics: [glow, text, accent],
 }
 
 export function Courses() {
   let n = 0
   return (
-    <section id="courses" aria-labelledby="courses-title" className="band stock">
+    <section id="courses" aria-labelledby="courses-title" className="band">
       <div className="grid-x">
         <div className="courses-head">
-          <h2 id="courses-title" className="t-h2 plate" data-ink="wipe" data-plate="blue" data-t="Courses">Courses</h2>
+          <h2 id="courses-title" className="t-h2 plate" data-ink="wipe" data-scrub="head" data-plate data-t="Courses">Courses</h2>
           <Link href="/programs" className="lnk t-body">All programs</Link>
         </div>
         <ul className="tiles">
@@ -57,7 +76,7 @@ export function Courses() {
               const [bg, fg, ghost] = INKS[c.name]
               const i = n++ % 5
               return (
-                <li key={name} className={`tile ${TILE[c.name]}`} data-ink="develop" data-i={i}>
+                <li key={name} className="tile" data-ink="develop" data-scrub="tile" data-i={i}>
                   <Proof name={name} col={i} paper={bg} ink={fg} ghost={ghost} className="tile-a">
                     {ci === 0 && <span className="cat t-mono" style={{ background: fg, color: bg }}>{c.name}</span>}
                     <span className="bar t-h3">{name}</span>
@@ -74,16 +93,15 @@ export function Courses() {
 
 export function Class() {
   return (
-    <section id="class-size" aria-labelledby="class-title" className="band blue" data-ink="roll">
-      <Roller ink="blue" />
+    <section id="class-size" aria-labelledby="class-title" className="band">
       <div className="grid-x class-grid">
         <div className="crowd">
-          <Crowd paper="#1F3FCF" ink="#F2EDE1" yellow="#FFD60A" />
+          <Crowd />
           <noscript><div className="crowd-css" aria-hidden>{Array.from({ length: 20 }, (_, i) => <i key={i} className="dot" />)}<b className="dot" /></div></noscript>
         </div>
         <div className="class-text">
-          <h2 id="class-title" className="t-fact class-fact" data-ink="wipe">
-            <span>One instructor</span> <span>Up to 20 kids</span>
+          <h2 id="class-title" className="t-fact class-fact" aria-label="One instructor. Up to 20 kids" data-ink="wipe" data-scrub="head">
+            <span aria-hidden><b className="acc">1</b> instructor</span> <span aria-hidden>Up to <span data-crowd-n>20</span> kids</span>
           </h2>
           <p className="t-body">Classes run in person and online</p>
         </div>
@@ -94,13 +112,13 @@ export function Class() {
 
 export function FinalCta() {
   return (
-    <section id="join" aria-labelledby="join-title" className="band yellow final" data-ink="roll">
-      <Roller ink="yellow" />
+    <section id="join" aria-labelledby="join-title" className="band accent final" data-ink="roll">
+      <Roller ink="accent" />
       <Stamp pivot="80%" />
       <div className="grid-x">
         <div className="final-in">
-          <h2 id="join-title" className="t-h2 plate" data-ink="wipe" data-plate="blue" data-t="Get class dates">Get class dates</h2>
-          <div className="final-cta" data-ink="stamp" data-i={4}><EmailCta size="lg" /></div>
+          <h2 id="join-title" className="t-h2 plate" data-plate data-t="Get class dates">Get class dates</h2>
+          <div className="final-cta"><EmailCta size="lg" /></div>
         </div>
       </div>
     </section>
