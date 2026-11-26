@@ -9,7 +9,8 @@ const reveal = (el: Element) => {
 
 export function observe(root: ParentNode = document): () => void {
   const rm = matchMedia('(prefers-reduced-motion: reduce)').matches
-  const els = Array.from(root.querySelectorAll<HTMLElement>('[data-ink]:not(.in)'))
+  const sda = document.documentElement.dataset.sda === 'on' // scroll-scrubbed elements are CSS-driven: never .pre/.in
+  const els = Array.from(root.querySelectorAll<HTMLElement>('[data-ink]:not(.in)')).filter((el) => !(sda && el.dataset.scrub))
   els.forEach((el) => {
     el.style.setProperty('--d', `calc(${el.dataset.i || 0} * var(--tick))`)
     if (el.dataset.plate && el.dataset.t == null) el.dataset.t = el.textContent || ''
