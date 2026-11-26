@@ -5,6 +5,7 @@ import { categories, type Course } from '../content/courses'
 import flyerSummer2023 from 'public/flyer-summer-2023.png'
 import flyerContestWinter24 from 'public/H4K_Coding_Competition_Flyer_Winter_24.jpg'
 import flyerContest from 'public/H4K_Coding_Competition_Flyer.png'
+import ProofStatic from '../components/spot/ProofStatic'
 import '../pages.css'
 
 export const metadata = {
@@ -72,7 +73,7 @@ export default function Programs() {
                 <ul className="pg-courses">
                   {c.courses.map((name, i) => (
                     <li key={name} id={slug(name)} data-ink="develop" data-i={i} className="pg-course">
-                      <div aria-hidden className={`pg-proof cat-${c.name.toLowerCase()}`} />
+                      <ProofStatic name={name as Course} className={`pg-proof cat-${c.name.toLowerCase()}`} />
                       <div>
                         <h4 className="t-h3">{name}</h4>
                         <p className="t-body">{blurbs[name]}</p>
