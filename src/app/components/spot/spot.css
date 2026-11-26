@@ -17,7 +17,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); }
 .band.s1 { background: var(--s1); }
 .band.accent { background: var(--accent); color: var(--bg); }
 .band.accent ::selection { background: var(--bg); color: var(--accent); }
-[data-ink="rule"] { position: relative; }
 
 /* afterglow: a hard, unblurred ghost copy in --glow, a little late */
 .plate { position: relative; isolation: isolate; }
@@ -40,14 +39,14 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); }
 .cta.center { align-items: center; text-align: center; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; padding: 0 24px; border-radius: var(--r-pill);
   font-family: var(--sans); font-stretch: 105%; font-weight: 700; font-size: 1.0625rem; line-height: 1; text-decoration: none; cursor: pointer;
-  background: var(--accent); color: var(--on-accent); transition: transform var(--t1) var(--ease-out), background-color var(--t2) var(--ease-out), color var(--t2) var(--ease-out); }
+  background: var(--accent); color: var(--on-accent); transition: scale var(--t1) var(--ease-out), background-color var(--t2) var(--ease-out), color var(--t2) var(--ease-out); }
 .btn-lg { min-height: 56px; font-size: 1.1875rem; }
-.btn svg { flex: none; transition: transform var(--t3) var(--spring); }
+.btn svg { flex: none; transition: translate var(--t3) var(--spring); }
 @media (hover: hover) and (pointer: fine) {
   .btn:hover { background: var(--accent-hi); }
-  .btn:hover svg { transform: translateX(4px); }
+  .btn:hover svg { translate: 4px 0; }
 }
-.btn:active { transform: scale(.97); }
+.btn:active { scale: .97; }
 .band.accent .btn { background: var(--bg); color: var(--text); }
 @media (hover: hover) and (pointer: fine) { .band.accent .btn:hover { background: var(--s2); } }
 
@@ -78,9 +77,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); }
 @media (max-width: 47.99rem) { .courses-head + .tiles { margin-top: 24px; } }
 @media (min-width: 48rem) { .tiles { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; } }
 @media (min-width: 64rem) { .tiles { gap: 24px; } }
-.tile { border: 1px solid var(--line); border-radius: var(--r-tile); overflow: clip; background: var(--s2); min-width: 0; transition: transform var(--t3) var(--spring), border-color var(--t2) var(--ease-out); }
-@media (hover: hover) and (pointer: fine) { .tile:hover { transform: translateY(-4px); border-color: var(--accent); } }
-.tile:active { transform: scale(.98); transition-duration: var(--t1); transition-timing-function: var(--ease-out); }
+/* GSAP owns `transform` AND zeroes translate/scale on any element it tweens, so the box, hover and press live on the inner link, not the li it scrubs. */
+.tile { min-width: 0; }
+.tile-a { border: 1px solid var(--line); border-radius: var(--r-tile); overflow: clip; background: var(--s2); transition: translate var(--t3) var(--spring), scale var(--t1) var(--ease-out), border-color var(--t2) var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .tile-a:hover { translate: 0 -4px; border-color: var(--accent); } }
+.tile-a:active { scale: .98; }
 /* tile ink pairs: --paper ground, --fg ink (never --bg: that is the page ground) */
 .yk { --paper: var(--s2); --fg: var(--accent); }
 .bs { --paper: var(--accent); --fg: var(--bg); }
@@ -145,6 +146,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); }
 /* reduced motion: no transforms; opacity and colour transitions (<= 240ms) stay */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; }
-  .btn, .btn svg, .tile, .plus, .lnk::after, .faq-item::details-content { transform: none !important; transition-property: opacity, color, background-color, border-color !important; transition-duration: var(--t3) !important; }
+  .btn, .btn svg, .tile-a, .plus, .lnk::after, .faq-item::details-content { transform: none !important; translate: none !important; scale: none !important; transition-property: opacity, color, background-color, border-color !important; transition-duration: var(--t3) !important; }
   .faq-item::details-content { height: auto !important; }
 }

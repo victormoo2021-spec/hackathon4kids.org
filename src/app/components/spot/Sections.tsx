@@ -3,8 +3,7 @@ import EmailCta from '../EmailCta'
 import { categories, type Course } from '../../content/courses'
 import HeroSheet from './HeroSheet'
 import Proof from './Proof'
-import { Crowd, Stamp } from './Lazy'
-import { Roller } from '../../press/Roller'
+import { Crowd, JoinFx } from './Lazy'
 import { INK } from '../../press/ink'
 import './scenes.css'
 
@@ -39,7 +38,7 @@ export function Statement() {
   return (
     <section id="statement" className="band statement">
       <div className="grid-x">
-        <p className="t-stmt" data-ink="wipe" data-scrub="stmt">
+        <p className="t-stmt" data-m="stmt">
           {STMT.map((w, i) => (
             <span key={i}>
               {i > 0 && ' '}
@@ -67,16 +66,16 @@ export function Courses() {
     <section id="courses" aria-labelledby="courses-title" className="band">
       <div className="grid-x">
         <div className="courses-head">
-          <h2 id="courses-title" className="t-h2 plate" data-ink="wipe" data-scrub="head" data-plate data-t="Courses">Courses</h2>
+          <h2 id="courses-title" className="t-h2 plate" data-m="head" data-plate data-t="Courses">Courses</h2>
           <Link href="/programs" className="lnk t-body">All programs</Link>
         </div>
-        <ul className="tiles">
+        <ul className="tiles" data-m="tiles">
           {categories.flatMap((c) =>
             (c.courses as readonly Course[]).map((name, ci) => {
               const [bg, fg, ghost] = INKS[c.name]
               const i = n++ % 5
               return (
-                <li key={name} className="tile" data-ink="develop" data-scrub="tile" data-i={i}>
+                <li key={name} className="tile">
                   <Proof name={name} col={i} paper={bg} ink={fg} ghost={ghost} className="tile-a">
                     {ci === 0 && <span className="cat t-mono" style={{ background: fg, color: bg }}>{c.name}</span>}
                     <span className="bar t-h3">{name}</span>
@@ -100,7 +99,7 @@ export function Class() {
           <noscript><div className="crowd-css" aria-hidden>{Array.from({ length: 20 }, (_, i) => <i key={i} className="dot" />)}<b className="dot" /></div></noscript>
         </div>
         <div className="class-text">
-          <h2 id="class-title" className="t-fact class-fact" aria-label="One instructor. Up to 20 kids" data-ink="wipe" data-scrub="head">
+          <h2 id="class-title" className="t-fact class-fact" aria-label="One instructor. Up to 20 kids" data-m="head">
             <span aria-hidden><b className="acc">1</b> instructor</span> <span aria-hidden>Up to <span data-crowd-n>20</span> kids</span>
           </h2>
           <p className="t-body">Classes run in person and online</p>
@@ -112,9 +111,8 @@ export function Class() {
 
 export function FinalCta() {
   return (
-    <section id="join" aria-labelledby="join-title" className="band accent final" data-ink="roll">
-      <Roller ink="accent" />
-      <Stamp pivot="80%" />
+    <section id="join" aria-labelledby="join-title" className="band accent final">
+            <JoinFx pivot="80%" />
       <div className="grid-x">
         <div className="final-in">
           <h2 id="join-title" className="t-h2 plate" data-plate data-t="Get class dates">Get class dates</h2>

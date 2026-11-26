@@ -4,8 +4,8 @@ import Image, { type ImageProps } from 'next/image'
 // Prose styling for markdown in .mdx pages (see app/code.org/page.mdx). Role classes only.
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
-    h1: ({ children }) => <h1 data-ink="wipe" className="t-h2">{children}</h1>,
-    h2: ({ children }) => <h2 data-ink="wipe" className="t-h3 mt-12 mb-3">{children}</h2>,
+    h1: ({ children }) => <h1 data-m="head" className="t-h2">{children}</h1>,
+    h2: ({ children }) => <h2 data-m="head" className="t-h3 mt-12 mb-3">{children}</h2>,
     h3: ({ children }) => <h3 className="t-h3 mt-8 mb-2">{children}</h3>,
     p: ({ children }) => <p className="t-body">{children}</p>,
     ol: ({ children }) => <ol className="pg-steps t-body">{children}</ol>,

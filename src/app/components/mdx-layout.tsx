@@ -23,7 +23,7 @@ export function FinalBand({ children }: { children?: React.ReactNode }) {
   return (
     <section className="pg-final" aria-labelledby="final-h">
       <div className="grid-x">
-        <h2 id="final-h" data-ink="wipe" className="t-h2 pg-col-8">Next class dates</h2>
+        <h2 id="final-h" data-m="head" className="t-h2 pg-col-8">Next class dates</h2>
         <div className="lockup pg-col-4 flex flex-wrap items-center gap-6">
           <EmailCta size="lg" />
           {children}

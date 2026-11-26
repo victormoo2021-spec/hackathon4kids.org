@@ -16,10 +16,10 @@ function FaqLink({ href, label }: { href: string; label: string }) {
 export default function Faq({ headingId }: { headingId?: string }) {
   return (
     <div className="faq grid-x">
-      <h2 id={headingId} className="t-h2 faq-h plate" data-ink="wipe" data-plate data-t="Questions parents ask">Questions parents ask</h2>
+      <h2 id={headingId} className="t-h2 faq-h plate" data-m="head" data-plate data-t="Questions parents ask">Questions parents ask</h2>
       <div className="faq-list">
         {faq.map(({ q, a, link }, i) => (
-          <details key={q} className="faq-item" data-ink="rule" data-i={Math.min(i, 6)}>
+          <details key={q} className="faq-item" data-m="rise">
             <summary className="t-h3">
               {q}
               <span className="plus" aria-hidden><i /><i /></span>

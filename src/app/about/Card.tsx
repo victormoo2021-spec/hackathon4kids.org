@@ -10,7 +10,7 @@ export default function Card({ person, i }: { person: Person; i: number }) {
   const { name, role, grade, tags } = person
   const cat = catOf(tags[0])
   return (
-    <li data-ink="develop" data-i={i % 4} className="pg-card">
+    <li data-m="rise" className="pg-card">
       {cat
         ? <ProofStatic name={tags[0] as Course} className={`pg-proof cat-${cat}`} />
         : <div aria-hidden className="pg-proof cat-code" />}

@@ -18,9 +18,9 @@ const takeover: Kit['takeover'] = (a, rest) => {
   const st = (a as gsap.core.Tween).scrollTrigger
   if (!st || !st.trigger) return
   const r = (st.trigger as Element).getBoundingClientRect()
-  if (r.bottom <= 0 || r.top >= innerHeight || st.progress === rest) return
+  if (r.bottom <= 0 || r.top >= innerHeight) return
   a.progress(rest)
-  st.update(true)
+  st.getTween()?.resetTo('totalProgress', st.progress, rest) // scrub tween eases rest -> true position over its lag
 }
 
 const safe: Kit['safe'] = (ctx, fn) => ((...a: never[]) => ctx.add(() => fn(...a))) as typeof fn

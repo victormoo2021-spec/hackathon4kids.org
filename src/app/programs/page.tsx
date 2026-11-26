@@ -52,27 +52,27 @@ export default function Programs() {
   return (
     <div className="pg">
       <section className="pg-hero grid-x">
-        <h1 data-ink="wipe" className="t-h1 pg-col-8" style={{ fontSize: 'clamp(3rem, 1.5rem + 7vw, 9rem)' }}>Programs</h1>
-        <p data-ink="wipe" data-i="2" className="t-body" style={{ gridColumn: '1 / -1' }}>
+        <h1 data-m="head" className="t-h1 pg-col-8" style={{ fontSize: 'clamp(3rem, 1.5rem + 7vw, 9rem)' }}>Programs</h1>
+        <p data-m="rise" className="t-body" style={{ gridColumn: '1 / -1' }}>
           Free computer science and STEM classes for kids in grades 3 to 8, taught by high-school students.
         </p>
         <ul aria-label="At a glance" className="pg-slabs t-slab" style={{ gridColumn: '1 / -1', marginTop: 0 }}>
           {facts.map(([f, c], i) => (
-            <li key={f} data-ink="stamp" data-i={3 + i} className={c}>{f}</li>
+            <li key={f} data-m="rise" className={c}>{f}</li>
           ))}
         </ul>
       </section>
 
       <section className="pg-sec" style={{ paddingTop: 0 }} aria-labelledby="courses">
         <div className="grid-x">
-          <h2 id="courses" data-ink="wipe" className="t-h2" style={{ gridColumn: '1 / -1' }}>Courses</h2>
+          <h2 id="courses" data-m="head" className="t-h2" style={{ gridColumn: '1 / -1' }}>Courses</h2>
           <div style={{ gridColumn: '1 / -1' }}>
             {categories.map((c) => (
               <section key={c.name} className="pg-cat" aria-labelledby={`cat-${c.name}`}>
                 <h3 id={`cat-${c.name}`} className="t-h3">{c.name}</h3>
                 <ul className="pg-courses">
                   {c.courses.map((name, i) => (
-                    <li key={name} id={slug(name)} data-ink="develop" data-i={i} className="pg-course">
+                    <li key={name} id={slug(name)} data-m="rise" className="pg-course">
                       <ProofStatic name={name as Course} className={`pg-proof cat-${c.name.toLowerCase()}`} />
                       <div>
                         <h4 className="t-h3">{name}</h4>
@@ -90,7 +90,7 @@ export default function Programs() {
       <section className="pg-sec" style={{ paddingTop: 0 }} aria-labelledby="past">
         <div className="grid-x">
           <div style={{ gridColumn: '1 / -1' }}>
-            <h2 id="past" data-ink="wipe" className="t-h2">Past programs</h2>
+            <h2 id="past" data-m="head" className="t-h2">Past programs</h2>
             <h3 className="t-h3" style={{ marginTop: 32 }}>Summer 2021</h3>
             <p className="t-body">Our summer program in 2021.</p>
             <h3 className="t-h3" style={{ marginTop: 32 }}>Summer 2023</h3>

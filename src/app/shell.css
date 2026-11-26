@@ -2,19 +2,13 @@
 .skip-link { position: fixed; left: 16px; top: -80px; z-index: 100; padding: 12px 20px; background: var(--accent); color: var(--bg); border-radius: var(--r-chip); font-weight: 700; }
 .skip-link:focus { top: 16px; }
 
-/* nav material: edge-attached bar. Blur radius is static; only opacity moves (scroll timeline, data-scrolled fallback). */
+/* nav material: edge-attached bar. Blur radius is static; only opacity moves (data-scrolled). */
 .site-header { position: sticky; top: 0; z-index: 50; height: 64px; color: var(--text); font-family: var(--sans); }
 .site-header::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--bg); border-bottom: 1px solid var(--line);
   opacity: 0; transition: opacity var(--t3) var(--ease-out); }
 .site-header[data-scrolled="true"]::before, .site-header[data-open="true"]::before { opacity: 1; }
 @media (min-width: 48rem) and (prefers-reduced-transparency: no-preference) {
   .site-header::before { background: rgb(5 8 6 / .72); backdrop-filter: blur(var(--nav-blur)) saturate(1.4); }
-}
-@keyframes nav-material { from { opacity: 0; } to { opacity: 1; } }
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .site-header::before { transition: none; animation: nav-material linear both; animation-timeline: scroll(root); animation-range: 0 96px; }
-  }
 }
 .nav-bar { height: 64px; margin-inline: auto; width: 100%; max-width: 76rem; padding-inline: var(--margin); display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 16px; }
 @media (min-width: 90rem) { .nav-bar { max-width: calc(76rem + 2 * var(--margin)); } }
