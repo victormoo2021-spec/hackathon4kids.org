@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { CONTACT_EMAIL, MAILING_LIST } from './routes'
-import { scrollThrough } from './helpers'
+import { armed } from './helpers'
 
 const STATEMENT = 'Started in 2018 by two high-school students. Still taught by high-school students. Still free, in the Bay Area.'
 const DONATE = `mailto:${CONTACT_EMAIL}?subject=Helping%20Hackathon4Kids`
@@ -22,21 +22,18 @@ test.describe('home sections', () => {
     expect(await page.locator('section#statement .w').count()).toBe(18)
   })
 
-  test('data-sda is on in Chromium and off with ?sda=off', async ({ page }) => {
-    await expect(page.locator('html')).toHaveAttribute('data-sda', 'on')
-    await page.goto('/?sda=off')
-    await expect(page.locator('html')).not.toHaveAttribute('data-sda', /.*/)
-  })
-
-  test('crowd numeral reads 20 once the class-size section has scrolled fully in', async ({ page }) => {
+  test('crowd numeral: SSR 20, 0 above the scene once armed, 20 when the canvas has scrolled in', async ({ page }) => {
     const n = page.locator('#class-size [data-crowd-n]')
     await expect(n).toHaveText('20') // SSR text
-    await scrollThrough(page, { step: 300, delay: 60 })
-    await page.locator('#class-size').scrollIntoViewIfNeeded()
-    await page.evaluate(() => document.querySelector('#class-size')!.scrollIntoView({ block: 'center' }))
-    await expect(n).toHaveText('20', { timeout: 5000 })
+    await page.goto('/?gate')
+    await armed(page)
     await page.evaluate(() => scrollTo(0, 0))
-    await expect(n).toHaveText('0', { timeout: 5000 })
+    await expect(n).toHaveText('0', { timeout: 8000 })
+    // canvas bottom at 60% of the viewport: past the scene end (bottom 75%) at every viewport height
+    await page.evaluate(() => { const b = document.querySelector('#class-size canvas')!.getBoundingClientRect(); scrollTo(0, scrollY + b.bottom - innerHeight * 0.6) })
+    await expect(n).toHaveText('20', { timeout: 8000 })
+    await page.evaluate(() => scrollTo(0, 0))
+    await expect(n).toHaveText('0', { timeout: 8000 })
   })
 
   test('hero contains the h1', async ({ page }) => {
@@ -79,7 +76,9 @@ test.describe('FAQ', () => {
   const faq = (page: Page) => page.locator('section#faq')
 
   test('has the parent-facing heading', async ({ page }) => {
-    await expect(faq(page).getByRole('heading', { level: 2, name: 'Questions parents ask' })).toBeVisible()
+    const h = faq(page).getByRole('heading', { level: 2, name: 'Questions parents ask' })
+    await h.scrollIntoViewIfNeeded()
+    await expect(h).toBeVisible()
   })
 
   test('uses native details/summary', async ({ page }) => {
@@ -98,9 +97,7 @@ test.describe('FAQ', () => {
 
   test('toggles with the keyboard', async ({ page }) => {
     const item = faq(page).locator('details').first()
-    // below-fold [data-ink] items are hidden (.pre) until scrolled in, and hidden elements can't take focus
     await item.locator('summary').scrollIntoViewIfNeeded()
-    await expect(item).not.toHaveClass(/\bpre\b/)
     await item.locator('summary').focus()
     await page.keyboard.press('Enter')
     await expect(item).toHaveAttribute('open', '')

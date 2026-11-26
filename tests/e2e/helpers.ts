@@ -3,7 +3,7 @@ import { expect, type Page } from '@playwright/test'
 /** Wait for CSS/WAAPI animations to reach their resting state. */
 export async function settle(page: Page) {
   // ignore animations that never "finish": infinite loops (caret blink) and
-  // scroll-linked ones (animation-timeline: view()), which follow scroll position
+  // and anything on a non-document timeline
   await page.evaluate(() =>
     Promise.all(
       document
@@ -14,6 +14,11 @@ export async function settle(page: Page) {
     ),
   )
   await page.waitForTimeout(1500)
+}
+
+/** Resolve once GSAP has armed (page opened with ?gate exposes window.__motion). */
+export async function armed(page: Page) {
+  await page.waitForFunction(() => (window as unknown as { __motion?: { ready: boolean } }).__motion?.ready, null, { timeout: 20000 })
 }
 
 /** Scroll the whole page in wheel steps so scroll-driven code runs. */

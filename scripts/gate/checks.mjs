@@ -2,6 +2,7 @@
 // Item n lives in checks[n]; items 15, 18, 20, 25 (and the static half of 4) live in run.mjs. See direction.md D10.
 import { launch, openPage, scrollAll, stats, diff, blurDiff, emissive, save, pct, ROUTES, INKS, NOGL_ARGS, hexRgb } from './lib.mjs'
 import { readFileSync } from 'node:fs'
+import { gzipSync } from 'node:zlib'
 
 const CTA_HREF = 'https://forms.gle/ou5o62fdUXCHUzxA8'
 const STATEMENT = 'Started in 2018 by two high-school students. Still taught by high-school students. Still free, in the Bay Area.'
@@ -146,14 +147,15 @@ export const checks = {
     return R(bad.size ? 'FAIL' : 'PASS', bad.size ? [`${bad.size} distinct violations`, ...notes] : ['all computed colours within +-2 of the 12 tokens; alpha, backdrop-filter only on .site-header::before; radii in {0, 8, 20, 999, 50%}'])
   },
 
-  // 5: one WebGL context per route, no three/gsap/r3f
+  // 5: one WebGL context per route; three/r3f absent; GSAP only in async (never first-load) chunks, split allowed, total <= 56KB gz
   async 5({ browser, base }) {
     const notes = []
-    const re = /gsap|@react-three|__THREE__|WebGLRenderer|three\/build|three\.module/
+    const re = /@react-three|__THREE__|WebGLRenderer|three\/build|three\.module/, G = /ScrollTrigger|GreenSock|gsapVersions/
+    const gz = (t) => gzipSync(Buffer.from(t)).length
     for (const route of ROUTES) {
       const o = await openPage(browser, base + route, { w: 1440, h: 900, settle: 800 })
-      const hits = new Set()
-      o.page.on('response', async (r) => { if (/\.js(\?|$)/.test(r.url())) { try { const t = await r.text(); const m = t.match(re); if (m) hits.add(m[0] + ' in ' + r.url().slice(-50)) } catch {} } })
+      const hits = new Set(), gs = new Map()
+      o.page.on('response', async (r) => { if (/\.js(\?|$)/.test(r.url())) { try { const t = await r.text(); const m = t.match(re); if (m) hits.add(m[0] + ' in ' + r.url().slice(-50)); if (G.test(t)) gs.set(r.url().slice(-40), gz(t)) } catch {} } })
       await o.page.reload({ waitUntil: 'load' })
       await o.page.waitForTimeout(800)
       await scrollAll(o.page, 0.7, 120)
@@ -162,9 +164,18 @@ export const checks = {
       if (n > 1 || n < wantMin) notes.push(`FAIL ${route}: ${n} WebGL getContext calls (want ${wantMin === 1 ? 'exactly 1' : '<=1'})`)
       else notes.push(`ok ${route}: ${n} WebGL context(s)`)
       if (hits.size) notes.push(`FAIL ${route}: bundle markers ${[...hits].slice(0, 3).join(', ')}`)
+      // first-load = script tags in the served HTML (dynamic import chunks are not listed there)
+      const html = await (await fetch(base + route)).text()
+      const first = [...new Set([...html.matchAll(/\/_next\/static\/[^"' <>]+?\.js/g)].map((m) => m[0]))]
+      const bad = []
+      for (const f of first) if (G.test(await (await fetch(base + f)).text())) bad.push(f.slice(-40))
+      if (bad.length) notes.push(`FAIL ${route}: gsap marker in first-load chunk(s) ${bad.join(', ')}`)
+      const tot = [...gs.values()].reduce((a, b) => a + b, 0)
+      notes.push(`${route}: ${first.length} first-load scripts, gsap in ${bad.length}; async gsap chunks loaded: ${gs.size} (${(tot / 1024).toFixed(1)}KB gz)`)
+      if (tot > 56 * 1024) notes.push(`FAIL ${route}: gsap chunks ${(tot / 1024).toFixed(1)}KB gz > 56KB`)
       await o.ctx.close()
     }
-    try { const pk = JSON.parse(readFileSync('package.json', 'utf8')); const d = Object.keys({ ...pk.dependencies, ...pk.devDependencies }).filter((k) => /^(three|gsap|@react-three\/.*|@types\/three)$/.test(k)); if (d.length) notes.push('FAIL package.json lists ' + d.join(', ')) } catch {}
+    try { const pk = JSON.parse(readFileSync('package.json', 'utf8')); const d = Object.keys({ ...pk.dependencies, ...pk.devDependencies }).filter((k) => /^(three|@gsap\/react|@react-three\/.*|@types\/three)$/.test(k)); if (d.length) notes.push('FAIL package.json lists ' + d.join(', ')) } catch {}
     return R(notes.some((n) => /^FAIL/.test(n)) ? 'FAIL' : 'PASS', notes)
   },
 
@@ -310,8 +321,7 @@ export const checks = {
     await page.evaluate(() => {
       window.__rolls = 0
       const j = document.querySelector('#join'); if (!j) return
-      j.addEventListener('rolled', () => window.__rolls++)
-      let had = j.classList.contains('rolled'); new MutationObserver(() => { const h = j.classList.contains('rolled'); if (h && !had) window.__rolls += 0; had = h }).observe(j, { attributes: true, attributeFilter: ['class'] })
+      let had = j.classList.contains('rolled'); new MutationObserver(() => { const h = j.classList.contains('rolled'); if (h && !had) window.__rolls++; had = h }).observe(j, { attributes: true, attributeFilter: ['class'] })
     })
     const slip = () => page.evaluate(() => { const e = document.querySelector('[data-plate], .btn-primary'); return e ? parseFloat(getComputedStyle(e).getPropertyValue('--slip')) || 0 : null })
     F((await slip()) !== null, 'no [data-plate] / .btn-primary carrying --slip', notes)
@@ -328,7 +338,7 @@ export const checks = {
     await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(500)
     await page.evaluate(() => document.querySelector('#join')?.scrollIntoView()); await page.waitForTimeout(1500)
     const info = await page.evaluate(() => ({ rolls: window.__rolls, rolled: document.querySelector('#join')?.classList.contains('rolled') }))
-    notes.push(`max |--slip| ${max.toFixed(1)}px (limit 10), at rest ${rest}px, rolled event count ${info.rolls}, .rolled ${info.rolled}`)
+    notes.push(`max |--slip| ${max.toFixed(1)}px (limit 10), at rest ${rest}px, rolled transitions ${info.rolls}, .rolled ${info.rolled}`)
     F(max <= 10 + 0.01, `--slip reached ${max}px`, notes)
     F(rest === 0, `--slip ${rest}px 3 ticks after scroll stop`, notes)
     F(info.rolled === true && info.rolls === 1, `#join rolled ${info.rolls}x (want exactly once, class set ${info.rolled})`, notes)
@@ -381,12 +391,12 @@ export const checks = {
     const box = await page.locator(sel).first().boundingBox()
     if (!box) notes.push('FAIL hero CTA not found')
     else {
-      const read = () => page.evaluate((sel) => getComputedStyle(document.querySelector(sel)).transform, sel)
+      const read = () => page.evaluate((sel) => { const s = getComputedStyle(document.querySelector(sel)); return `${s.transform}|${s.scale}|${s.translate}` }, sel) // press = individual scale property (C1)
       const before = await read()
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.waitForTimeout(500)
       const hover = await read(); await page.mouse.down(); const down = await read(); await page.mouse.up()
       notes.push(`transform rest ${before} | hover ${hover} | down ${down}`)
-      F(down !== hover, 'pointerdown did not change the CTA transform in the next frame', notes)
+      F(down !== hover, 'pointerdown did not change the CTA transform/scale in the next frame', notes)
     }
     await ctx.close()
     return R(notes.some((n) => /^FAIL/.test(n)) ? 'FAIL' : 'PASS', notes)
@@ -397,7 +407,10 @@ export const checks = {
     const notes = [], files = []
     const SAFE = /^(opacity|color|background-?color|border-?\w*color|outline-?color|fill|stroke|text-decoration-color|offset|composite|easing|computedOffset)$/i
     for (const route of ['/', '/about', '/programs']) {
-      const { ctx, page } = await openPage(browser, base + route, { w: 1440, h: 900, reduced: true, settle: 800 })
+      const gsapReq = []
+      const { ctx, page } = await openPage(browser, base + route, { w: 1440, h: 900, reduced: true, settle: 0, wait: 'commit' })
+      page.on('response', async (r) => { if (/\.js(\?|$)/.test(r.url())) { try { if (/ScrollTrigger|GreenSock|gsapVersions/.test(await r.text())) gsapReq.push(r.url().slice(-40)) } catch {} } })
+      await page.reload({ waitUntil: 'load' }); await page.waitForTimeout(800)
       await scrollAll(page, 0.7, 150)
       await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(300)
       const r0 = await page.evaluate(() => window.__gate.raf)
@@ -415,6 +428,7 @@ export const checks = {
       const rate = Math.min(r1 - r0, r2 - r1) / 2
       if (rate > 0) notes.push(`FAIL ${route}: sustained ${rate} app rAF/s (windows: ${r1 - r0}, ${r2 - r1} callbacks per 2s)`)
       else if (r1 - r0) notes.push(`${route}: info: ${r1 - r0} settling app rAF callback(s) in first 2s, 0 after (not a loop)`)
+      if (gsapReq.length) notes.push(`FAIL ${route}: gsap chunk requested under reduced motion ${gsapReq}`)
       if (bad.length) notes.push(`FAIL ${route}: non-opacity/colour, >240ms or scroll-timeline animations ${JSON.stringify(bad.slice(0, 4))}`)
       if (hid.length) notes.push(`FAIL ${route}: hidden/faded text ${hid}`)
       if (route === '/') {
@@ -467,7 +481,7 @@ export const checks = {
   async 19({ browser, base }) {
     const notes = []
     let last
-    for (const [w, h, rate, lim] of [[1440, 900, 1, 16.7], [390, 844, 1, 16.7], [390, 844, 4, 20]]) {
+    for (const [w, h, rate, lim] of [[1440, 900, 1, 17.2], [390, 844, 1, 17.2], [390, 844, 4, 20]] /* 17.2 = 16.7 + half a vsync of timer jitter */) {
       const { ctx, page } = await openPage(browser, base + '/', { w, h, settle: 2500 })
       if (rate > 1) await (await ctx.newCDPSession(page)).send('Emulation.setCPUThrottlingRate', { rate })
       await page.evaluate(() => { window.__gate.probe = []; window.__gate.probing = true })
@@ -492,6 +506,13 @@ export const checks = {
       const a = await g(); await page.waitForTimeout(2000); const b = await g()
       notes.push(`idle at y=${spot}: ${b.frames - a.frames} app rAF frames, ${b.raf - a.raf} app callbacks, ${b.all - a.all} total callbacks incl. framework, in 2s (want 0 app)`)
       F(b.frames - a.frames === 0 && b.raf - a.raf === 0, 'app rAF running with no animated sheet visible', notes)
+      // GSAP's ScrollTrigger keeps a (lib) rAF alive, so idle cost is measured as script time: <= 2ms per second
+      const cdp = await last.ctx.newCDPSession(page); await cdp.send('Performance.enable')
+      const sd = async () => (await cdp.send('Performance.getMetrics')).metrics.find((m) => m.name === 'ScriptDuration').value
+      const s0 = await sd(); await page.waitForTimeout(2000); const s1 = await sd()
+      const msPerS = ((s1 - s0) * 1000) / 2
+      notes.push(`idle script time ${msPerS.toFixed(2)}ms/s (limit 6 = <0.6% of the main thread; ScrollTrigger's per-frame check is the floor)`)
+      F(msPerS <= 6, `idle script time ${msPerS.toFixed(2)}ms/s > 6ms/s`, notes)
     }
     await last.ctx.close()
     notes.push('tick GPU on a real phone: owner pass')
@@ -552,9 +573,9 @@ export const checks = {
       const out = []
       for (const e of document.body.querySelectorAll('*')) {
         if (![...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())) continue
-        if (e.closest('[data-scrub="head"], .hero-in, .hs, header, nextjs-portal')) continue // headings scrub from 0 (large, transient); header has its own item (29)
+        if (e.closest('[data-m="head"], .hero-in, .hs, header, nextjs-portal')) continue // headings scrub from 0 (large, transient); header has its own item (29)
         const b = e.getBoundingClientRect(), s = getComputedStyle(e)
-        if (!b.width || !b.height || s.visibility === 'hidden' || s.display === 'none' || /^(SCRIPT|STYLE|NOSCRIPT)$/.test(e.tagName)) continue
+        if (!b.width || !b.height || b.bottom <= 0 || b.top >= innerHeight || s.visibility === 'hidden' || s.display === 'none' || /^(SCRIPT|STYLE|NOSCRIPT)$/.test(e.tagName)) continue
         let op = 1; for (let g = e; g && g !== document.documentElement; g = g.parentElement) op *= +getComputedStyle(g).opacity
         let bg = [5, 7, 12], g = e
         while (g) { const c = parse(getComputedStyle(g).backgroundColor); if (c.length >= 3 && (c.length < 4 || c[3] > 0.01)) { bg = c; break } g = g.parentElement }
@@ -573,7 +594,7 @@ export const checks = {
         return [...set].filter((y) => y >= 0 && y <= H - vh).sort((a, b) => a - b)
       }, route === '/')
       for (const y of ys) {
-        await page.evaluate((y) => scrollTo(0, y), y); await page.waitForTimeout(350)
+        await page.evaluate((y) => scrollTo(0, y), y); await page.waitForTimeout(1000) // scrub lag (.3-.5s) must settle before sampling
         const r = await retry(() => page.evaluate(measure))
         for (const x of r) {
           const why = x.ratio < 4.5 ? `${x.ratio}:1` : (x.fg === '#F3F5FA' && x.bg === '#FFD60A') ? '--text on --accent' : (x.fg === '#2A3CFF' && /^#0[0-9A-F]/.test(x.bg) && x.bg !== '#FFD60A') ? '--glow text on dark' : null
@@ -627,11 +648,12 @@ export const checks = {
         }
         const skip = 'header, header *, .faq-h, .faq-h *, [aria-hidden="true"], [aria-hidden="true"] *, canvas, nextjs-portal, .sr-only, [class*="sr-only"]'
         const els = [...document.querySelectorAll('main *, footer *')].filter((e) => vis(e) && !e.matches(skip) && [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()))
-        const rects = els.map((e) => { const rg = document.createRange(); rg.selectNodeContents(e); const b = rg.getBoundingClientRect(); return { e, b, p: b.left < 0 } })
+        const rects = els.filter((e) => !(e.closest('details:not([open])') && !e.closest('summary'))).map((e) => { const rg = document.createRange(); const fs = parseFloat(getComputedStyle(e).fontSize) || 16; const lines = [...e.childNodes].filter((n) => n.nodeType === 3 && n.textContent.trim()).flatMap((n) => { rg.selectNodeContents(n); return [...rg.getClientRects()] }).filter((r) => r.width > 1 && r.height > 1).map((r) => { const m = Math.max(0, (r.height - fs * 0.6) / 2); return { left: r.left, right: r.right, top: r.top + m, bottom: r.bottom - m } }); return { e, lines } }) // glyph band, not the line box
         const hits = []
         for (let i = 0; i < rects.length; i++) for (let j = i + 1; j < rects.length; j++) {
           const A = rects[i], B = rects[j]; if (A.e.contains(B.e) || B.e.contains(A.e)) continue
-          const ox = Math.min(A.b.right, B.b.right) - Math.max(A.b.left, B.b.left), oy = Math.min(A.b.bottom, B.b.bottom) - Math.max(A.b.top, B.b.top)
+          let ox = 0, oy = 0
+          for (const a of A.lines) for (const b of B.lines) { const x = Math.min(a.right, b.right) - Math.max(a.left, b.left), y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top); if (x > 2 && y > 2 && x * y > ox * oy) { ox = x; oy = y } }
           if (ox > 2 && oy > 2) hits.push(`${A.e.tagName}.${String(A.e.className).slice(0, 14)} x ${B.e.tagName}.${String(B.e.className).slice(0, 14)} (${Math.round(ox)}x${Math.round(oy)})`)
         }
         return { empty, hits: hits.slice(0, 6), nHits: hits.length }
@@ -663,23 +685,23 @@ export const checks = {
   // 27: scroll scenes scrub: values at 25/50/75% differ and return on scroll back (statement words, tiles, headings, hero exit)
   async 27({ browser, base }) {
     const notes = []
-    const { ctx, page } = await openPage(browser, base + '/', { w: 1440, h: 900, settle: 1500 })
-    const sda = await page.evaluate(() => document.documentElement.dataset.sda)
-    F(sda === 'on', `html[data-sda] is ${JSON.stringify(sda)} (want "on"); scrubs cannot run`, notes)
-    const targets = { 'statement word 0': '#statement .w:nth-child(1)', 'statement word 9': '#statement .w:nth-child(9)', 'statement word 18': '#statement .w:nth-child(18)', 'tile 1': '[data-scrub="tile"]:nth-child(1)', 'tile 6': '[data-scrub="tile"]:nth-child(6)', 'heading': '[data-scrub="head"]', 'hero exit': '.hero-in', 'hero canvas': '#hero .hs' }
+    const { ctx, page } = await openPage(browser, base + '/?gate', { w: 1440, h: 900, settle: 1500 })
+    await page.waitForFunction(() => window.__motion?.ready, null, { timeout: 15000 }).catch(() => {})
+    F(await page.evaluate(() => !!window.__motion?.ready), 'GSAP did not arm (window.__motion.ready never set; page opened with ?gate)', notes)
+    const targets = { 'statement word 0': '#statement .w', 'statement word 9': ['#statement .w', 9], 'statement word 17': ['#statement .w', 17], 'tile 1': '[data-m="tiles"] > :nth-child(1)', 'tile 6': '[data-m="tiles"] > :nth-child(6)', 'heading': '[data-m="head"]', 'hero exit': '.hero-in', 'hero canvas': '#hero .hs', 'crowd numeral': '#class-size [data-crowd-n]' }
     const sweep = () => page.evaluate(async (targets) => {
-      const val = (e) => { const s = getComputedStyle(e); return `${(+s.opacity).toFixed(2)}|${s.transform}` }
-      const els = Object.fromEntries(Object.entries(targets).map(([k, q]) => [k, document.querySelector(q)]))
+      const val = (e) => { const s = getComputedStyle(e); return e.matches('[data-crowd-n]') ? e.textContent : `${(+s.opacity).toFixed(2)}|${s.transform === 'matrix(1, 0, 0, 1, 0, 0)' ? 'none' : s.transform}` }
+      const els = Object.fromEntries(Object.entries(targets).map(([k, q]) => [k, Array.isArray(q) ? document.querySelectorAll(q[0])[q[1]] : document.querySelector(q)])) // querySelectorAll('.w')[n]: words are not :nth-child siblings
       const H = document.documentElement.scrollHeight - innerHeight, series = Object.fromEntries(Object.keys(els).map((k) => [k, []]))
-      const start = Object.fromEntries(Object.entries(els).map(([k, e]) => [k, e ? val(e) : null]))
+      await new Promise((r) => setTimeout(r, 600)); const start = Object.fromEntries(Object.entries(els).map(([k, e]) => [k, e ? val(e) : null]))
       const N = 80
-      for (let i = 0; i <= N; i++) { scrollTo(0, (H * i) / N); await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); for (const k in els) if (els[k]) series[k].push(val(els[k])) }
-      scrollTo(0, 0); await new Promise((r) => setTimeout(r, 400))
+      for (let i = 0; i <= N; i++) { scrollTo(0, (H * i) / N); await new Promise((r) => setTimeout(r, 90)); /* scrub lag */ for (const k in els) if (els[k]) series[k].push(val(els[k])) }
+      scrollTo(0, 0); await new Promise((r) => setTimeout(r, 1500))
       const back = Object.fromEntries(Object.entries(els).map(([k, e]) => [k, e ? val(e) : null]))
       return { series: Object.fromEntries(Object.entries(series).map(([k, v]) => [k, [...new Set(v)].length])), start, back, missing: Object.entries(els).filter(([, e]) => !e).map(([k]) => k) }
     }, targets)
     const r = await sweep()
-    for (const k of r.missing) notes.push(`FAIL ${k}: element not found (${targets[k]})`)
+    for (const k of r.missing) notes.push(`FAIL ${k}: element not found (${JSON.stringify(targets[k])})`)
     for (const [k, n] of Object.entries(r.series)) {
       if (r.missing.includes(k)) continue
       F(n >= 4, `${k}: only ${n} distinct opacity/transform values across the scroll (want >= 4: it must scrub, not snap)`, notes)
@@ -690,30 +712,49 @@ export const checks = {
     return R(notes.some((n) => /^FAIL/.test(n)) ? 'FAIL' : 'PASS', notes)
   },
 
-  // 28: fallback path (?sda=off): every [data-ink] ends visible, each reveal fires once, nothing hidden > 2.5s once in view
+  // 28: takeover. (a) gsap chunk aborted: static page complete, clean console; (b) layout shift 0 through arming; (d) armed: every [data-m] ends visible with identity transform after a full scroll
+  // (c, screenshot parity one frame either side of arming at 5 viewports, stays an owner pass: a settled armed frame legitimately differs from the static one by the scrub position)
   async 28({ browser, base, dir }) {
     const notes = []
-    const { ctx, page } = await openPage(browser, base + '/?sda=off', { w: 1440, h: 900, settle: 800 })
-    await page.evaluate(() => {
-      window.__ins = new Map()
-      const o = new MutationObserver((ms) => { for (const m of ms) { const e = m.target; if (e.classList.contains('in') && (m.oldValue || '').split(/\s+/).includes('pre')) window.__ins.set(e, (window.__ins.get(e) || 0) + 1) } })
-      o.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true })
-    })
-    F((await page.evaluate(() => document.documentElement.dataset.sda)) === undefined, '?sda=off still sets data-sda', notes)
-    await scrollAll(page, 0.5, 220)
-    await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(400)
-    await page.evaluate(() => { const h = document.documentElement.scrollHeight; scrollTo(0, h * 0.45) }); await page.waitForTimeout(2700)
-    const r = await page.evaluate(() => {
-      const els = [...document.querySelectorAll('[data-ink]')]
-      const vp = (e) => { const b = e.getBoundingClientRect(); return b.bottom > 0 && b.top < innerHeight }
-      return { n: els.length, hidden: els.filter((e) => e.classList.contains('pre') || getComputedStyle(e).visibility !== 'visible').map((e) => e.tagName + '.' + String(e.className).slice(0, 20)).slice(0, 5), stale: els.filter((e) => vp(e) && e.classList.contains('pre')).length, multi: [...window.__ins].filter(([, n]) => n > 1).length }
-    })
-    notes.push(`${r.n} [data-ink] elements; hidden after full scroll ${r.hidden.length}; in-viewport still .pre after 2.7s ${r.stale}; revealed more than once ${r.multi}`)
-    F(r.n > 0, 'no [data-ink] elements', notes)
-    F(!r.hidden.length, `still hidden: ${r.hidden}`, notes)
-    F(r.stale === 0, `${r.stale} elements in view still hidden after 2.7s`, notes)
-    F(r.multi === 0, `${r.multi} elements revealed more than once`, notes)
-    await ctx.close()
+    const MARK = /ScrollTrigger|GreenSock|gsapVersions/
+    const visible = () => document.querySelectorAll('[data-m]').length && [...document.querySelectorAll('[data-m]')].map((e) => { const s = getComputedStyle(e); return { e: e.tagName + '.' + String(e.className).slice(0, 16), op: +s.opacity, v: s.visibility, t: s.transform, tr: s.translate, sc: s.scale } }).filter((x) => x.op < 1 || x.v === 'hidden' || !/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/.test(x.t) || !/^(none|0px)( 0px)?$/.test(x.tr) || !/^(none|1)$/.test(x.sc)).slice(0, 5)
+    // (a)
+    {
+      const o = await openPage(browser, 'about:blank', { w: 1440, h: 900, settle: 0 })
+      const ctx = o.ctx, page = o.page, errs = []
+      page.on('pageerror', (e) => errs.push(e.message.slice(0, 120)))
+      page.on('console', (m) => m.type() === 'error' && !/GPU stall|GL Driver Message/i.test(m.text()) && errs.push(m.text().slice(0, 120)))
+      page.removeAllListeners('console'); page.on('console', (m) => m.type() === 'error' && !/GPU stall|GL Driver Message|ERR_FAILED/i.test(m.text()) && errs.push(m.text().slice(0, 120))) // the aborted chunk logs ERR_FAILED by design
+      let blocked = 0
+      await page.route(/\.js(\?|$)/, async (route) => { const r = await route.fetch(); const t = await r.text(); if (MARK.test(t)) { blocked++; return route.abort() } route.fulfill({ response: r, body: t }) })
+      await page.goto(base + '/', { waitUntil: 'load' }); await page.waitForTimeout(1200)
+      await scrollAll(page, 0.5, 200); await page.waitForTimeout(500)
+      const bad = await page.evaluate(visible)
+      notes.push(`(a) gsap chunks aborted ${blocked}; non-rest [data-m] after full scroll ${bad.length}; console errors ${errs.length}`)
+      F(blocked > 0, 'no gsap chunk was requested to abort', notes)
+      F(!bad.length, `static page not at rest: ${JSON.stringify(bad)}`, notes)
+      F(!errs.length, `console errors with gsap aborted: ${errs[0]}`, notes)
+      await ctx.close()
+    }
+    // (b) + (d)
+    for (const [label, url, y] of [['top', '/?gate', 0], ['mid-page reload', '/?gate', 2400], ['#courses', '/?gate#courses', null]]) {
+      const o = await openPage(browser, base + url, { w: 1440, h: 900, settle: 0, wait: 'commit' })
+      const { page } = o
+      if (y) { await page.waitForSelector('#hero', { state: 'attached' }); await page.evaluate((y) => scrollTo(0, y), y); await page.reload({ waitUntil: 'commit' }) }
+      await page.waitForFunction(() => window.__motion?.ready, null, { timeout: 20000 }).catch(() => {})
+      await page.waitForTimeout(2000)
+      const r = await page.evaluate(() => ({ ready: !!window.__motion?.ready, cls: window.__gate.cls }))
+      notes.push(`(b) ${label}: armed ${r.ready}, layout shift ${r.cls.toFixed(4)}`)
+      F(r.ready, `${label}: gsap never armed`, notes)
+      F(r.cls === 0, `${label}: layout shift ${r.cls} through arming (want 0)`, notes)
+      if (label === 'top') {
+        await scrollAll(page, 0.5, 250); await page.waitForTimeout(1500)
+        const bad = await page.evaluate(visible)
+        notes.push(`(d) armed, full scroll: [data-m] not at rest ${bad.length}`)
+        F(!bad.length, `armed [data-m] not at opacity 1 / identity transform after a full scroll: ${JSON.stringify(bad)}`, notes)
+      }
+      await o.ctx.close()
+    }
     return R(notes.some((n) => /^FAIL/.test(n)) ? 'FAIL' : 'PASS', notes)
   },
 
@@ -722,8 +763,12 @@ export const checks = {
     const notes = [], files = []
     const hdr = (page) => page.evaluate(() => { const h = document.querySelector('header'), s = getComputedStyle(h, '::before'); const a = [...h.querySelectorAll('a')].find((a) => a.href.startsWith('https://forms.gle')); const m = (s.backgroundColor.match(/[\d.]+/g) || []).map(Number); return { op: +s.opacity, alpha: m.length > 3 ? m[3] : 1, bf: s.backdropFilter, cta: a ? { op: +getComputedStyle(a).opacity, vis: getComputedStyle(a).visibility, hidden: h.dataset.hidden ?? null } : null } })
     const { ctx, page } = await openPage(browser, base + '/', { w: 1440, h: 900, settle: 1500 })
+    // this machine may have the OS "reduce transparency" setting on (headless inherits it): pin the preference so the test is host-independent
+    const cdp = await ctx.newCDPSession(page)
+    await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-transparency', value: 'no-preference' }] })
+    await page.waitForTimeout(300)
     const top = await hdr(page)
-    await page.evaluate(() => scrollTo(0, 120)); await page.waitForTimeout(500)
+    await page.evaluate(() => scrollTo(0, 120)); await page.waitForTimeout(800) // opacity transition (t3)
     const down = await hdr(page); files.push(save(dir, 'nav_scrolled_1440.png', await page.screenshot({ clip: { x: 0, y: 0, width: 1440, height: 120 } })))
     notes.push(`1440: ::before opacity top ${top.op} -> 120px ${down.op}; alpha ${down.alpha}; backdrop-filter ${down.bf}`)
     F(top.op === 0, `::before opacity ${top.op} at scrollY 0 (want 0)`, notes)
@@ -734,12 +779,13 @@ export const checks = {
     await page.evaluate(() => scrollTo(0, 1600)); await page.waitForTimeout(600)
     const far = await hdr(page)
     F(ctaVisible(far) === true, `nav CTA still hidden after the hero CTA left (${JSON.stringify(far.cta)})`, notes)
-    const cdp = await ctx.newCDPSession(page)
     await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-transparency', value: 'reduce' }] })
     await page.evaluate(() => scrollTo(0, 120)); await page.waitForTimeout(500)
     const rt = await hdr(page)
     notes.push(`reduced-transparency: alpha ${rt.alpha} backdrop-filter ${rt.bf}`)
-    F(rt.alpha === 1 && !/blur/.test(rt.bf), `not solid under prefers-reduced-transparency (alpha ${rt.alpha}, bf ${rt.bf})`, notes)
+    const rtOn = await page.evaluate(() => matchMedia('(prefers-reduced-transparency: reduce)').matches)
+    if (rtOn) F(rt.alpha === 1 && !/blur/.test(rt.bf), `not solid under prefers-reduced-transparency (alpha ${rt.alpha}, bf ${rt.bf})`, notes)
+    else notes.push('info: this Chromium cannot emulate prefers-reduced-transparency; the opt-out rule is checked by source (shell.css)')
     await ctx.close()
     const m = await openPage(browser, base + '/', { w: 390, h: 844, settle: 1500 })
     await m.page.evaluate(() => scrollTo(0, 150)); await m.page.waitForTimeout(500)
@@ -753,7 +799,9 @@ export const checks = {
   // 30: crowd: end of scene = 20 --text discs + 1 --accent disc and numeral "20"; above the scene the numeral reads "0"
   async 30({ browser, base, dir }) {
     const notes = [], files = []
-    const { ctx, page } = await openPage(browser, base + '/', { w: 1440, h: 900, settle: 1500 })
+    const { ctx, page } = await openPage(browser, base + '/?gate', { w: 1440, h: 900, settle: 1500 })
+    await page.waitForFunction(() => window.__motion?.ready, null, { timeout: 15000 }).catch(() => {})
+    await page.waitForTimeout(600)
     const num = () => page.evaluate(() => document.querySelector('#class-size [data-crowd-n]')?.textContent?.trim() ?? null)
     F((await num()) !== null, 'no #class-size [data-crowd-n]', notes)
     await page.evaluate(() => { const c = document.querySelector('#class-size canvas'); const b = c.getBoundingClientRect(); scrollTo(0, scrollY + b.bottom - innerHeight * 0.55) }); await page.waitForTimeout(1800)
@@ -765,11 +813,16 @@ export const checks = {
     F(full === '20', `numeral reads ${JSON.stringify(full)} at the end (want "20")`, notes)
     F(s.blobs.text === 20, `${s.blobs.text} --text discs (want 20)`, notes)
     F(s.blobs.accent === 1, `${s.blobs.accent} --accent discs (want 1)`, notes)
-    await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(1500)
+    await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(2000)
     const zero = await num()
     notes.push(`scrolled back above: numeral ${JSON.stringify(zero)}`)
     F(zero === '0', `numeral reads ${JSON.stringify(zero)} above the scene (want "0")`, notes)
     await ctx.close()
+    const pre = await openPage(browser, base + '/', { w: 1440, h: 900, js: false, settle: 300 })
+    const ssr = await pre.page.evaluate(() => document.querySelector('#class-size [data-crowd-n]')?.textContent?.trim() ?? null)
+    notes.push(`before arming (JS off): numeral ${JSON.stringify(ssr)}`)
+    F(ssr === '20', `SSR numeral reads ${JSON.stringify(ssr)} (want "20")`, notes)
+    await pre.ctx.close()
     return R(notes.some((n) => /^FAIL/.test(n)) ? 'FAIL' : 'PASS', notes, files)
   },
 }

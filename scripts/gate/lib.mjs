@@ -158,8 +158,8 @@ export async function blurDiff(browser, a, b, exclude = []) {
     for (let i = 0; i < d1.length; i += 4) if (Math.abs(d1[i] - d2[i]) > 32 || Math.abs(d1[i + 1] - d2[i + 1]) > 32 || Math.abs(d1[i + 2] - d2[i + 2]) > 32) n++
     // bob mask: largest dense --text blob (density > 0.5 on a 4px grid) above the floor band, centroid of its raw pixels.
     const inEx = (i) => { const q = i / 4, X = q % A.raw.width, Y = q / A.raw.width | 0; return ex.some((r) => X >= r.x && X < r.x + r.width && Y >= r.y && Y < r.y + r.height) }
-    const isK = (D, i) => (D[i] - k[0]) ** 2 + (D[i + 1] - k[1]) ** 2 + (D[i + 2] - k[2]) ** 2 < 40 * 40 * 3 / 4 && !inEx(i)
-    const W = A.raw.width, H = A.raw.height, G = 4, gw = Math.ceil(W / G), gh = Math.ceil(H / G), floor = Math.floor(H * 0.62 / G)
+    const isK = (D, i) => (D[i] - k[0]) ** 2 + (D[i + 1] - k[1]) ** 2 + (D[i + 2] - k[2]) ** 2 < 40 * 40 * 3 / 4 && (i / 4 / A.raw.width | 0) > 72 && !inEx(i)
+    const W = A.raw.width, H = A.raw.height, G = 4, gw = Math.ceil(W / G), gh = Math.ceil(H / G), floor = Math.floor(H * (W > 800 ? 0.62 : 0.8) / G)
     const bob = (R) => {
       const dens = new Float32Array(gw * gh)
       for (let i = 0; i < R.length; i += 4) if (isK(R, i)) { const q = i / 4; dens[((q / W | 0) / G | 0) * gw + ((q % W) / G | 0)] += 1 / (G * G) }

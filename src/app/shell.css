@@ -7,8 +7,12 @@
 .site-header::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--bg); border-bottom: 1px solid var(--line);
   opacity: 0; transition: opacity var(--t3) var(--ease-out); }
 .site-header[data-scrolled="true"]::before, .site-header[data-open="true"]::before { opacity: 1; }
-@media (min-width: 48rem) and (prefers-reduced-transparency: no-preference) {
+/* translucent by default (browsers without prefers-reduced-transparency would otherwise never get it); the reduce query opts out */
+@media (min-width: 48rem) {
   .site-header::before { background: rgb(5 8 6 / .72); backdrop-filter: blur(var(--nav-blur)) saturate(1.4); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .site-header::before { background: var(--bg); backdrop-filter: none; }
 }
 .nav-bar { height: 64px; margin-inline: auto; width: 100%; max-width: 76rem; padding-inline: var(--margin); display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 16px; }
 @media (min-width: 90rem) { .nav-bar { max-width: calc(76rem + 2 * var(--margin)); } }

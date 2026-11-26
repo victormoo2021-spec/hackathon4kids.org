@@ -20,11 +20,11 @@ const CSS = `
  --px:72cqw;--L:min(82cqh,115cqw);--py:-2cqh;--th:.4rad;--C:clamp(8px,calc(var(--L)/62),11px)}
 @media (max-width:47.99rem){.poster{--px:50cqw;--py:calc(6rem + 3.57*min(18vw,7.6rem));--L:clamp(200px,calc(100cqh - var(--py) - 190px),110cqw)}}
 .poster i{position:absolute;left:var(--px);top:var(--py);width:calc(var(--L)*.016);height:var(--L);margin-left:calc(var(--L)*-.008);
- transform-origin:50% 0;transform:rotate(calc((var(--th) - var(--k)*.07rad)*-1));
- background:var(--d) 0 0/var(--Ck,var(--C)) var(--Ck,var(--C));
+ transform-origin:50% 0;transform:rotate(calc((var(--th) - var(--pk)*.07rad)*-1));
+ background:var(--pd) 0 0/var(--Ck,var(--C)) var(--Ck,var(--C));
  animation:${wipe(LOAD_MS.k)}}
-.poster i .dot{position:absolute;left:50%;bottom:calc(var(--L)*-.1);width:calc(var(--L)*.2);height:calc(var(--L)*.2);margin-left:calc(var(--L)*-.1);transform:rotate(calc(var(--th) - var(--k)*.07rad + var(--ang,0deg)));
- border-radius:50%;background:var(--db) 0 0/var(--Ck,var(--C)) var(--Ck,var(--C))}
+.poster i .dot{position:absolute;left:50%;bottom:calc(var(--L)*-.1);width:calc(var(--L)*.2);height:calc(var(--L)*.2);margin-left:calc(var(--L)*-.1);transform:rotate(calc(var(--th) - var(--pk)*.07rad + var(--ang,0deg)));
+ border-radius:50%;background:var(--pdb) 0 0/var(--Ck,var(--C)) var(--Ck,var(--C))}
 .poster i.b{--C:calc(clamp(8px,calc(var(--L)/62),11px)*1.15);translate:1.5px 1px;--ang:15deg;
  animation:${wipe(LOAD_MS.b)},pr 350ms steps(5) ${LOAD_MS.b[1]}ms both}
 /* floor halftone: tone .5 ramped in from 80% height / 30% width (floorT in hero.frag.ts) */
@@ -45,12 +45,12 @@ export default function Poster() {
       <style>{CSS}</style>
       {ex.map((e, i) => (
         // trail exposures: rod tone .47w (--s; tuned: .30 -> .47 = bob() rod .55 x acc .85, the poster fan read thinner than GL frame 0), disc tone .85*.4w (--sb, .4 = mean shade); dot radius .66*sqrt(tone) as in GL screen()
-        <i key={i} className="b" style={{ '--k': i, '--d': tile(0.66 * Math.sqrt(0.47 * e.w), B), '--db': tile(0.66 * Math.sqrt(0.85 * 0.4 * e.w), B) } as React.CSSProperties}><b className="dot" /></i>
+        <i key={i} className="b" style={{ '--pk': i, '--pd': tile(0.66 * Math.sqrt(0.47 * e.w), B), '--pdb': tile(0.66 * Math.sqrt(0.85 * 0.4 * e.w), B) } as React.CSSProperties}><b className="dot" /></i>
       ))}
       <div className="floor">
         {floor.map((f, i) => <s key={i} style={{ left: f.x0 * 100 + '%', width: (f.x1 - f.x0) * 100 + '%', top: f.y0 * 100 + '%', height: (f.y1 - f.y0) * 100 + '%', backgroundImage: tile(f.r, A) }} />)}
       </div>
-      <i style={{ '--k': 0, '--d': tile(0.63, K), '--db': tile(0.42, K) } as React.CSSProperties}><b className="dot" /></i>
+      <i style={{ '--pk': 0, '--pd': tile(0.63, K), '--pdb': tile(0.42, K) } as React.CSSProperties}><b className="dot" /></i>
     </div>
   )
 }

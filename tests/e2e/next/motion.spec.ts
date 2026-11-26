@@ -49,6 +49,13 @@ test.describe('reduced motion', () => {
 
 test('rAF loop idles when tab reports hidden (no-preference)', async ({ page }) => {
   await page.addInitScript(COUNT_RAF)
+  // GSAP's ScrollTrigger keeps a library-owned rAF loop alive (iOS bug fix); browsers throttle it in a really hidden tab.
+  // This test is about the app's own loops (press clock, sheets), so keep the gsap chunk out.
+  await page.route(/\.js(\?|$)/, async (route) => {
+    const r = await route.fetch()
+    const t = await r.text()
+    return /ScrollTrigger|GreenSock|gsapVersions/.test(t) ? route.abort() : route.fulfill({ response: r, body: t })
+  })
   await page.goto('/')
   await settle(page)
   // Headless Chromium keeps firing rAF, so emulate hidden the way page code observes it.
