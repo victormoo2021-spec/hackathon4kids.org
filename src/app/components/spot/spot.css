@@ -23,13 +23,18 @@ body { background: var(--stock); color: var(--k); font-family: var(--sans); }
 /* ---- motion verbs ---- */
 @keyframes wipe { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
 @keyframes stampin { from { clip-path: inset(100% 0 0 0); transform: translateY(-6px); } to { clip-path: inset(0); transform: none; } }
+/* Scroll reveals ([data-ink]) use the -m twins: outline-color (outline-style is none, invisible) keeps the clip-path animation on the
+   main thread. Chrome's composited clip-path mask costs ~2 dropped frames per reveal while scrolling (gate item 19). Load-time hero
+   animations keep the composited versions (a main-thread animation starts late behind hydration and delays LCP). Do not merge. */
+@keyframes wipe-m { from { clip-path: inset(0 0 100% 0); outline-color: #000; } to { clip-path: inset(0); outline-color: #001; } }
+@keyframes stampin-m { from { clip-path: inset(100% 0 0 0); outline-color: #000; transform: translateY(-6px); } to { clip-path: inset(0); outline-color: #001; transform: none; } }
 @keyframes rule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes reg { from { transform: translate(.07em, .045em); } to { transform: translate(1.5px, calc(1px + var(--slip, 0px))); } }
 @keyframes appear { from { visibility: hidden; } to { visibility: visible; } }
 @keyframes thunk { from { box-shadow: 12px 12px 0 0 var(--blue); } to { box-shadow: 6px 6px 0 0 var(--blue); } }
-[data-ink="wipe"].in { animation: wipe 280ms steps(4) calc(var(--d, 0ms) + 140ms) backwards; }
-[data-ink="develop"].in { animation: wipe 280ms steps(4) var(--d, 0ms) backwards; }
-[data-ink="stamp"].in { animation: stampin 140ms steps(2) var(--d, 0ms) backwards; }
+[data-ink="wipe"].in { animation: wipe-m 280ms steps(4) calc(var(--d, 0ms) + 140ms) backwards; }
+[data-ink="develop"].in { animation: wipe-m 280ms steps(4) var(--d, 0ms) backwards; }
+[data-ink="stamp"].in { animation: stampin-m 140ms steps(2) var(--d, 0ms) backwards; }
 [data-ink="rule"] { position: relative; }
 .band { overflow-x: clip; }
 

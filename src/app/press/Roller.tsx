@@ -3,7 +3,7 @@
 // At 20% visible: 6 ticks, roller line advances H/6, then the band bg becomes the ink, the canvas is removed and 'rolled' bubbles.
 import { useEffect, useRef, useState } from 'react'
 import { onTick, reduced } from './clock'
-import { mountSheet, press } from './gl/press'
+import type { mountSheet as MountSheet } from './gl/press'
 import { initSlip } from './slip'
 
 const INK = { blue: { css: 'var(--blue)', rgb: [0x1f / 255, 0x3f / 255, 0xcf / 255] }, yellow: { css: 'var(--y)', rgb: [1, 0xd6 / 255, 0x0a / 255] } }
@@ -26,13 +26,15 @@ export function Roller({ ink }: { ink: 'blue' | 'yellow' }) {
     if (reduced() || done) return finish()
     const offSlip = initSlip()
     const dpr = Math.min(devicePixelRatio || 1, 1.5)
-    let w = 0, h = 0, line = 0, offY = 10, sheet: ReturnType<typeof mountSheet> | null = null
+    let w = 0, h = 0, line = 0, offY = 10, sheet: ReturnType<typeof MountSheet> | null = null
     const draw = () => {
       sheet?.set({ uRes: [w, h], uLine: line, uInk: rgb, uOff: [1.5 * dpr, (1 + offY) * dpr], uDpr: dpr })
       sheet?.dirty()
     }
-    let offTick: (() => void) | undefined
-    const run = () => {
+    let offTick: (() => void) | undefined, dead = false
+    const run = async () => {
+      const { mountSheet, press } = await import('./gl/press')
+      if (dead) return
       const r = band.getBoundingClientRect()
       w = Math.round(r.width * dpr); h = Math.round(r.height * dpr)
       cv.width = w; cv.height = h
@@ -51,7 +53,7 @@ export function Roller({ ink }: { ink: 'blue' | 'yellow' }) {
     const io = new IntersectionObserver((es) => es[0].isIntersecting && (io.disconnect(), run()), { threshold: 0.2 })
     io.observe(band)
     return () => {
-      io.disconnect(); offTick?.(); sheet?.destroy(); offSlip()
+      dead = true; io.disconnect(); offTick?.(); sheet?.destroy(); offSlip()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ink])

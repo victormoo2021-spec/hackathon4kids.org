@@ -1,7 +1,8 @@
 // Web slip (4.3): scroll velocity -> blue plate tear. Quantised to the 15Hz tick, decays x0.6, snaps to 0 inside 3 ticks.
-// Consumers: GL sheets read press.slip.y; DOM headings/buttons get --slip on the element ([data-plate], .btn-primary).
+// Consumers: GL sheets read slipState.y; DOM headings/buttons get --slip on the element ([data-plate], .btn-primary).
 import { onTick, reduced } from './clock'
-import { press } from './gl/press'
+// Shared with the GL press (press.slip is this object). Lives here so slip.ts never imports the GL module.
+export const slipState = { x: 0, y: 0 }
 
 const MAX = 10
 const DECAY = 0.6
@@ -15,7 +16,7 @@ let lastSet = ''
 const clamp = (v: number) => Math.max(-MAX, Math.min(MAX, v))
 
 function paint() {
-  const v = `${press.slip.y.toFixed(1)}px`
+  const v = `${slipState.y.toFixed(1)}px`
   if (v === lastSet) return
   lastSet = v
   document.querySelectorAll<HTMLElement>('[data-plate], .btn-primary').forEach((el) => el.style.setProperty('--slip', v))
@@ -29,7 +30,7 @@ function step(_t: number, ms: number) {
   const target = clamp((dy / dt) * 12)
   y = Math.abs(target) > Math.abs(y) ? target : y * DECAY
   if (Math.abs(y) < SNAP && Math.abs(target) < SNAP) y = 0
-  press.slip.y = y
+  slipState.y = y
   paint()
   if (y === 0 && dy === 0) sleep()
 }
@@ -55,7 +56,7 @@ export function initSlip(): () => void {
     removeEventListener('scroll', wake)
     sleep()
     y = 0
-    press.slip.y = 0
+    slipState.y = 0
     paint()
   }
 }
@@ -64,7 +65,7 @@ export function initSlip(): () => void {
 export function jolt(px: number) {
   if (reduced()) return
   y = clamp(y + px)
-  press.slip.y = y
+  slipState.y = y
   paint()
   wake()
 }

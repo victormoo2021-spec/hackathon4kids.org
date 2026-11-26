@@ -3,9 +3,8 @@ import EmailCta from '../EmailCta'
 import { categories, type Course } from '../../content/courses'
 import HeroSheet from './HeroSheet'
 import Proof from './Proof'
-import Crowd from './Crowd'
+import { Crowd, Stamp } from './Lazy'
 import { Roller } from '../../press/Roller'
-import { Stamp } from './Stamp'
 
 const H1 = ['Free', 'coding', 'classes']
 

@@ -1,6 +1,6 @@
 import Faq from './components/Faq'
 import { Hero, Courses, Class, FinalCta } from './components/spot/Sections'
-import { Impression } from './components/spot/Impression'
+import { Impression } from './components/spot/Lazy'
 
 export default function Home() {
   return (

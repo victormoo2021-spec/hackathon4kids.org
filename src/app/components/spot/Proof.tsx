@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useEffect, useRef, type ReactNode } from 'react'
-import { mountSheet } from '../../press/gl/press'
+import type { mountSheet as MountSheet } from '../../press/gl/press'
 import type { Sheet } from '../../press/types'
 import type { Course } from '../../content/courses'
 import { fields, pack, rest, slug } from './fields'
@@ -30,6 +30,11 @@ export default function Proof({ name, col = 0, paper = '#111114', ink = '#F2EDE1
   const link = useRef<HTMLAnchorElement>(null)
   const cv = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
+    let dead = false, undo = () => {}
+    // press (GL) is a separate chunk (HeroSheet pulls it in too), so it stays out of the home first-load JS
+    import('../../press/gl/press').then((m) => { if (!dead) undo = setup(m.mountSheet) })
+    return () => { dead = true; undo() }
+    function setup(mountSheet: typeof MountSheet) {
     const el = link.current!, c = cv.current!, f = fields[name], r0 = rest[name]
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
     const fine = matchMedia('(hover: hover) and (pointer: fine)').matches
@@ -103,6 +108,7 @@ export default function Proof({ name, col = 0, paper = '#111114', ink = '#F2EDE1
       if (enter) hovered--
       reg.delete(entry); active.delete(me); io.disconnect(); ro.disconnect(); timers.forEach(clearTimeout); sheet.destroy()
       if (!reg.size) { clearInterval(checkTimer); checkTimer = 0 }
+    }
     }
   }, [name, col, paper, ink, ghost, yellow])
   return (

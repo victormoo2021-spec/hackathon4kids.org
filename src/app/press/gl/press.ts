@@ -1,7 +1,7 @@
 // The press (direction 4.0): ONE detached WebGL2 canvas. Every sheet is an in-flow 2D canvas; a draw is
 // viewport -> fullscreen triangle -> drawImage blit. 15Hz render-on-dirty, zero rAF when nothing animated is visible.
 import { onTick as clockTick, reduced } from '../clock'
-import { jolt as slipJolt } from '../slip'
+import { jolt as slipJolt, slipState } from '../slip'
 import type { MountOpts, PressState, Program, Sheet } from '../types'
 import { accFrag, heroFrag } from './hero.frag'
 import { RISO } from './riso.glsl'
@@ -11,7 +11,7 @@ export type { Program, Sheet } from '../types'
 export const press: PressState = {
   ok: false,
   reduced: reduced(),
-  slip: { x: 0, y: 0 },
+  slip: slipState,
   jolt: (px) => slipJolt(px),
   onTick: clockTick,
 }
