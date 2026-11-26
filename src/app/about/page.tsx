@@ -27,6 +27,11 @@ export default function About() {
               Since then the team has grown, and so have our outreach and our offerings. It is built and run by students.
             </p>
           </div>
+          <ul aria-label="At a glance" className="pg-slabs t-slab pg-col-4" style={{ marginTop: 0, alignContent: 'flex-start' }}>
+            <li data-ink="stamp" data-i="2" className="s-blue">Grades 3-8</li>
+            <li data-ink="stamp" data-i="3" className="s-y">Free</li>
+            <li data-ink="stamp" data-i="4" className="s-k">Taught by students</li>
+          </ul>
         </div>
       </section>
 
