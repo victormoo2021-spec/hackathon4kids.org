@@ -1,43 +1,43 @@
 {
   "firstLoadJsKbGzip": {
-    "/": 166.3,
+    "/": 169.7,
     "/programs": 163.4,
     "/about": 164.1
   },
   "lighthouse": {
     "mobile /": {
       "score": 100,
-      "lcp": 925,
-      "tbt": 56,
+      "lcp": 926,
+      "tbt": 71,
       "cls": 0
     },
     "mobile /programs": {
       "score": 100,
-      "lcp": 907,
-      "tbt": 15,
+      "lcp": 1287,
+      "tbt": 82,
       "cls": 0
     },
     "mobile /about": {
       "score": 100,
-      "lcp": 1057,
-      "tbt": 4,
+      "lcp": 1082,
+      "tbt": 38,
       "cls": 0
     },
     "desktop /": {
-      "score": 84,
-      "lcp": 249,
-      "tbt": 355,
+      "score": 75,
+      "lcp": 271,
+      "tbt": 657,
       "cls": 0
     },
     "desktop /programs": {
       "score": 100,
-      "lcp": 247,
+      "lcp": 263,
       "tbt": 0,
       "cls": 0
     },
     "desktop /about": {
       "score": 100,
-      "lcp": 289,
+      "lcp": 301,
       "tbt": 0,
       "cls": 0
     }
@@ -45,42 +45,42 @@
   "fps": {
     "desktop1440x900": {
       "idleHero3s": {
-        "frames": 180,
+        "frames": 98,
         "p50": 16.7,
-        "p95": 16.7,
-        "max": 33.4
+        "p95": 83.3,
+        "max": 433.3
       },
       "scrollHero": {
-        "frames": 361,
-        "p50": 16.7,
-        "p95": 16.7,
-        "max": 16.8
+        "frames": 19,
+        "p50": 116.6,
+        "p95": 1833.3,
+        "max": 1833.3
       },
       "scrollFull": {
-        "frames": 512,
-        "p50": 16.7,
-        "p95": 33.4,
-        "max": 133.4
+        "frames": 25,
+        "p50": 416.6,
+        "p95": 716.6,
+        "max": 1066.6
       }
     },
     "mobile390x844_cpu4x": {
       "idleHero3s": {
-        "frames": 181,
+        "frames": 97,
         "p50": 16.7,
-        "p95": 16.7,
-        "max": 16.8
+        "p95": 99.9,
+        "max": 166.7
       },
       "scrollHero": {
-        "frames": 361,
-        "p50": 16.7,
-        "p95": 16.7,
-        "max": 16.8
+        "frames": 48,
+        "p50": 116.7,
+        "p95": 266.7,
+        "max": 333.3
       },
       "scrollFull": {
-        "frames": 601,
-        "p50": 16.7,
-        "p95": 16.7,
-        "max": 16.8
+        "frames": 79,
+        "p50": 116.6,
+        "p95": 266.7,
+        "max": 333.3
       }
     }
   }

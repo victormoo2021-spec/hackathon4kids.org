@@ -46,7 +46,10 @@ for (const form of ['mobile', 'desktop']) {
     const a = ['--yes', 'lighthouse', BASE + r, '--output=json', `--output-path=${f}`, '--quiet',
       '--only-categories=performance', '--chrome-flags=--headless=new --no-sandbox']
     if (form === 'desktop') a.push('--preset=desktop')
-    sh('npx', a, { env: { ...process.env, CHROME_PATH: chrome } })
+    for (let t = 0; t < 2; t++) { // lighthouse occasionally fails a run; retry once
+      sh('npx', a, { env: { ...process.env, CHROME_PATH: chrome } })
+      try { if (JSON.parse(readFileSync(f, 'utf8')).categories.performance.score != null) break } catch {}
+    }
     try {
       const j = JSON.parse(readFileSync(f, 'utf8'))
       const au = j.audits
@@ -54,7 +57,7 @@ for (const form of ['mobile', 'desktop']) {
         score: Math.round(j.categories.performance.score * 100),
         lcp: Math.round(au['largest-contentful-paint'].numericValue),
         tbt: Math.round(au['total-blocking-time'].numericValue),
-        cls: +au['cumulative-layout-shift'].numericValue.toFixed(3),
+        cls: +(au['cumulative-layout-shift'].numericValue ?? 0).toFixed(3),
       }
     } catch (e) { lh[`${form} ${r}`] = { error: String(e.message).slice(0, 80) } }
   }
