@@ -48,6 +48,7 @@
 .pg-final .t-body, .pg-final .pg-link { color: var(--bg); }
 .pg-final :focus-visible { outline-color: var(--bg); }
 .pg-final .btn { background: var(--bg); color: var(--text); }
+.pg-final .btn:focus-visible { outline-color: var(--accent); }
 @media (hover: hover) and (pointer: fine) { .pg-final .btn:hover { background: var(--s2); } }
 
 /* text links: underline draws from the left, leaves to the right */

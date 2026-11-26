@@ -31,7 +31,7 @@ export default function HeroSheet() {
     measure()
     sim.th = frame0(g.amp).th0
 
-    let dead = false, cleanup = () => {}
+    let dead = false, noGl = false, cleanup = () => {}
     let t0 = performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? performance.now() - 600, started = false
     const go = async () => {
       if (started) return
@@ -154,7 +154,7 @@ export default function HeroSheet() {
 
       const fit = () => { const d = dpr(); const w = Math.round(W * d), hh = Math.round(H * d); if (canvas.width !== w) canvas.width = w; if (canvas.height !== hh) canvas.height = hh }
       fit()
-      const s = mountSheet(canvas, 'hero', { dprCap: innerWidth < 768 ? 1.25 : 1.5, fallback: () => {}, frame })
+      const s = mountSheet(canvas, 'hero', { dprCap: innerWidth < 768 ? 1.25 : 1.5, fallback: () => { noGl = true; el.removeAttribute('data-gl') }, frame })
       const draw0 = () => {
         const d = dpr(), f = frame0(g.amp)
         void d
@@ -165,7 +165,7 @@ export default function HeroSheet() {
         s.dirty()
       }
       loadOff = reduce || bootT > 980 ? 0 : 26
-      if (reduce) { draw0(); setTimeout(() => el.setAttribute('data-gl', ''), 200) } else {
+      if (reduce) { draw0(); setTimeout(() => { if (!noGl) el.setAttribute('data-gl', '') }, 200) } else {
         const f = frame0(g.amp); void f
         s.set({ uSeed: f.exposures.map((e) => e.th) })
         push([plate(bootT, LOAD_MS.y), plate(bootT, LOAD_MS.b), plate(bootT, LOAD_MS.k)], 1, 0)

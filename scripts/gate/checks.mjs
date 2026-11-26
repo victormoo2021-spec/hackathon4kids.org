@@ -278,7 +278,15 @@ export const checks = {
   // 11: load sequence, stepped in lockstep (CSS animations + press clock), 70ms ticks.
   async 11({ browser, base, dir }) {
     const notes = [], files = [], rows = []
-    const { ctx, page } = await openFrozenHome(browser, base + '/?gate')
+    // The stepped sequence is the CSS Poster (frame-0 clock, steppable). The GL accumulator has its own un-rewindable state, so on a
+    // GPU run it gets a live boot assertion instead (frame 0 GL-vs-Poster is item 6).
+    const live = await openPage(browser, base + '/', { w: 1440, h: 900, settle: 1500 })
+    const boot = await live.page.evaluate(() => { const e = document.querySelector('.hs'); return e ? { gl: e.hasAttribute('data-gl'), boot: +(e.getAttribute('data-gl-boot') ?? NaN) } : null })
+    notes.push(`live hero: ${JSON.stringify(boot)}`)
+    if (boot?.gl) F(boot.boot <= 980, `GL boot ${boot.boot}ms > 980ms: the GL load sequence would start mid-way`, notes)
+    await live.ctx.close()
+    const nogl = await launch(NOGL_ARGS)
+    const { ctx, page } = await openFrozenHome(nogl, base + '/?gate')
     const { clip, exclude } = await heroGeom(page)
     notes.push(`hero clip ${JSON.stringify(clip)} (nav excluded); __pressClock ${await page.evaluate(() => !!window.__pressClock)}`)
     let h1ok = null
@@ -301,7 +309,7 @@ export const checks = {
     F(h1ok === 'ok', `H1 line 1 not fully visible by 910ms: ${h1ok}`, notes)
     notes.push('page animations seen: ' + (await page.evaluate(() => document.getAnimations().length)))
     notes.push('GL boot: ' + await page.evaluate(() => { const e = document.querySelector('.hs'); return e ? `data-gl-t0=${e.getAttribute('data-gl-t0')} data-gl-boot=${e.getAttribute('data-gl-boot')}` : 'no .hs' }))
-    await ctx.close()
+    await ctx.close(); await nogl.close()
     return R(notes.some((n) => /^FAIL/.test(n)) ? 'FAIL' : 'PASS', notes, files)
   },
 

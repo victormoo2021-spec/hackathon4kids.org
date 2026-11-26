@@ -50,6 +50,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); }
 }
 .btn:active { scale: .97; }
 .band.accent .btn { background: var(--bg); color: var(--text); }
+.band.accent .btn:focus-visible { outline-color: var(--accent); } /* dark button on the accent band: ring inside the fill must be light */
 @media (hover: hover) and (pointer: fine) { .band.accent .btn:hover { background: var(--s2); } }
 
 /* ---- hero: ground is the canvas; no flood ---- */
