@@ -3,7 +3,19 @@ import { expect, test, type Page } from '@playwright/test'
 import { ROUTES } from '../routes'
 import { scrollToBottom, scrollToTop, settle } from '../helpers'
 
+/** Axe computes contrast from the live frame: force every entrance to its final state first (pre-reveal items are mid-wipe/faded). */
+async function reveal(page: Page) {
+  await page.evaluate(() => {
+    document.querySelectorAll('.pre').forEach((e) => { e.classList.remove('pre'); e.classList.add('in') })
+    document.querySelectorAll('[data-ink]').forEach((e) => e.classList.add('in'))
+    document.getAnimations().forEach((a) => { try { a.finish() } catch {} })
+  })
+  await page.addStyleTag({ content: '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition:none!important}' })
+  await page.waitForTimeout(150)
+}
+
 async function serious(page: Page) {
+  await reveal(page)
   const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
   return violations
     .filter((v) => v.impact === 'serious' || v.impact === 'critical')
