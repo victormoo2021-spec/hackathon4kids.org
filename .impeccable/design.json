@@ -1,49 +1,33 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-16T07:28:16.669221+00:00",
-  "title": "Design System: Hackathon4Kids",
+  "generatedAt": "2026-11-26T00:00:00+00:00",
+  "title": "Design System: Hackathon4Kids (Phosphor)",
   "extensions": {
     "colorMeta": {
-      "yellow": {
+      "accent": {
         "role": "primary",
         "displayName": "Signal Yellow",
-        "canonical": "#ffd60a",
-        "tonalRamp": [
-          "#ffe14d",
-          "#ffd60a"
-        ]
+        "canonical": "#ffd60a"
       },
-      "purple": {
+      "glow": {
         "role": "secondary",
-        "displayName": "Prism Purple",
-        "canonical": "#7c5cff"
+        "displayName": "Logo Ultramarine",
+        "canonical": "#2a3cff"
       },
-      "purple-soft": {
-        "role": "secondary",
-        "displayName": "Soft Lavender",
-        "canonical": "#a78bff"
-      },
-      "page": {
+      "bg": {
         "role": "neutral",
-        "displayName": "Night",
-        "canonical": "#0a0710",
-        "tonalRamp": [
-          "#0a0710",
-          "#0d0916",
-          "#15101f",
-          "#2a1d47"
-        ]
+        "displayName": "Blue-black",
+        "canonical": "#05070c"
+      },
+      "s2": {
+        "role": "neutral",
+        "displayName": "Tile surface",
+        "canonical": "#111626"
       },
       "text": {
         "role": "neutral",
-        "displayName": "Moon White",
-        "canonical": "#f6f4fb",
-        "tonalRamp": [
-          "#f6f4fb",
-          "#e4dff0",
-          "#cfc9de",
-          "#b9b2cc"
-        ]
+        "displayName": "Beam white",
+        "canonical": "#f3f5fa"
       }
     },
     "typographyMeta": {
@@ -80,122 +64,63 @@
         "purpose": "Editor window inside the laptop only."
       }
     },
-    "shadows": [
-      {
-        "name": "card",
-        "value": "0 1px 0 rgb(255 255 255 / 0.10) inset, 0 30px 80px -30px rgb(0 0 0 / 0.8)",
-        "purpose": "Every card: top-edge highlight plus deep neutral drop."
-      },
-      {
-        "name": "yellow-edge",
-        "value": "0 1px 0 rgb(255 255 255 / 0.5) inset",
-        "purpose": "Primary button at rest."
-      },
-      {
-        "name": "heading-halo",
-        "value": "text-shadow: 0 0 28px rgb(10 7 16 / 0.9)",
-        "purpose": "Spectral h2 and hero sub-line legibility over light."
-      },
-      {
-        "name": "focus-ring",
-        "value": "outline: 2px solid #ffd60a; outline-offset: 3px; border-radius: 8px",
-        "purpose": "All :focus-visible."
-      },
-      {
-        "name": "header-glass",
-        "value": "background: rgb(10 7 16 / .88-.92); backdrop-filter: saturate(180%) blur(20px-28px)",
-        "purpose": "Sticky header."
-      }
-    ],
+    "shadows": [],
     "motion": [
       {
-        "name": "ease-out",
-        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "All movement."
+        "name": "t1",
+        "value": "100ms press"
       },
       {
-        "name": "ease-apple",
-        "value": "cubic-bezier(0.25, 0.1, 0.25, 1)",
-        "purpose": "Colour and opacity."
+        "name": "t2",
+        "value": "160ms colour"
       },
       {
-        "name": "m",
-        "value": "1 | 0 under prefers-reduced-motion",
-        "purpose": "Multiplier on every CSS motion distance; calm mode = opacity only."
+        "name": "t3",
+        "value": "240ms small move"
       },
       {
-        "name": "hero-word",
-        "value": "800ms ease-out, 80ms + 50ms * i",
-        "purpose": "Hero h1 word rise (pure CSS)."
+        "name": "t4",
+        "value": "480ms entrance"
       },
       {
-        "name": "reveal-rise",
-        "value": "16px, 700ms",
-        "purpose": "Section reveal default; calm: 500ms fade."
+        "name": "t5",
+        "value": "720ms hero line"
       },
       {
-        "name": "reveal-rule",
-        "value": "900ms",
-        "purpose": "Hairline dividers scale in via --rule."
+        "name": "tick",
+        "value": "70ms canvas strobe, 15Hz"
       },
       {
-        "name": "mask-lines",
-        "value": "900ms expo.out, 120ms stagger, once",
-        "purpose": "Display statements slide out of a mask."
+        "name": "spring",
+        "value": "critically damped linear()"
       },
       {
-        "name": "prism-handoff",
-        "value": "150ms linear",
-        "purpose": "Slit-glass heading DOM glyph fade."
-      },
-      {
-        "name": "fx-loop",
-        "value": "display rate while changing, 30fps steady, 0 idle",
-        "purpose": "Prism render budget."
+        "name": "bounce",
+        "value": "stamp and instructor dot only"
       }
     ],
     "breakpoints": [
       {
-        "name": "md",
-        "value": "48rem"
+        "name": "tablet",
+        "min": "48rem"
       },
       {
-        "name": "hero-split",
-        "value": "900px"
+        "name": "desktop",
+        "min": "64rem"
       },
       {
-        "name": "hero-wide",
-        "value": "1100px"
+        "name": "wide",
+        "min": "90rem"
       },
       {
-        "name": "lg",
-        "value": "64rem"
-      },
-      {
-        "name": "phone",
-        "value": "639px"
+        "name": "ultra",
+        "min": "120rem"
       }
     ],
     "effects": {
-      "zOrder": [
-        "prism canvas z -2 (fixed, WebGL2/three)",
-        "fluid canvas z -1 (fixed, WebGL2, first interaction)",
-        "content"
-      ],
-      "sketch": {
-        "# paint with light": "none",
-        "glow = \"purple\"": "hue/brightness pulse 450ms, intensity 1",
-        "streaks = 5": "ring to 5 bars, ~400ms spring each",
-        "speed = 2": "spin kick 600ms",
-        "sparkle = True": "glints + bloom pop",
-        "follow_mouse = True": "bars and 3D laptop tilt toward pointer"
-      },
-      "fallbacks": "software GL or no WebGL2: CSS radial purple glow, no fluid, CSS laptop; CTA revealed by scroll trigger",
-      "budgets": {
-        "lighthouseMobile": 98,
-        "lighthouseDesktop": 100,
-        "frameP95ms": "16.7-16.8 (M3)"
-      }
+      "backdrop": "one node: .site-header::before, blur 20px",
+      "shaders": "WebGL2 screen blend over bg; Poster and 2D fallbacks",
+      "gsap": "lazy deferred chunk, never under reduced motion"
     }
   },
   "components": [
@@ -241,68 +166,37 @@
     }
   ],
   "narrative": {
-    "northStar": "Painting with Light at Night",
-    "overview": "A deep-night page where six typed lines of code visibly paint the light behind it. Dark surfaces, hairlines, one yellow, very few words; depth is light behind glass.",
+    "northStar": "Light on Black, Lagging",
+    "overview": "A physics lab with the lights off. Yellow is the one live accent, logo ultramarine is the afterglow that trails it, white is the beam. Flat DOM, rich canvases, lazy GSAP scroll scenes.",
     "keyCharacteristics": [
-      "All dark",
-      "Yellow is the eye path",
-      "Purple is light, not ink",
-      "Effects are decoration with honest fallbacks",
-      "Minimal factual copy"
+      "Blue-black navy-tinted neutrals",
+      "One yellow accent per viewport",
+      "Blue afterglow lags the yellow trace",
+      "Archivo wide-900 uppercase display plus Plex Mono readouts",
+      "WebGL press with static Poster fallback",
+      "Lazy GSAP scenes that scrub both ways"
     ],
     "rules": [
-      {
-        "name": "The Eye Path Rule",
-        "body": "Yellow marks only the one action, one heading phrase, program values and the guiding streak.",
-        "section": "colors"
-      },
-      {
-        "name": "The Light Is Not Ink Rule",
-        "body": "Body text never in purple (4.3:1); use purple-soft.",
-        "section": "colors"
-      },
-      {
-        "name": "The Two Words Rule",
-        "body": "At most one yellow phrase per heading.",
-        "section": "typography"
-      },
-      {
-        "name": "The Balanced Heading Rule",
-        "body": "Headings balance-wrap with negative tracking.",
-        "section": "typography"
-      },
-      {
-        "name": "The Behind-Glass Rule",
-        "body": "Light lives at negative z, never over content; card depth is neutral.",
-        "section": "elevation"
-      },
-      {
-        "name": "The Zero-Cost-When-Idle Rule",
-        "body": "Load after idle, one GPU probe, 30fps steady, stop when still.",
-        "section": "elevation"
-      },
-      {
-        "name": "The Honest Fallback Rule",
-        "body": "No GPU: static CSS glow, CSS laptop, CTA by scroll trigger.",
-        "section": "elevation"
-      }
+      "Yellow acts, blue trails, white is the beam",
+      "Only bg text on yellow; only text on blue",
+      "Blue is never text on dark",
+      "No shadows, gradients, filters in the DOM; one backdrop-filter node",
+      "GSAP only in the deferred kit chunk",
+      "SSR state is the rest state; every canvas has a fallback",
+      "First-load JS at most 115KB gz; Lighthouse mobile 100"
     ],
     "dos": [
-      "Do keep one yellow action per view",
-      "Do keep text pairs at 7:1 or better",
-      "Do mark large headings data-spectral",
-      "Do multiply motion distances by --m",
-      "Do keep the 2px yellow focus ring and 2.75rem targets",
-      "Do ship no-GPU and no-JS states within budget",
-      "Do keep copy factual: no invented stats; instructors first name + grade/role; roster and contest owned by the owner"
+      "Keep light in canvases",
+      "Ship static fallbacks",
+      "Use the spring for anything that moves",
+      "Run scripts/gate before handoff"
     ],
     "donts": [
-      "Don't put effects above content or bars across copy",
-      "Don't set body text in purple",
-      "Don't glow cards",
-      "Don't reword EmailCta or add a second primary action",
-      "Don't add smooth-scroll or scrubbed headline masks",
-      "Don't add a light theme"
+      "Add green or purple",
+      "Put yellow text on blue",
+      "Blur or glow in CSS",
+      "Pin scenes",
+      "Add mascots, emoji, hype copy"
     ]
   }
 }

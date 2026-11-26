@@ -1,257 +1,143 @@
 ---
 name: Hackathon4Kids
-description: Free coding classes for grades 3-8, taught by high-school students. Deep night, painted with light.
+description: Free STEM and coding classes for grades 3-8, taught by high-school students. Phosphor: light on blue-black, yellow signal, logo-blue afterglow.
 colors:
-  yellow: "#ffd60a"
-  purple: "#7c5cff"
-  purple-soft: "#a78bff"
-  page: "#0a0710"
-  card: "#15101f"
-  raised: "#2a1d47"
-  editor: "#0d0916"
-  text: "#f6f4fb"
-  text-body: "#e4dff0"
-  text-lede: "#cfc9de"
-  text-dim: "#b9b2cc"
-  line: "rgb(255 255 255 / 0.12)"
-  line-strong: "rgb(255 255 255 / 0.24)"
+  bg: "#05070C"
+  s1: "#0A0E19"
+  s2: "#111626"
+  s3: "#192035"
+  line: "#222B45"
+  line-2: "#505D82"
+  text: "#F3F5FA"
+  text-2: "#AAB2C5"
+  text-3: "#8089A0"
+  accent: "#FFD60A"
+  accent-hi: "#FFE55C"
+  glow: "#2A3CFF"
 typography:
-  hero:
-    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Display, Segoe UI, system-ui, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(3rem, 7.2vw, 6.5rem)"
-    fontWeight: 700
-    lineHeight: 0.98
-    letterSpacing: "-0.04em"
-  display:
-    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Display, Segoe UI, system-ui, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(2.25rem, 6.2vw, 6.25rem)"
-    fontWeight: 700
-    lineHeight: 0.98
-    letterSpacing: "-0.04em"
-  headline:
-    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Display, Segoe UI, system-ui, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(2.5rem, 6vw, 5.5rem)"
-    fontWeight: 680
-    lineHeight: 1.02
-    letterSpacing: "-0.035em"
-  title:
-    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Display, Segoe UI, system-ui, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(1.5rem, 2.4vw, 2.25rem)"
-    fontWeight: 650
-    lineHeight: 1.15
-    letterSpacing: "-0.022em"
-  lede:
-    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Text, Segoe UI, system-ui, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(1.1875rem, 1.5vw, 1.375rem)"
-    fontWeight: 450
-    lineHeight: 1.45
-  body:
-    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Text, Segoe UI, system-ui, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "1.125rem"
-    fontWeight: 400
-    lineHeight: 1.55
-  label:
-    fontFamily: "-apple-system, BlinkMacSystemFont, SF Pro Text, Segoe UI, system-ui, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 500
-    lineHeight: 1.5
-  code:
-    fontFamily: "ui-monospace, SF Mono, SFMono-Regular, Menlo, Consolas, monospace"
-    fontSize: "3.1cqw"
-    lineHeight: 1.55
-rounded:
-  focus: "8px"
-  card: "1.5rem"
-  pill: "999px"
-spacing:
-  gutter-mobile: "1.25rem"
-  gutter: "2rem"
-  container: "76rem"
-  section: "clamp(5rem, 9vw, 8rem)"
-  page-section: "3.5rem"
-  page-section-lg: "5.5rem"
-  tap-min: "2.75rem"
-components:
-  button-primary:
-    backgroundColor: "{colors.yellow}"
-    textColor: "{colors.page}"
-    rounded: "{rounded.pill}"
-    padding: "0.75rem 1.4rem"
-    height: "2.75rem"
-  button-primary-lg:
-    backgroundColor: "{colors.yellow}"
-    textColor: "{colors.page}"
-    rounded: "{rounded.pill}"
-    padding: "0.9rem 1.75rem"
-    height: "3.25rem"
-  button-primary-hover:
-    backgroundColor: "#ffe14d"
-    textColor: "{colors.page}"
-  button-secondary:
-    backgroundColor: "transparent"
-    textColor: "{colors.text}"
-    rounded: "{rounded.pill}"
-    padding: "0.75rem 1.4rem"
-  nav-cta:
-    textColor: "{colors.yellow}"
-    rounded: "{rounded.pill}"
-    padding: "0 0.875rem"
-    height: "2.125rem"
-  card:
-    backgroundColor: "{colors.card}"
-    rounded: "{rounded.card}"
-    padding: "1.75rem"
-  link:
-    textColor: "{colors.yellow}"
-  chip:
-    textColor: "{colors.text-body}"
-    rounded: "{rounded.pill}"
-    padding: "0.25rem 0.75rem"
+  h1: { fontFamily: "Archivo", fontSize: "clamp(4rem, 2.1rem + 8.4vw, 10.5rem)", fontWeight: 900, lineHeight: 0.84, letterSpacing: "-0.035em" }
+  h2: { fontFamily: "Archivo", fontSize: "clamp(2.5rem, 1.25rem + 5.6vw, 6.5rem)", fontWeight: 900, lineHeight: 0.88, letterSpacing: "-0.03em" }
+  fact: { fontFamily: "Archivo", fontSize: "clamp(4.5rem, 2rem + 11vw, 12rem)", fontWeight: 900, lineHeight: 0.82 }
+  stmt: { fontFamily: "Archivo", fontSize: "clamp(2rem, 1.1rem + 4.2vw, 5rem)", fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.025em" }
+  body: { fontFamily: "Archivo", fontSize: "clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem)", fontWeight: 450, lineHeight: 1.5 }
+  mono: { fontFamily: "IBM Plex Mono", fontSize: "0.75rem", fontWeight: 500, lineHeight: 1.3, letterSpacing: "0.02em" }
+rounded: { chip: 8px, tile: 20px, pill: 999px }
+spacing: { gutter: "16/20/24px", margin: "20/32/48/112/160px", pad-y: "clamp(64px, 9vw, 128px)" }
 ---
 
-# Design System: Hackathon4Kids
+# Design System: Hackathon4Kids ("Phosphor")
 
-## Overview
+Recorded from the shipped build (origin/phosphor bc3a7ac). Where this differs from the planning notes, the code wins. Sources of truth: `src/app/press/tokens.css`, `src/app/press/ink.ts`, `src/app/press/gl/*`, `src/app/motion/*`, `src/app/components/spot/*`, `scripts/gate/*`.
 
-**Creative North Star: "Painting with Light at Night"**
+## 1. Overview
 
-A deep-night page where a kid's six lines of code visibly paint the light behind it. The hero laptop types `paint.py`; each line that lands changes a glass prism ring and a light field that live behind every page. Everything else stays quiet: dark surfaces, hairlines, a single yellow, very few words.
+Product: free STEM and coding classes for Bay Area kids in grades 3-8, taught by high-school students; parents join a mailing list for class dates. Mode: persuade, one main action ("get class dates by email").
 
-Density is low and copy is minimal: one claim per section, set huge (hero, Courses, "One instructor. Up to 20 kids.", "Run by high-school students since 2018.", Formats, FAQ, "Get the next class dates."). Depth comes from light behind glass, not from boxes stacked on boxes.
+World: a physics lab with the lights off. A strobe photograph of a pendulum, a trace on a tube, the afterglow that lags the bright point. Light is added to black; nothing is printed on paper.
 
-**Key Characteristics:**
-- All dark (`color-scheme: dark`); no light theme exists.
-- Yellow is the eye path: the one action, the highlighted words, the program's values, the guiding streak.
-- Purple and violet are the light itself (glows, ring, caret, secondary links), never body text on cards below 7:1.
-- Live WebGL is decoration only: content, CTA and headings work with no JS, no GPU and reduced motion.
+Signature: light lags. A bright thing (yellow, white) leaves a dimmer logo-blue afterglow that arrives a little late and settles: the pendulum trail, the ghost plate behind headlines and proofs, the blue floor halftone. Two moments get richness: the hero pendulum writing its own strobe trail, and the class-size crowd (twenty white dots and one yellow one) filling in on scroll. Everything else is flat, quiet, and typographic.
 
-## Colors
+Palette strategy: restrained, one accent. Navy-tinted near-black neutrals; yellow is the single accent; blue is depth only.
 
-One saturated accent (yellow) on a violet-black ground, with purple as the colour of light rather than of UI.
+## 2. Colour
 
-### Primary
-- **Signal Yellow** (yellow): the primary button, highlighted words in display type (`.hl`), focus rings, text selection, `accent-color`, numeric/boolean values in the editor, the FAQ open bar and summary hover, the yellow text link. Page ink on yellow is 14.2:1.
+Token names are stable; only the hexes carry the theme. Every hex in `.ts/.tsx` lives in `ink.ts` (mirrors tokens.css).
 
-### Secondary
-- **Prism Purple** (purple): glows, ring tint, editor active-line wash (10%) and Run pill tint (14%). 4.3:1 on card, so large text or non-text only.
-- **Soft Lavender** (purple-soft): the editor caret and prompt, "Read more" style secondary links. At least 7:1 on page and card.
+| Token | Hex | Role |
+|---|---|---|
+| `--bg` | `#05070C` | page and canvas ground; the only text colour on accent |
+| `--s1` | `#0A0E19` | raised band (FAQ), mobile sheet |
+| `--s2` | `#111626` | tile ground, cards, chips |
+| `--s3` | `#192035` | hover step for rows |
+| `--line` | `#222B45` | 1px hairline, decorative |
+| `--line-2` | `#505D82` | control borders, rules (about 3:1 on bg) |
+| `--text` | `#F3F5FA` | primary text, the white beam, kids in the crowd, focus ring |
+| `--text-2` | `#AAB2C5` | body copy |
+| `--text-3` | `#8089A0` | mono readouts, fine print |
+| `--accent` | `#FFD60A` | primary button, join band, instructor dot, live trace, one highlighted word per section |
+| `--accent-hi` | `#FFE55C` | primary button hover only |
+| `--glow` | `#2A3CFF` | logo ultramarine lifted until it reads on black: afterglow, floor halftone, ghost plate, Physics tile paper |
+| `--on-accent` | `= --bg` | text and icons on yellow |
+| `--focus` | `= --text` | 2px ring, 3px offset |
 
-### Neutral
-- **Night** (page): `html` background and the fallback colour of every canvas.
-- **Ink Card** (card): cards, editor title bar. **Raised** (raised): scrollbar thumb, small decorative dots. **Editor** (editor): code window and laptop screen.
-- **Moon White** (text): headings and emphasised text. **Body** (text-body): paragraphs, nav links. **Lede** (text-lede): ledes and the hero sub-line. **Dim** (text-dim): course blurbs, footer column labels, the dimmed second line of a statement. All four are at least 7:1 on page and card.
-- **Hairline** (line) and **Hairline Strong** (line-strong): every divider, card border, secondary-button ring, hover border.
+Rules (named):
+- **Yellow acts, blue trails, white is the beam.** Yellow = "now / act"; blue = "trace / depth"; white = type and the present moment.
+- **Bg on yellow, text on blue.** `--text` on `--accent` fails (about 1.3:1); `--text-2`/`--text-3` on `--glow` fail. Only `--bg` goes on yellow, only `--text` on blue paper.
+- **Blue is never text on dark.** `--glow` (about 3.1:1 on bg) is for fills, marks and large ghost copies.
+- **One accent per viewport.** One filled yellow element (the CTA) plus at most one yellow word or numeral. The join band is the exception: yellow is the ground and everything on it is `--bg`.
+- **Light adds.** On canvases, layers combine by screen blend over `--bg`; overlap is brighter, never darker, and no canvas pixel drops more than 3/255 under bg (gate 10).
 
-### Named Rules
-**The Eye Path Rule.** Yellow marks only what the eye should travel to: the one action, the one or two highlighted words of a heading, the program's values, the guiding streak. If a screen has two yellow things competing, one of them is wrong.
+Tile inks `[paper, ink, ghost]`, colour carries category: Code `[s2, accent, glow]`, Build `[accent, bg, glow]`, Math `[s2, text, glow]`, Physics `[glow, text, accent]`. Crowd: paper bg, kids `text`, instructor `accent`.
+Scheme: `color-scheme: dark`, `::selection` yellow on bg.
 
-**The Light Is Not Ink Rule.** Purple is light (glow, tint, caret). Body text is never set in `purple`; use `purple-soft` when a lavender text link is needed.
+## 3. Typography
 
-## Typography
+Archivo (variable, wdth 62-125, wght 100-900) for everything; IBM Plex Mono for readouts only. Both subset and preloaded; mono is limited to the hero readout, category chips and /code.org step numerals.
 
-**Display / Body Font:** the platform system stack (SF Pro on Apple) as shipped. The display role is provisional, not a rule: a dedicated display face may replace it; the scale, weights and tracking below are the system. **Mono:** `ui-monospace` stack, used only inside the editor window.
+| Role | Setting | Use |
+|---|---|---|
+| `.t-h1` | 900, wdth 100 (125 from 48rem), uppercase, lh .84, -.035em | hero headline |
+| `.t-h2` | 900, same stretch rule, uppercase, lh .88 | section heads (`[data-plate]` ghost copy in blue) |
+| `.t-fact` | 900, wdth 62, uppercase, lh .82 | the one big number per band |
+| `.t-slab` | 800, wdth 112, uppercase | "Grades 3-8" in yellow, no box |
+| `.t-stmt` | 700, wdth 100, sentence case, max 20ch | statement scrub |
+| `.t-h3` | 650, 1-1.25rem | tile and course titles |
+| `.t-body` | 450, lh 1.5, max 60ch | paragraphs (`--text-2`; lead paragraphs `--text`) |
+| `.t-mono` | Plex 500, .75rem | readouts |
 
-**Character:** big, tight, heavy display (700, -0.04em) against calm 1.125rem body; the contrast is size and weight, not family.
+Hierarchy comes from a steep ratio: wide black uppercase display against calm 17-19px body. All sizes are fluid `clamp()`.
 
-### Hierarchy
-- **Hero** (700, clamp 3rem–6.5rem, 0.98; 6vw and 0.96 from 1100px; max 11–12ch): the home h1 only, split per word for the entrance.
-- **Display** (700, clamp 2.25rem–6.25rem, 0.98): one-line statements and the final CTA heading, up to two lines.
-- **Headline** (680, clamp 2.5rem–5.5rem, 1.02): section titles (Courses, FAQ, page sections).
-- **Title** (650, clamp 1.5rem–2.25rem, 1.15): category names, format names, card names.
-- **Lede** (450, clamp 1.1875rem–1.375rem, 1.45, text-lede): one sentence under a page title, max 36rem.
-- **Body** (400, 1.0625rem mobile / 1.125rem from 48rem, 1.55): `text-wrap: pretty`, FAQ answers at max-prose.
-- **Label** (500–600, 0.875rem): nav, nav CTA, footer column labels (sentence case, normal tracking).
+## 4. Layout and shape
 
-### Named Rules
-**The Two Words Rule.** A heading carries at most one yellow phrase ("Free … grades 3-8.", "Courses", "20", "high-school", "class dates"). Highlight is meaning, not decoration.
+- Grid `.grid-x`: 4 / 8 / 12 columns at base / 48rem / 64rem; gutter 16/20/24; margin 20/32/48, 112 at 90rem, 160 at 120rem; content max 76rem (88rem at 120rem).
+- Breakpoints: 48rem (tablet, wide display stretch), 64rem (desktop nav, 12 cols, `--rule` 3px), 90rem and 120rem (margins). Motion conditions reuse 48rem/64rem plus `(hover:hover) and (pointer:fine)`.
+- Vertical rhythm: `--pad-y: clamp(64px, 9vw, 128px)` between bands. Bands are full bleed, radius 0, alternating bg and s1.
+- Radii only `--r-chip 8px` (chips, category tag, skip link), `--r-tile 20px` (tiles, cards, FAQ details), `--r-pill` (buttons, nav CTA).
+- Elevation is a surface step (bg, s1, s2, s3) plus a 1px `--line`. No box-shadow, text-shadow blur, gradient or `filter` in the DOM; no `mix-blend-mode`.
+- Buttons: `.btn` pill, min-height 48 (`.btn-lg` 56), `:active` scale .97 on pointer-down. Primary = yellow fill, bg text, `--accent-hi` on hover (fine pointers only). Targets at least 44px.
 
-**The Balanced Heading Rule.** h1–h3 use `text-wrap: balance` and negative tracking; never letter-space display type open.
+## 5. Glass
 
-## Layout
+`backdrop-filter` exists on exactly one node: `.site-header::before` (blur 20px saturate 1.4, from 48rem). Its opacity is 0 at the top of the page and 1 past 96px scroll; solid under `prefers-reduced-transparency` and below 768px. The nav CTA is hidden while the hero CTA is on screen.
 
-Single centred column, `container-x`: max 76rem, inline padding 1.25rem (2rem from 48rem). Home sections breathe on `section-y` (clamp 5rem–8rem); inner pages use `page-hero` (top clamp 7rem–9rem) and `page-section` (3.5rem, 5.5rem from 64rem). Hero is one viewport (min `max(100svh, 40rem)`), copy left and laptop right from 900px (1fr / 1.25fr, laptop at 120% width bleeding left), stacked below. Lists are rows split by hairlines, not card grids: Courses is a 1fr/2fr spec table, Formats two columns split by a vertical rule, FAQ a 5fr/7fr split with a sticky heading. Cards appear only on inner pages (instructor grid: 1/2/3 columns). Footer grid is 1.6fr 1fr 1.4fr 1.2fr from 64rem. Every tap target is at least 2.75rem tall.
+## 6. The press (WebGL)
 
-## Elevation & Depth
+- One WebGL2 context per route, shared by sheets (hero, roller, ten proofs, crowd, join), render-on-dirty at a 15Hz strobe (`--tick: 70ms`). Strobe stays inside canvases; the DOM never steps.
+- Shader colours (`riso.glsl.ts`) are pre-compensated so a solid screen-blend over bg lands on the token. Layers in order: bloom (blue, masked under yellow), afterglow (blue), accent (yellow), beam (white). Tube grain plus dead cells replace paper texture. Halftone dot radius .66.
+- Hero: strobe pendulum with a grabbable bob; the yellow trail leads, the blue plate lags and tears with scroll velocity.
+- **Fallbacks are the contract.** `Poster` (frame 0, static) is always in the markup and steps aside only after GL has drawn. Software GL (SwiftShader, llvmpipe, headless Lighthouse) is detected by a worker probe and keeps the Poster. Reduced motion paints frame 0 through the 2D path (`paint2d.ts`). JS off and WebGL off must both leave a complete page.
+- Slip: scroll velocity becomes `--slip` (max 10px, decay x0.6, 0 within 3 ticks of stopping). Consumed by GL sheets, `[data-plate]` headings and `.btn-primary`.
+- The only DOM afterglow is a hard, unblurred offset copy in `--glow` (`.plate::before`) and the 404 numeral's offset.
 
-Depth is a three-layer stack fixed behind the document, then flat content on top:
+## 7. Motion (GSAP, lazy)
 
-1. **Prism canvas** (`z-index: -2`, fixed): WebGL2 (three.js) ring of up to 8 glass bars refracting a warping purple-to-gold gradient, with bloom. In the hero it frames the laptop; past the hero it rides the right gutter (dims and slides off-edge rather than crossing copy; phones keep only the glow); at the final CTA it docks as one ring around heading and button and fires `fx:arrive`, which reveals the button.
-2. **Fluid canvas** (`z-index: -1`, fixed): stable-fluids sim, pale gold ink with violet edges, stirred by pointer and lightly by scroll. Clamped to low luminance behind any text block (shield of `p, li, h1–h4, a, button, summary, [data-spectral]…`).
-3. **Content**: hairline cards (`card`) with a top-edge inner highlight and a deep neutral drop; sticky header on 88–92% night glass with `saturate(180%) blur(20–28px)`.
+- GSAP and ScrollTrigger exist only in `src/app/motion/kit.ts`, a deferred async chunk (lint-enforced; gate 5 caps it at 56KB gz and keeps it out of first-load). `index.ts` is type-only on gsap. The chunk loads at idle (2s timeout) or on first scroll/pointer/key; never under `prefers-reduced-motion` or save-data.
+- **SSR state is the rest state.** Nothing depends on CSS hiding content; if the chunk fails the static page is complete. `takeover` eases a scene already on screen from rest to its true position (zero layout shift).
+- `scene()` uses `gsap.matchMedia` with conditions `motion, mid, wide, fine`; reduced motion registers nothing, leaving only CSS opacity/colour changes of at most 240ms.
+- Scenes (`scenes.ts`): hero exit (scrub .4), statement words (opacity .55 to 1 plus rise, scrub), heading reveals, per-row tile timelines (scrub .5, `back.out(1.6)` settle), batch rise (once, 0.48s power3, stagger .06), magnetic primary CTA (fine pointers only). Scrubs reverse; nothing is pinned (only header, FAQ heading, skip link, mobile sheet and the Impression canvas may be sticky).
+- CSS motion tokens: `--t1` 100 press, `--t2` 160 colour, `--t3` 240 small move, `--t4` 480 entrance, `--t5` 720 hero line; `--spring` (critically damped, default for anything that moves), `--bounce` only where momentum precedes it (stamp, instructor dot), `--ease-out`, `--ease-io`.
 
-**Laptop 3D:** a CSS space-black laptop renders first (no CLS, no WebGL needed); on a real GPU a lazy R3F laptop fades over it (300ms) once its first frame lands, with the screen DOM pinned by a CSS `matrix3d` homography so the code stays crisp text. It yaws toward the pointer, gently until `follow_mouse = True` lands.
+## 8. Scenes (home, in order)
 
-**Sketch → fx mapping** (each completed line acts at once; before line 2 the field rests as a faint violet single ribbon at 0.4 intensity):
-- `# paint with light`: comment, no change.
-- `glow = "purple"`: hue/brightness pulse (450ms) to purple + gold accent; intensity to 1.
-- `streaks = 5`: ring grows to 5 bars (about a 400ms under-damped spring each).
-- `speed = 2`: spin kick (600ms) and faster flow.
-- `sparkle = True`: glints on the bars plus a bloom pop (500–600ms).
-- `follow_mouse = True`: bars and laptop tilt toward the pointer.
-Scrolling away early finishes the sketch instantly (`FX_FINAL`).
+1. **Hero**: wide-900 H1, one yellow CTA with a no-spam note, facts row, pendulum sheet behind; Poster fallback. CTA inside the first screen at five sizes.
+2. **Statement**: `.t-stmt` sentence; words scrub from .55 to full opacity.
+3. **Courses**: Code, Build, Math, Physics tiles, each with a live proof canvas (ten proofs, at most two animating at once) linking to `/programs#slug`.
+4. **Class size**: the crowd; end state is 20 `--text` discs plus 1 yellow disc and numeral "20" (reads "0" before the scene).
+5. **FAQ**: s1 band, native `<details>`, `--line-2` rules, s3 hover.
+6. **Join**: full-bleed yellow band, roller sheet rolls once, then the stamp; the only full flood. The Impression canvas follows.
 
-**Slit-glass headings:** any `[data-spectral]` heading the pointer stirs is handed to the fluid canvas: DOM glyphs fade to transparent (150ms, class `is-prism`) and the canvas draws them through fine vertical reeds (ribs a tenth of an em) with six-band dispersion, bent only near the pointer's path; when the bend dies the DOM glyphs fade back first and the canvas copy leaves after. Text stays in the DOM, selectable and read by assistive tech; at most 4 headings at once.
+Home is at most 8 screens. Inner pages (`/about`, `/programs`, `/code.org`) use `pages.css` with the same tokens and prose layouts.
 
-### Shadow Vocabulary
-- **Card** (`0 1px 0 rgb(255 255 255 / 0.10) inset, 0 30px 80px -30px rgb(0 0 0 / 0.8)`): every card.
-- **Yellow edge** (`0 1px 0 rgb(255 255 255 / 0.5) inset`): primary button at rest.
-- **Heading halo** (`text-shadow: 0 0 28px rgb(10 7 16 / 0.9)`): `h2[data-spectral]` and hero sub-line (24px, 0.85), for legibility over light.
-- **Contact shadow**: a radial black ellipse under the laptop.
+## 9. Budgets and gate
 
-### Named Rules
-**The Behind-Glass Rule.** Light lives behind the page (negative z), never above content. No coloured glows on cards; card depth is neutral black.
+- First-load JS at most 115KB gzip on home (`scripts/perf.mjs`); Lighthouse mobile 100; scroll p95 frame at most 16.7ms at 1440 and 390, at most 20ms at 390 / 4x CPU; zero app rAF when no animated sheet is visible; layout shift 0.
+- Gate: `node scripts/gate/run.mjs --url <base> --out <dir> [--only n,m] [--lh]`, 30 items in `scripts/gate/checks.mjs`. Families: first-screen CTA and facts (1-3); computed styles use only token hexes, no gradient/filter/blend, allowed radii (4); one GL context and bundle limits (5); hero GL vs Poster, strobe fan (6-7); blend invariant (10); load sequence, slip, proofs, stamp (11-14); reduced motion, JS off, GL off (16-17); frames and Lighthouse (19-20); focus ring at least 2px and 3:1 on bg, s1, s2, accent (21); contrast sampled mid-scrub (22); type roles (23); composition (24); no pinned scenes (26); scrub reversibility, takeover, nav, crowd (27-30).
 
-**The Zero-Cost-When-Idle Rule.** Effects load after `load` + idle (phones: after first touch/scroll or 4s), probe the GPU once (`gpuTier`), run at display rate only while something changes, 30fps for the steady spin, and stop drawing when nothing moves. Fluid loads on first interaction only.
+## 10. Do and don't
 
-**The Honest Fallback Rule.** Software GL (SwiftShader, llvmpipe) or no WebGL2: Prism becomes a static CSS radial purple glow on night, the fluid never starts, the CSS laptop stays. The CTA still appears by scroll trigger.
+Do: keep one accent; put `--bg` on yellow; keep light in canvases; ship every canvas with a static fallback; add motion only through the lazy kit; keep copy factual.
+Don't: add green or purple; set yellow text on blue; blur or glow anything in the DOM; add a second glass surface; import gsap outside `kit.ts`; pin scenes; add mascots, illustrations, emoji or hype.
 
-Measured budgets (M3, shipped build): Lighthouse mobile 98 / desktop 100; frame p95 16.7–16.8ms. New effects must hold these.
+## 11. Not canonized
 
-## Shapes
-
-Pills for every action and chip (999px); soft 1.5rem cards; 8px focus-ring corners; round avatars with a 1px white/12% ring. The laptop and editor use container-query units (`cqw`) so the device scales without layout shift. Dividers are 1px hairlines that scale in from an edge (`--rule`). The FAQ plus rotates 45° into an ×.
-
-## Components
-
-### Buttons
-- **Shape:** full pill (999px), min height 2.75rem; `btn-lg` 3.25rem and 1.0625rem.
-- **Primary (EmailCta):** yellow on night, label fixed as "Get class dates by email" + arrow (compact: "Get class dates"); opens the mailing list in a new tab with an sr-only notice. The only primary action on the site.
-- **Hover / Active:** rise 1px, background `#ffe14d`; press scales to 0.97 (100ms). Distances multiply by `--m`.
-- **Secondary:** transparent, inset 1px line-strong ring (40% white on hover).
-
-### Navigation
-Sticky header over night glass (60% at top, opaque-ish once scrolled), 0.875rem/500 links with a 1px underline that wipes in from the left; current page in white. Right side: outlined yellow pill "Get class dates". Mobile: full-height night sheet, 2rem/680 links staggered 55ms each, contact line at the bottom; menu icon cross-rotates 90°.
-
-### Links
-Yellow text with a 1px underline that wipes left-to-right on hover/focus (300ms); arrow links nudge their arrow 4px. Reduced motion: a plain 40% underline that goes solid.
-
-### Cards / Chips
-Cards: card background, hairline border, card shadow, padding 1.5–1.75rem; `lift` raises 2px and strengthens the border on fine-pointer hover only. Chips: pill, 0.875rem, hairline border or 6% white fill.
-
-### FAQ
-Native `<details>`: rows split by hairlines, 1.25rem/600 summary at least 72px tall; open/hover indents 1rem, turns yellow, and grows a 2px yellow bar down the left edge; content height animates via `::details-content`.
-
-### Editor (signature)
-`paint.py` window in the laptop: title bar with a file tab and a purple Run pill, numbered lines (active line on a 10% purple wash, blinking lavender caret), syntax colours comment/`=` `#a9a2c0`, strings `#e9d5ff`, numbers/booleans yellow; a terminal row echoes the last line (`glow → purple`). Visual is `aria-hidden`; an sr-only paragraph and the full sketch describe it.
-
-### Motion
-Easing: `--ease-out` cubic-bezier(0.16, 1, 0.3, 1) for movement, `--ease-apple` cubic-bezier(0.25, 0.1, 0.25, 1) for colour/opacity. `--m` is 1, or 0 under reduced motion; every CSS distance is multiplied by it, so calm mode is opacity only. Hero entrance is pure CSS (words rise 800ms, staggered 50ms; sub-line 380ms; CTA 480ms). Section reveals (GSAP, once): rise 16px/700ms, fade 800ms, clip 800ms expo, rules 900ms; statement lines slide up out of a mask (900ms, 120ms stagger). Unrevealed content is opacity-0, never hidden, so it stays focusable; without JS everything is visible. Native scrolling, no smooth-scroll library. Page transitions: 180ms out, 400ms rise in.
-
-## Do's and Don'ts
-
-### Do:
-- **Do** keep one yellow action per view and one yellow phrase per heading (The Eye Path Rule).
-- **Do** keep every text pair at the recorded contrast: text, body, lede, dim, purple-soft all at least 7:1 on page and card.
-- **Do** mark new large headings `data-spectral` so they join the slit-glass layer, and keep their DOM text real.
-- **Do** multiply every motion distance by `--m` and give each GSAP effect a calm branch (fade only, shorter).
-- **Do** keep the 2px yellow focus ring (3px offset) and 2.75rem tap targets; external links carry "(opens in a new tab)" for screen readers.
-- **Do** ship a working no-GPU and no-JS state for any new effect, and check it against the measured budgets.
-- **Do** keep copy minimal and factual: no invented stats or outcomes; instructors appear as first name + grade/role only; roster and contest details are updated separately by the owner, so do not hard-code or reword them.
-
-### Don't:
-- **Don't** put effects above content or let a prism bar cross body copy or a button.
-- **Don't** set body text in `purple` (4.3:1).
-- **Don't** add coloured glows to cards or surfaces; depth is neutral.
-- **Don't** reword the EmailCta label or add a second primary action.
-- **Don't** add a smooth-scroll library or scroll-scrubbed headline masks (a parked half-mask reads as clipped text).
-- **Don't** add a light theme section; the world is dark end to end.
+- `shell.css` still uses `rgb(5 8 6 / .72)` for the translucent nav, a leftover of the retired green palette; the token `#05070C` is the rule.
