@@ -1,4 +1,4 @@
-import Reveal from './motion/Reveal'
+import Reveal from './reveal/Reveal'
 import EmailCta from './EmailCta'
 import '../pages.css'
 

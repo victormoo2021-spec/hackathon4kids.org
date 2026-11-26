@@ -1,6 +1,6 @@
 import Image, { type StaticImageData } from 'next/image'
 import EmailCta from '../components/EmailCta'
-import Reveal from '../components/motion/Reveal'
+import Reveal from '../components/reveal/Reveal'
 import { categories, type Course } from '../content/courses'
 import flyerSummer2023 from 'public/flyer-summer-2023.png'
 import flyerContestWinter24 from 'public/H4K_Coding_Competition_Flyer_Winter_24.jpg'
@@ -30,7 +30,7 @@ const facts = ['Grades 3-8', 'In person and online', 'Free', 'Up to 20 kids per 
 
 function Flyer({ src, file, alt, caption }: { src: StaticImageData; file: string; alt: string; caption: string }) {
   return (
-    <figure data-reveal data-delay="150" className="w-full max-w-[280px]">
+    <figure data-reveal className="w-full max-w-[280px]">
       <a
         href={`/${file}`}
         target="_blank"
@@ -48,12 +48,12 @@ function Flyer({ src, file, alt, caption }: { src: StaticImageData; file: string
 export default function Programs() {
   return (
     <div className="text-text">
-      <Reveal stagger={0} className="container-x page-hero">
+      <Reveal className="container-x page-hero">
         <h1 data-reveal className="t-headline">Programs</h1>
-        <p data-reveal data-delay="120" className="t-lede mt-5">
+        <p data-reveal className="t-lede mt-5">
           Free computer science and STEM classes for kids in grades 3 to 8, taught by high-school students.
         </p>
-        <ul data-reveal data-delay="200" aria-label="At a glance" className="mt-10 flex flex-wrap gap-x-3 gap-y-1 text-text-body">
+        <ul data-reveal aria-label="At a glance" className="mt-10 flex flex-wrap gap-x-3 gap-y-1 text-text-body">
           {facts.map((f, i) => (
             <li key={f}>
               {i > 0 && <span aria-hidden className="mr-3">·</span>}

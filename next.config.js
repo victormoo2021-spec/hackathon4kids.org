@@ -4,9 +4,10 @@ const withMDX = require('@next/mdx')()
 const nextConfig = {
   pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
   outputFileTracingRoot: __dirname,
+  images: { formats: ['image/avif', 'image/webp'] },
   experimental: {
     mdxRs: true,
-    viewTransition: true,
+    optimizePackageImports: ['@radix-ui/react-icons', '@radix-ui/react-navigation-menu'],
   },
 }
  

@@ -1,10 +1,6 @@
 import Link from 'next/link'
 import { ArrowRightIcon } from '@radix-ui/react-icons'
-import Reveal from '../motion/Reveal'
-import GlyphText from '../motion/GlyphText'
-import CourseHover from './CourseHover'
-import { DemoCard } from './CodeTyper'
-import type { DemoKind } from './demos'
+import Reveal from '../reveal/Reveal'
 import { categories, type Course } from '../../content/courses'
 
 // Same one-liners as /programs.
@@ -23,49 +19,25 @@ const blurbs: Record<Course, string> = {
 
 export default function CourseGrid() {
   return (
-    <Reveal as="section" stagger={0.07} id="courses" aria-labelledby="courses-title" className="container-x section-y relative">
+    <Reveal as="section" id="courses" aria-labelledby="courses-title" className="container-x section-y">
       <div className="max-w-2xl">
-        <h2 id="courses-title" data-spectral data-reveal className="t-headline"><GlyphText><span className="hl">Courses</span></GlyphText></h2>
+        <h2 id="courses-title" data-reveal className="t-headline"><span className="hl">Courses</span></h2>
       </div>
-      {/* desktop with motion: list left, sticky slot right that the hero laptop travels into (StoryStage) */}
-      <div className="courses-layout mt-12">
-        <div className="border-t border-line">
-          {categories.map((c) => {
-            const kind = c.name.toLowerCase() as DemoKind
-            return (
-              <div key={c.name} data-group={kind} data-reveal="rule" className="spec relative grid gap-4 py-8 md:grid-cols-[1fr_2fr] md:gap-12 md:py-10">
-                <div>
-                  <h3 data-reveal className="t-title text-text">{c.name}</h3>
-                  <DemoCard kind={kind} />
-                </div>
-                <ul>
-                  {c.courses.map((n) => (
-                    <li key={n} data-course-group={kind} data-reveal="clip" className="border-t border-line py-4 first:border-t-0 first:pt-0 md:py-5 md:first:pt-0">
-                      <p className="text-xl font-semibold text-text">{n}</p>
-                      <p className="mt-1 text-base text-text-dim">{blurbs[n]}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )
-          })}
-        </div>
-        <div className="course-lap" aria-hidden>
-          <div className="course-lap-slot" />
-        </div>
-      </div>
-      {/* HUD trace: StoryStage draws one line per group, from the docked laptop's screen to the group's title */}
-      <svg className="hud" aria-hidden>
+      <div className="mt-12 border-t border-line">
         {categories.map((c) => (
-          <g key={c.name} data-hud={c.name.toLowerCase()}>
-            <path pathLength={1} />
-            <circle r={2.5} />
-            <circle r={2.5} />
-            <text>{'\u2192 ' + c.name.toLowerCase()}</text>
-          </g>
+          <div key={c.name} data-reveal="rule" className="spec relative grid gap-4 py-8 md:grid-cols-[1fr_2fr] md:gap-12 md:py-10">
+            <h3 data-reveal className="t-title text-text">{c.name}</h3>
+            <ul>
+              {c.courses.map((n) => (
+                <li key={n} data-reveal="clip" className="border-t border-line py-4 first:border-t-0 first:pt-0 md:py-5 md:first:pt-0">
+                  <p className="text-xl font-semibold text-text">{n}</p>
+                  <p className="mt-1 text-base text-text-dim">{blurbs[n]}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
-      </svg>
-      <CourseHover />
+      </div>
       <p data-reveal className="mt-6">
         <Link href="/programs" className="link link-arrow inline-flex min-h-11 items-center gap-2 font-semibold">
           See all programs <ArrowRightIcon aria-hidden />

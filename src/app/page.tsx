@@ -5,7 +5,7 @@ import DarkBand from './components/home/DarkBand'
 import Formats from './components/home/Formats'
 import FinalCta from './components/home/FinalCta'
 import Faq from './components/Faq'
-import Reveal from './components/motion/Reveal'
+import Reveal from './components/reveal/Reveal'
 import './components/home/sections.css'
 
 export default function Home() {

@@ -1,6 +1,6 @@
 import { expect, type Page } from '@playwright/test'
 
-/** Wait for CSS/WAAPI animations and GSAP tweens to reach their resting state. */
+/** Wait for CSS/WAAPI animations to reach their resting state. */
 export async function settle(page: Page) {
   // ignore animations that never "finish": infinite loops (caret blink) and
   // scroll-linked ones (animation-timeline: view()), which follow scroll position
@@ -14,17 +14,6 @@ export async function settle(page: Page) {
     ),
   )
   await page.waitForTimeout(1500)
-  // GSAP tweens write inline styles and are invisible to getAnimations(): wait until those stop changing
-  // (under CI load a scrubbed fade can still be mid-way, which axe reads as low contrast)
-  let prev = ''
-  for (let i = 0; i < 20; i++) {
-    const snap = await page.evaluate(() =>
-      Array.from(document.querySelectorAll<HTMLElement>('[style]')).map((e) => e.style.cssText).join('|'),
-    )
-    if (snap === prev) break
-    prev = snap
-    await page.waitForTimeout(250)
-  }
 }
 
 /** Scroll the whole page in wheel steps so scroll-driven code runs. */
@@ -66,3 +55,4 @@ export function trackErrors(page: Page) {
   })
   return { list }
 }
+

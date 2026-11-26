@@ -3,26 +3,6 @@
 /* Courses: divider scales in via --rule (set by Reveal) */
 .spec::after { content: ""; position: absolute; inset: auto 0 0 0; height: 1px; background: var(--color-line); transform: scaleX(var(--rule, 1)); transform-origin: left; }
 
-/* Courses: inline demo cards (mobile, reduced motion); on desktop with motion the hero laptop rides in .course-lap-slot */
-.demo-card { position: relative; container-type: inline-size; aspect-ratio: 16 / 10; max-width: 26rem; margin-top: 1.25rem; overflow: hidden; border-radius: 0.75rem; border: 1px solid var(--color-line); background: var(--color-editor); }
-.course-lap { display: none; }
-/* desktop (any motion preference: travel is scroll-linked): list left, sticky slot right. The slot spills into the
-   page margin (up to 1.5rem from the edge) so the docked screen text reads ~15px at 1440 */
-.hud { display: none; }
-@media (min-width: 900px) {
-  .courses-layout { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 3rem; }
-  .course-lap { display: block; }
-  .course-lap-slot { position: sticky; top: max(5rem, calc(50vh - 14rem)); aspect-ratio: 1.55; margin-right: calc(1.5rem - 2rem - max(0px, (100vw - 76rem) / 2)); }
-  .demo-card { display: none; }
-  /* HUD trace lines: geometry + scrubbed dash set by StoryStage */
-  .hud { display: block; position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 4; }
-  .hud g { opacity: 0; transition: opacity 300ms var(--ease-apple, ease); }
-  .hud g[data-on] { opacity: 1; }
-  .hud path { fill: none; stroke: var(--color-yellow); stroke-width: 1; stroke-dasharray: 1; stroke-dashoffset: 1; vector-effect: non-scaling-stroke; }
-  .hud circle { fill: var(--color-yellow); }
-  .hud text { text-anchor: end; font-family: var(--font-mono); font-size: 11px; fill: var(--color-text-dim); }
-}
-
 /* Formats: vertical divider scales down from the top */
 @media (min-width: 768px) {
   .formats-grid::before { content: ""; position: absolute; inset: 0 auto 0 50%; width: 1px; background: var(--color-line); transform: scaleY(var(--rule, 1)); transform-origin: top; }

@@ -19,6 +19,8 @@ async function prepare(page: Page) {
 }
 
 test.describe('accessibility (axe)', () => {
+  // reveal sits at opacity 0 before entry; axe judges the resting (visible) state
+  test.use({ reducedMotion: 'reduce' })
   for (const route of ROUTES) {
     test(`${route.path} has no serious violations`, async ({ page }) => {
       await page.goto(route.path)

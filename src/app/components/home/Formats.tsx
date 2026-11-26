@@ -1,4 +1,4 @@
-import Reveal from '../motion/Reveal'
+import Reveal from '../reveal/Reveal'
 
 const items = [
   { title: 'In person', body: 'Hands-on classes in the Bay Area.' },
@@ -8,10 +8,10 @@ const items = [
 export default function Formats() {
   return (
     <Reveal as="section" id="formats" aria-labelledby="formats-title" className="container-x section-y pt-0 md:pt-0 pb-10 md:pb-16">
-      <h2 id="formats-title" data-spectral className="sr-only">In person and online</h2>
+      <h2 id="formats-title" className="sr-only">In person and online</h2>
       <div data-reveal="rule" className="formats-grid relative grid md:grid-cols-2">
         {items.map((it, i) => (
-          <div key={it.title} data-reveal data-delay={i ? 120 : undefined} className={`py-8 md:py-2 ${i ? 'border-t border-line md:border-t-0 md:pl-12' : 'md:pr-12'}`}>
+          <div key={it.title} data-reveal className={`py-8 md:py-2 ${i ? 'border-t border-line md:border-t-0 md:pl-12' : 'md:pr-12'}`}>
             <h3 className="t-title text-text">{it.title}</h3>
             <p className="mt-2 text-xl text-text-body">{it.body}</p>
           </div>

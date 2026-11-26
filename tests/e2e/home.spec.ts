@@ -8,10 +8,9 @@ test.beforeEach(async ({ page }) => {
 })
 
 test.describe('home sections', () => {
-  for (const id of ['hero', 'story', 'courses', 'class-size', 'run-by-students', 'formats', 'faq', 'join']) {
+  for (const id of ['hero', 'courses', 'class-size', 'run-by-students', 'formats', 'faq', 'join']) {
     test(`#${id} exists`, async ({ page }) => {
-      // #story is the laptop stage inside section#hero; the rest are sections
-      await expect(page.locator(id === 'story' ? '#hero #story' : `section#${id}`)).toBeAttached()
+      await expect(page.locator(`section#${id}`)).toBeAttached()
     })
   }
 

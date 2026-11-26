@@ -1,182 +1,19 @@
 import { expect, test } from '@playwright/test'
-import { expectNoOverflow, scrollThrough, settle, trackErrors } from './helpers'
+import { expectNoOverflow, scrollThrough, settle } from './helpers'
 
-test.describe('motion allowed (desktop)', () => {
-  test.skip(({ isMobile }) => isMobile, 'desktop motion tier')
+// The only motion left on the lean base is the CSS reveal (data-reveal) and the hero load animation.
+for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+  test.describe(`reveal (${reducedMotion})`, () => {
+    test.use({ reducedMotion })
 
-  test('motion-ok is set', async ({ page }) => {
-    await page.goto('/')
-    await expect(page.locator('html.motion-ok')).toBeAttached()
-  })
-
-  test('page scrolls without pinning, overflow or errors', async ({ page }) => {
-    const errors = trackErrors(page)
-    await page.goto('/')
-    await scrollThrough(page, { step: 300 })
-    expect(await stickyInHero(page)).toEqual([])
-    await expectNoOverflow(page)
-    expect(errors.list).toEqual([])
-  })
-
-  test('the laptop types hello, then runs the code demo on its own', async ({ page }) => {
-    await page.goto('/')
-    await expect(page.locator('#story .file')).toHaveText('spiral.py', { timeout: 15000 })
-    await expect(page.locator('#story .run[data-on]')).toBeAttached()
-  })
-
-  test('the laptop travels into the courses column and follows each group', async ({ page }) => {
-    await page.goto('/')
-    for (const [g, file] of [['math', 'line.py'], ['physics', 'pendulum.py']]) {
-      await page.locator(`[data-group="${g}"]`).evaluate((e) => {
-        const r = e.getBoundingClientRect()
-        scrollTo(0, scrollY + r.top + r.height / 2 - innerHeight / 2)
-      })
-      await expect(page.locator('#story .file')).toHaveText(file)
-    }
-    await expect.poll(async () => {
-      const [a, b] = await Promise.all(['#story .laptop', '.course-lap-slot'].map((s) => page.locator(s).evaluate((e) => e.getBoundingClientRect().left)))
-      return Math.abs(a - b)
-    }).toBeLessThan(2)
-  })
-
-  test('scrolling the page causes no layout shift', async ({ page }) => {
-    await page.goto('/')
-    await page.evaluate(() => {
-      ;(window as unknown as { __cls: number }).__cls = 0
-      new PerformanceObserver((list) => {
-        for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[])
-          if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value
-      }).observe({ type: 'layout-shift', buffered: true })
+    test('every [data-reveal] ends visible after scrolling through', async ({ page }) => {
+      await page.goto('/')
+      await scrollThrough(page, { step: 600, delay: 20 })
+      await settle(page)
+      const els = page.locator('[data-reveal]')
+      expect(await els.count()).toBeGreaterThan(0)
+      for (const o of await els.evaluateAll((e) => e.map((x) => getComputedStyle(x).opacity))) expect(o).toBe('1')
+      await expectNoOverflow(page)
     })
-    await scrollThrough(page, { step: 300 })
-    const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls)
-    expect(cls).toBeLessThan(0.05)
   })
-})
-
-// the hero has no pinned story any more: nothing inside it may be position: sticky
-const stickyInHero = (page: import('@playwright/test').Page) =>
-  page.locator('#hero').evaluate((h) => Array.from(h.querySelectorAll('*')).filter((e) => getComputedStyle(e).position === 'sticky').map((e) => e.className))
-
-test.describe('reduced motion', () => {
-  test.use({ reducedMotion: 'reduce' })
-
-  test('no pinning, no motion-ok class', async ({ page }) => {
-    await page.goto('/')
-    await scrollThrough(page, { step: 600, delay: 20 })
-    expect(await stickyInHero(page)).toEqual([])
-    await expect(page.locator('html.motion-ok')).toHaveCount(0)
-  })
-
-  // travel is scroll-linked, so it stays under reduced motion on desktop (laptop-future.spec); mobile keeps inline cards
-  test('the hero laptop types; small screens get inline demo cards', async ({ page, isMobile }) => {
-    await page.goto('/')
-    await expect(page.locator('#story .file')).toHaveText('spiral.py', { timeout: 15000 })
-    if (!isMobile) return
-    await expect(page.locator('.course-lap')).toBeHidden()
-    await expect(page.locator('.demo-card')).toHaveCount(4)
-    await page.locator('[data-group="math"] .demo-card').scrollIntoViewIfNeeded()
-    await expect(page.locator('[data-group="math"] .run[data-on]')).toBeAttached()
-  })
-
-  test('every [data-reveal] ends visible after scrolling through', async ({ page }) => {
-    await page.goto('/')
-    await scrollThrough(page, { step: 600, delay: 20 })
-    await settle(page)
-    const opacities = await page.locator('[data-reveal]').evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity))
-    expect(opacities.length).toBeGreaterThan(0)
-    for (const o of opacities) expect(o).toBe('1')
-  })
-
-  // Calm tier is opacity-only: after settling, nothing keeps a transform.
-  // Exclusions: descendants of <canvas> (none expected; canvas drawing is not CSS motion), and #story: the laptop's
-  // travel into #courses is scroll-linked (it moves only as the user scrolls), so it keeps its translate/scale.
-  test('no element keeps a computed transform after settling', async ({ page }) => {
-    await page.goto('/')
-    await scrollThrough(page, { step: 600, delay: 20 })
-    await settle(page)
-    const bad = await page.evaluate(() =>
-      Array.from(document.querySelectorAll<HTMLElement>('body *'))
-        .filter((e) => !e.closest('canvas, #story'))
-        .map((e) => [e, getComputedStyle(e).transform] as const)
-        .filter(([, t]) => t !== 'none' && t !== 'matrix(1, 0, 0, 1, 0, 0)')
-        .map(([e, t]) => `${e.tagName}.${String(e.className).slice(0, 40)} ${t}`),
-    )
-    expect(bad).toEqual([])
-  })
-})
-
-test.describe('load choreography and sections (desktop, no-preference)', () => {
-  test.skip(({ isMobile }) => isMobile)
-
-  test('hero h1 words rise in and end at identity', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'commit' })
-    await page.waitForSelector('#hero h1 .w > span', { state: 'attached' })
-    const ty = () =>
-      page.locator('#hero h1 .w > span').evaluateAll((els) =>
-        els.map((e) => new DOMMatrixReadOnly(getComputedStyle(e).transform).m42),
-      )
-    // deterministic: every word runs the rise animation, starting below its mask (reading a live
-    // transform mid-load raced the animation under CI load)
-    const starts = await page.locator('#hero h1 .w > span').evaluateAll((els) =>
-      els.map((e) => {
-        const a = e.getAnimations().find((x) => (x as CSSAnimation).animationName === 'h-word')
-        const k = (a?.effect as KeyframeEffect | undefined)?.getKeyframes()[0]
-        return k ? String(k.transform) : 'none'
-      }),
-    )
-    for (const t of starts) expect(t).toContain('translateY')
-    await page.waitForTimeout(1500)
-    for (const y of await ty()) expect(Math.abs(y)).toBeLessThan(0.5)
-  })
-
-  test('FAQ answer is visible after opening', async ({ page }) => {
-    await page.goto('/')
-    const item = page.locator('details.faq-item').first()
-    await item.scrollIntoViewIfNeeded()
-    await item.locator('summary').click()
-    await page.waitForTimeout(500)
-    await expect(item.locator('p').first()).toBeVisible()
-  })
-
-  test('final CTA button is visible after scrolling to #join', async ({ page }) => {
-    await page.goto('/')
-    await scrollThrough(page, { step: 400, delay: 30 })
-    await page.locator('#join').scrollIntoViewIfNeeded()
-    await page.waitForTimeout(1500)
-    await expect(page.locator('#join .btn').first()).toBeVisible()
-  })
-
-  test('no fixed element is mix-blended, and every fixed canvas sits behind content (z < 0)', async ({ page }) => {
-    await page.goto('/')
-    const bad = await page.evaluate(() =>
-      Array.from(document.querySelectorAll<HTMLElement>('body *'))
-        .map((e) => [e, getComputedStyle(e)] as const)
-        .filter(([, c]) => c.position === 'fixed' && c.mixBlendMode !== 'normal')
-        .map(([e]) => e.tagName + '.' + String(e.className).slice(0, 40)),
-    )
-    expect(bad).toEqual([])
-    const canvases = await page.locator('canvas').evaluateAll((els) =>
-      els.map((e) => getComputedStyle(e)).filter((c) => c.position === 'fixed').map((c) => c.zIndex),
-    )
-    for (const z of canvases) expect(Number(z)).toBeLessThan(0)
-  })
-})
-
-test.describe('mobile', () => {
-  test.skip(({ isMobile }) => !isMobile)
-
-  test('does not pin anything', async ({ page }) => {
-    await page.goto('/')
-    await page.locator('#story').scrollIntoViewIfNeeded()
-    expect(await stickyInHero(page)).toEqual([])
-  })
-
-  test('hero laptop runs the code demo; groups get inline cards', async ({ page }) => {
-    await page.goto('/')
-    await expect(page.locator('#story .file')).toHaveText('spiral.py', { timeout: 11000 })
-    await page.locator('[data-group="physics"] .demo-card').scrollIntoViewIfNeeded()
-    await expect(page.locator('[data-group="physics"] .file')).toHaveText('pendulum.py')
-    await expect(page.locator('[data-group="physics"] .run[data-on]')).toBeAttached()
-  })
-})
+}

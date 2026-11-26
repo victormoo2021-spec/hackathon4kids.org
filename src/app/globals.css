@@ -60,7 +60,7 @@
   }
 
   body {
-    background: transparent; /* html keeps the page colour; the fixed shader canvas shows through */
+    background: transparent;
     font-size: 1.0625rem;
     line-height: 1.55;
     color: var(--color-text-body);
@@ -139,12 +139,6 @@
     html.js .hl.hl-in::before, html.js .hero-h1 .hl::before { animation-name: hl-fade; animation-duration: 300ms; }
     @keyframes hl-fade { from { opacity: 0; } to { opacity: 1; } }
   }
-  /* GlyphText: the real text stays in place; overlay chars draw their glyph from data-c */
-  .gl { position: relative; display: block; }
-  .gl.gl-hide, .gl.gl-hide .hl { color: transparent; }
-  .gl-overlay { position: absolute; inset: 0; pointer-events: none; }
-  .gl-overlay > span { position: absolute; display: block; text-align: center; white-space: pre; letter-spacing: 0; }
-  .gl-overlay > span::after { content: attr(data-c); }
   .t-display { font-size: var(--text-display); line-height: 0.98; font-weight: 600; letter-spacing: -0.03em; }
   .t-headline { font-size: var(--text-headline); line-height: 1.02; font-weight: 600; letter-spacing: -0.025em; }
   .t-title { font-size: var(--text-title); line-height: 1.15; font-weight: 600; letter-spacing: -0.02em; }
@@ -194,11 +188,3 @@
   .link-arrow:hover svg, .link-arrow:focus-visible svg { transform: translateX(calc(4px * var(--m))); }
 }
 
-/* Slit-glass headings: while the fluid canvas (behind the page) draws a stirred heading, its DOM glyphs
-   go clear and crossfade back once the canvas copy has settled. Unlayered so it beats component colours;
-   the text stays in the DOM: selectable, readable by assistive tech. */
-/* no DOM text-shadow over the canvas copy */
-.is-prism { text-shadow: none; }
-.is-prism, .is-prism * { transition: color 150ms linear; }
-.is-prism:not(.is-prism-out), .is-prism:not(.is-prism-out) * { color: transparent; }
-@media (prefers-reduced-motion: reduce) { .is-prism, .is-prism * { transition: none; } }

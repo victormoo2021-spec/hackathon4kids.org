@@ -1,11 +1,10 @@
 import './globals.css'
 import './shell.css'
 import type { Metadata, Viewport } from 'next'
-import MotionProviders from './components/motion/Providers'
+import RevealObserver from './components/reveal/RevealObserver'
+import './components/reveal/reveal.css'
 import Navigation from './Navigation'
 import Footer from './Footer'
-import Fluid from './components/fx/Fluid'
-import Blueprint from './components/fx/blueprint/Blueprint'
 
 // Fonts: system SF stack (see globals.css), so no web font download.
 export const viewport: Viewport = {
@@ -41,15 +40,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <Fluid />
-        <Blueprint />
-        <MotionProviders>
-          <Navigation />
-          <main id="main" className="flex-1">
-            {children}
-          </main>
-          <Footer />
-        </MotionProviders>
+        <Navigation />
+        <main id="main" className="flex-1">
+          {children}
+        </main>
+        <Footer />
+        <RevealObserver />
       </body>
     </html>
   )

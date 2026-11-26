@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { ArrowRightIcon } from '@radix-ui/react-icons'
-import Reveal from '../motion/Reveal'
+import Reveal from '../reveal/Reveal'
 import MaskLines from './MaskLines'
 
 export default function DarkBand() {
@@ -8,7 +8,7 @@ export default function DarkBand() {
     <Reveal as="section" id="run-by-students" aria-labelledby="students-title">
       <div className="container-x section-y">
         <MaskLines id="students-title" lines={['Run by high-school', 'students since 2018.']} hl="high-school" className="max-w-5xl text-text" />
-        <p data-reveal="fade" data-delay="150" className="mt-10">
+        <p data-reveal="fade" className="mt-10">
           <Link href="/about#instructors" className="link link-arrow inline-flex min-h-11 items-center gap-2 font-semibold">
             Meet the team <ArrowRightIcon aria-hidden />
           </Link>
