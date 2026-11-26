@@ -1,4 +1,5 @@
 import './globals.css'
+import './press/tokens.css'
 import './shell.css'
 import type { Metadata, Viewport } from 'next'
 import RevealObserver from './components/reveal/RevealObserver'
@@ -7,6 +8,7 @@ import './components/spot/spot.css'
 import { archivo, ibmPlexMono } from './fonts'
 import Navigation from './Navigation'
 import Footer from './Footer'
+import Observe from './press/ObserveMount'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -46,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
         <Footer />
         <RevealObserver />
+        <Observe />
       </body>
     </html>
   )

@@ -1,0 +1,37 @@
+/* Press Check tokens (L0). Six inks only; type roles; grid. Radius 0, no blur, no gradients. */
+:root {
+  --stock: #F2EDE1; --y: #FFD60A; --k: #111114; --blue: #1F3FCF; --over: #1F3508; --k2: #504F4D;
+  --tick: 70ms; --rule: 2px;
+  --sans: var(--font-archivo), Archivo, Arial, sans-serif;
+  --mono: var(--font-plex), "IBM Plex Mono", ui-monospace, monospace;
+  --gutter: 16px; --margin: 20px;
+  --pad-y: clamp(64px, 9vw, 128px);
+}
+@media (min-width: 48rem) { :root { --gutter: 20px; --margin: 32px; } }
+@media (min-width: 64rem) { :root { --gutter: 24px; --margin: 48px; --rule: 3px; } }
+@media (min-width: 90rem) { :root { --margin: 112px; } }
+
+/* grid: 4 / 8 / 12 columns; content max 76rem */
+.grid-x {
+  display: grid; column-gap: var(--gutter);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: var(--margin, 20px);
+}
+@media (min-width: 48rem) { .grid-x { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
+@media (min-width: 64rem) { .grid-x { grid-template-columns: repeat(12, minmax(0, 1fr)); } }
+@media (min-width: 90rem) { .grid-x { max-width: calc(76rem + 2 * var(--margin)); } }
+
+/* type roles */
+.t-h1, .t-h2, .t-fact, .t-slab { font-family: var(--sans); font-weight: 900; text-transform: uppercase; }
+.t-h1 { font-size: clamp(4rem, 2.1rem + 8.4vw, 10.5rem); line-height: .84; letter-spacing: -.035em; font-stretch: 100%; }
+.t-h2 { font-size: clamp(2.5rem, 1.25rem + 5.6vw, 6.5rem); line-height: .88; letter-spacing: -.03em; font-stretch: 100%; }
+@media (min-width: 48rem) { .t-h1, .t-h2 { font-stretch: 125%; } }
+.t-fact { font-size: clamp(4.5rem, 2rem + 11vw, 12rem); line-height: .82; letter-spacing: -.01em; font-stretch: 62%; }
+.t-slab { font-size: clamp(1.375rem, 1rem + 1.6vw, 2.5rem); line-height: 1; letter-spacing: -.01em; font-weight: 800; font-stretch: 112%; }
+.t-h3 { font-family: var(--sans); font-size: clamp(1rem, .92rem + .35vw, 1.25rem); line-height: 1.15; letter-spacing: -.01em; font-weight: 650; font-stretch: 100%; }
+.t-body { font-family: var(--sans); font-size: clamp(1.0625rem, 1rem + .25vw, 1.1875rem); line-height: 1.5; font-weight: 450; font-stretch: 100%; max-width: 60ch; }
+.t-mono { font-family: var(--mono); font-size: .75rem; line-height: 1.3; letter-spacing: .02em; font-weight: 500; }
+
+/* motion attribute base (L4 spot.css supplies the per-ink keyframes; .pre is JS-only so no-JS shows everything) */
+[data-ink].pre { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) { [data-ink].pre { visibility: visible; } }
