@@ -1,0 +1,87 @@
+{
+  "firstLoadJsKbGzip": {
+    "/": 166.3,
+    "/programs": 163.4,
+    "/about": 164.1
+  },
+  "lighthouse": {
+    "mobile /": {
+      "score": 100,
+      "lcp": 925,
+      "tbt": 56,
+      "cls": 0
+    },
+    "mobile /programs": {
+      "score": 100,
+      "lcp": 907,
+      "tbt": 15,
+      "cls": 0
+    },
+    "mobile /about": {
+      "score": 100,
+      "lcp": 1057,
+      "tbt": 4,
+      "cls": 0
+    },
+    "desktop /": {
+      "score": 84,
+      "lcp": 249,
+      "tbt": 355,
+      "cls": 0
+    },
+    "desktop /programs": {
+      "score": 100,
+      "lcp": 247,
+      "tbt": 0,
+      "cls": 0
+    },
+    "desktop /about": {
+      "score": 100,
+      "lcp": 289,
+      "tbt": 0,
+      "cls": 0
+    }
+  },
+  "fps": {
+    "desktop1440x900": {
+      "idleHero3s": {
+        "frames": 180,
+        "p50": 16.7,
+        "p95": 16.7,
+        "max": 33.4
+      },
+      "scrollHero": {
+        "frames": 361,
+        "p50": 16.7,
+        "p95": 16.7,
+        "max": 16.8
+      },
+      "scrollFull": {
+        "frames": 512,
+        "p50": 16.7,
+        "p95": 33.4,
+        "max": 133.4
+      }
+    },
+    "mobile390x844_cpu4x": {
+      "idleHero3s": {
+        "frames": 181,
+        "p50": 16.7,
+        "p95": 16.7,
+        "max": 16.8
+      },
+      "scrollHero": {
+        "frames": 361,
+        "p50": 16.7,
+        "p95": 16.7,
+        "max": 16.8
+      },
+      "scrollFull": {
+        "frames": 601,
+        "p50": 16.7,
+        "p95": 16.7,
+        "max": 16.8
+      }
+    }
+  }
+}
