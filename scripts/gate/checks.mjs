@@ -137,7 +137,7 @@ export const checks = {
       files.push(save(dir, `gl_${w}.png`, A), save(dir, `poster_${w}.png`, B))
       const d = await blurDiff(browser, A, B)
       const sh = d.shift
-      notes.push(`${w}: 6px-blur diff ${(d.frac * 100).toFixed(2)}% (any channel >32; limit 3%), bob K centroid shift ${sh == null ? 'n/a' : sh.toFixed(2)}px (limit 2), GL contexts on GL run: ${ga}`)
+      notes.push(`${w}: 6px-blur diff ${(d.frac * 100).toFixed(2)}% (any channel >32; limit 3%), bob K centroid GL ${JSON.stringify(d.ca)} Poster ${JSON.stringify(d.cb)} shift ${sh == null ? 'n/a' : sh.toFixed(2)}px (limit 2), GL contexts on GL run: ${ga}`)
       if (!(d.frac < 0.03) || !(sh <= 2) || ga < 1) notes.push(`${w}: FAIL`)
       await a.ctx.close(); await b.ctx.close()
     }
@@ -161,27 +161,35 @@ export const checks = {
   },
   async 11({ browser, base, dir }) {
     const notes = [], files = [], rows = []
-    const { ctx, page } = await openPage(browser, base + '/', { w: 1440, h: 900, freeze: true, wait: 'commit', settle: 400 })
-    // hero region only: below the nav, inside #hero and the fold
+    // CSS animations paused and press clock frozen in the served HTML, before first paint; then both stepped in lockstep.
+    const inject = '<style>*,*::before,*::after{animation-play-state:paused!important}</style><script>window.__pressClock&&window.__pressClock.pause()</script>'
+    const { ctx, page } = await openPage(browser, base + '/?gate', { w: 1440, h: 900, inject, wait: 'commit', settle: 0 })
+    await page.waitForSelector('#hero', { state: 'attached' })
+    // the hook is installed by the app bundle; pause as soon as it exists
+    await page.waitForFunction(() => window.__pressClock, null, { timeout: 15000 }).catch(() => {})
+    await page.evaluate(() => window.__pressClock?.pause())
+    await page.waitForTimeout(600)
     const clip = await page.evaluate(() => { const h = document.querySelector('#hero'), n = document.querySelector('header'); const hb = h.getBoundingClientRect(); const y = Math.max(hb.top, n ? n.getBoundingClientRect().bottom : 0); return { x: 0, y: Math.round(y), width: innerWidth, height: Math.round(Math.min(hb.bottom, innerHeight) - y) } })
-    notes.push(`hero clip ${JSON.stringify(clip)} (nav excluded)`)
-    for (let t = 0; t <= 1400; t += 70) {
-      await page.evaluate((t) => document.getAnimations().forEach((a) => { try { a.pause(); a.currentTime = t } catch {} }), t)
-      await page.waitForTimeout(60)
+    notes.push(`hero clip ${JSON.stringify(clip)} (nav excluded); __pressClock ${await page.evaluate(() => !!window.__pressClock)}`)
+    for (let t = 0; t <= 1050; t += 70) {
+      await page.evaluate(async (t) => {
+        document.getAnimations().forEach((a) => { try { a.pause(); a.currentTime = t } catch {} })
+        window.__pressClock?.step(t ? 70 : 0)
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+      }, t)
       const buf = await page.screenshot({ clip })
       const s = await stats(browser, buf); rows.push({ t, ...s.frac, blobs: s.blueBlobs })
       files.push(save(dir, `load_${String(t).padStart(4, '0')}.png`, buf))
     }
     const first = (f) => rows.find(f)?.t
-    const yFull = first((r) => r.y > 0.3), bFirst = first((r) => r.blue > 0.002 && r.t >= 140), kFirst = first((r) => r.k > 0.01 && r.t >= 140)
-    notes.push(`t(first yellow>30%)=${yFull} t(blue appears)=${bFirst} t(K appears)=${kFirst}  [spec: Y 0-350, B 280-630, K 420-720; tol +-70]`)
+    const yFull = first((r) => r.y > 0.3), bFirst = first((r) => r.blue > 0.002), kFirst = first((r) => r.k > 0.01)
+    notes.push(`t(Y>30%)=${yFull} t(B first)=${bFirst} t(K first)=${kFirst}  [spec: Y 0-350, B 280-630, K 420-720; tol +-70]`)
     notes.push('per-frame ink fractions: ' + rows.map((r) => `${r.t}:y${r.y} b${r.blue} k${r.k}`).join(' | '))
     const y0 = rows[0].y, y350 = rows.find((r) => r.t === 350).y
     notes.push(`yellow fraction at t=0: ${y0} (want < 0.25, ground is stock), at t=350: ${y350} (want > 0.8)`)
-    const good = y0 < 0.25 && y350 > 0.8 && yFull !== undefined && yFull <= 350 + 70 && bFirst >= 280 - 70 && bFirst <= 630 + 70 && kFirst >= 420 - 70 && kFirst <= 720 + 70 && bFirst <= kFirst + 140
-    notes.push('page animations seen: ' + (await page.evaluate(() => document.getAnimations().length)) + ' (GL pass is only exact if it reads the same CSS clock; verify on images)')
-    const boot = await page.evaluate(() => Object.keys(window).filter((k) => /^(?!on)(.*press|.*sheet|.*boot)/i.test(k) && k !== '__gate').map((k) => k + '=' + JSON.stringify(window[k])?.slice(0, 60)).concat([...document.querySelectorAll('[data-boot],[data-press-boot],canvas[data-boot]')].map((e) => 'data-boot=' + e.getAttribute('data-boot'))))
-    notes.push('GL sheet boot clock: ' + (boot.length ? boot.join(', ') : 'not exposed (HeroSheet derives it from FCP internally; no window/data hook)'))
+    const good = y0 < 0.25 && y350 > 0.8 && yFull !== undefined && yFull <= 350 + 70 && bFirst >= 280 - 70 && bFirst <= 630 + 70 && kFirst >= 420 - 70 && kFirst <= 720 + 70
+    notes.push('page animations seen: ' + (await page.evaluate(() => document.getAnimations().length)))
+    notes.push('GL boot: ' + await page.evaluate(() => { const e = document.querySelector('.hs'); return e ? `data-gl-t0=${e.getAttribute('data-gl-t0')} data-gl-boot=${e.getAttribute('data-gl-boot')}` : 'no .hs' }))
     await ctx.close()
     return R(good ? 'PASS' : 'FAIL', notes, files)
   },

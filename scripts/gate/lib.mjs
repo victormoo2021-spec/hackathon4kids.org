@@ -43,6 +43,11 @@ export async function openPage(browser, url, o = {}) {
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message.slice(0, 160)))
   if (js) await page.addInitScript(INIT)
   if (o.freeze) await page.addInitScript(() => { const s = document.createElement('style'); s.textContent = '*,*::before,*::after{animation-play-state:paused!important}'; document.documentElement.appendChild(s) })
+  if (o.inject) await page.route((u) => u.pathname === new URL(url).pathname, async (route) => {
+    if (route.request().resourceType() !== 'document') return route.continue()
+    const r = await route.fetch(); const html = (await r.text()).replace(/<head[^>]*>/i, (m) => m + o.inject)
+    await route.fulfill({ response: r, body: html })
+  })
   await page.goto(url, { waitUntil: wait })
   if (settle) await page.waitForTimeout(settle)
   return { ctx, page, errors }
@@ -113,12 +118,28 @@ export async function blurDiff(browser, a, b) {
     if (A.blur.width !== B.blur.width || A.blur.height !== B.blur.height) return { error: 'size mismatch' }
     let n = 0; const d1 = A.blur.data, d2 = B.blur.data
     for (let i = 0; i < d1.length; i += 4) if (Math.abs(d1[i] - d2[i]) > 32 || Math.abs(d1[i + 1] - d2[i + 1]) > 32 || Math.abs(d1[i + 2] - d2[i + 2]) > 32) n++
-    // bob K-mask: text is identical in both, so compare centroids of the K pixels unique to each frame
+    // bob K-mask: largest dense K blob (6px-blurred K density > 0.5, 4px grid) above the floor band, centroid of its raw K pixels.
     const isK = (D, i) => (D[i] - k[0]) ** 2 + (D[i + 1] - k[1]) ** 2 + (D[i + 2] - k[2]) ** 2 < 40 * 40 * 3 / 4
-    const W = A.raw.width, ra = A.raw.data, rb = B.raw.data; const ao = [0, 0, 0], bo = [0, 0, 0]
-    for (let i = 0; i < ra.length; i += 4) { const x = isK(ra, i), y = isK(rb, i); if (x === y) continue; const t = x ? ao : bo, q = i / 4; t[0] += q % W; t[1] += (q / W) | 0; t[2]++ }
-    const ca = ao[2] ? { x: ao[0] / ao[2], y: ao[1] / ao[2], n: ao[2] } : null, cb = bo[2] ? { x: bo[0] / bo[2], y: bo[1] / bo[2], n: bo[2] } : null
-    return { frac: n / (A.blur.width * A.blur.height), ca, cb, shift: ca && cb ? Math.hypot(ca.x - cb.x, ca.y - cb.y) : 0 }
+    const W = A.raw.width, H = A.raw.height, G = 4, gw = Math.ceil(W / G), gh = Math.ceil(H / G), floor = Math.floor(H * 0.62 / G)
+    const bob = (R) => {
+      const dens = new Float32Array(gw * gh)
+      for (let i = 0; i < R.length; i += 4) if (isK(R, i)) { const q = i / 4; dens[((q / W | 0) / G | 0) * gw + ((q % W) / G | 0)] += 1 / (G * G) }
+      const on = (c) => { let s = 0, m = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const x = (c % gw) + dx, y = (c / gw | 0) + dy; if (x >= 0 && y >= 0 && x < gw && y < gh) { s += dens[y * gw + x]; m++ } } return (c / gw | 0) < floor && s / m > 0.5 }
+      const seen = new Uint8Array(gw * gh); let best = null
+      for (let s0 = 0; s0 < dens.length; s0++) {
+        if (seen[s0] || !on(s0)) continue
+        const st = [s0], cells = []; seen[s0] = 1
+        while (st.length) { const q = st.pop(); cells.push(q); const qx = q % gw, qy = q / gw | 0
+          for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = qx + dx, ny = qy + dy; if (nx < 0 || ny < 0 || nx >= gw || ny >= gh) continue; const m = ny * gw + nx; if (!seen[m] && on(m)) { seen[m] = 1; st.push(m) } } }
+        if (!best || cells.length > best.length) best = cells
+      }
+      if (!best) return null
+      let sx = 0, sy = 0, n = 0
+      for (const c of best) { const cx = (c % gw) * G, cy = (c / gw | 0) * G; for (let y = cy; y < cy + G; y++) for (let x = cx; x < cx + G; x++) { if (x < W && y < H && isK(R, (y * W + x) * 4)) { sx += x; sy += y; n++ } } }
+      return n ? { x: sx / n, y: sy / n, n, cells: best.length } : null
+    }
+    const ca = bob(A.raw.data), cb = bob(B.raw.data)
+    return { frac: n / (A.blur.width * A.blur.height), ca, cb, shift: ca && cb ? Math.hypot(ca.x - cb.x, ca.y - cb.y) : null }
   }, { a: b64(a), b: b64(b), k: hexRgb(INKS.k) })
 }
 
