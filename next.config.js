@@ -2,6 +2,7 @@ const withMDX = require('@next/mdx')()
  
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
   outputFileTracingRoot: __dirname,
   images: { formats: ['image/avif', 'image/webp'] },
