@@ -15,7 +15,7 @@ body { background: var(--stock); color: var(--k); font-family: var(--sans); }
 .yellow { background: var(--y); color: var(--k); }
 .blue ::selection { background: var(--y); color: var(--k); }
 /* static paper tooth, one tile, 6%, never moves */
-.band::after, .hero::after { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+.band::after, .hero::after, .crowd::after { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .07 0 0 0 0 .07 0 0 0 0 .08 .12 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 /* roller: until Roller finishes the band is bare stock; the roller canvas inks it */
 [data-ink="roll"].in:not(.rolled) { background: var(--stock); }
@@ -100,6 +100,8 @@ body { background: var(--stock); color: var(--k); font-family: var(--sans); }
 .slug span:nth-child(1) { animation-delay: 840ms; } .slug span:nth-child(2) { animation-delay: 910ms; } .slug span:nth-child(3) { animation-delay: 980ms; }
 .slug b { width: 16px; height: 16px; border: 2px solid var(--k); display: inline-block; }
 .slug .y { background: var(--y); } .slug .b { background: var(--blue); } .slug .k { background: var(--k); }
+.slug > span { background: var(--k); color: var(--stock); padding: 4px 8px 4px 4px; }
+.slug b { border-color: var(--stock); }
 @media (min-width: 48rem) { .crop, .slug { display: flex; } }
 
 /* ---- courses ---- */
@@ -124,7 +126,7 @@ body { background: var(--stock); color: var(--k); font-family: var(--sans); }
 /* ---- class band ---- */
 .class-grid { align-items: center; row-gap: 32px; }
 .class-text { grid-column: 1 / -1; order: 1; }
-.crowd { grid-column: 1 / -1; order: 2; width: 100%; max-width: 27.5rem; justify-self: start; }
+.crowd { position: relative; grid-column: 1 / -1; order: 2; width: 100%; max-width: 27.5rem; justify-self: start; }
 .crowd-css { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8%; aspect-ratio: 5 / 4.4; padding: 6%; }
 .crowd-css i { border-radius: 50%; background: var(--stock); aspect-ratio: 1; align-self: center; }
 .crowd-css b { position: absolute; right: 2%; bottom: 0; width: 15%; aspect-ratio: 1; border-radius: 50%; background: var(--y); box-shadow: 0 0 0 4px var(--blue); }

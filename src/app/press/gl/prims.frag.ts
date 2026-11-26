@@ -6,7 +6,8 @@ export const primsFrag = /* glsl */ `
 uniform vec2 uRes, uOff; uniform float uDpr, uDev, uAng, uGain, uSolid; uniform int uN;
 uniform vec4 uPa[24]; uniform vec4 uPb[24]; uniform vec3 uInk, uPaperCol, uGhost, uYel;
 float pseg(vec2 p, vec2 a, vec2 b){ vec2 pa = p-a, ba = b-a; return length(pa - ba*clamp(dot(pa,ba)/max(dot(ba,ba),1e-6), 0., 1.)); }
-float cov(float d, float r){ return clamp((r-d)/.008 + .5, 0., 1.); }
+// tuned: edge .008 -> mix(.008,.003,uSolid) so crowd discs print crisp; proofs unchanged
+float cov(float d, float r){ return clamp((r-d)/mix(.008, .003, uSolid) + .5, 0., 1.); }
 vec2 field(vec2 u){ float t = 0., yv = 0.; for(int i=0;i<24;i++){ if(i>=uN) break; vec4 a = uPa[i], m = uPb[i]; float v;
   if(m.x < .5) v = cov(pseg(u, a.xy, a.zw), m.y*.5);
   else if(m.x < 1.5){ vec2 n = (u-a.xy)/m.y; v = cov(length(u-a.xy), m.y)*mix(1., .2+.8*clamp(.5-.5*dot(n, vec2(-.58,-.81)), 0., 1.), (m.w > 1.5 ? 0. : m.w)); }
