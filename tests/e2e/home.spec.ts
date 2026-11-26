@@ -1,6 +1,8 @@
 import { expect, test, type Page } from '@playwright/test'
 import { CONTACT_EMAIL, MAILING_LIST } from './routes'
+import { scrollThrough } from './helpers'
 
+const STATEMENT = 'Started in 2018 by two high-school students. Still taught by high-school students. Still free, in the Bay Area.'
 const DONATE = `mailto:${CONTACT_EMAIL}?subject=Helping%20Hackathon4Kids`
 
 test.beforeEach(async ({ page }) => {
@@ -8,11 +10,34 @@ test.beforeEach(async ({ page }) => {
 })
 
 test.describe('home sections', () => {
-  for (const id of ['hero', 'courses', 'class-size', 'faq', 'join']) {
+  for (const id of ['hero', 'statement', 'courses', 'class-size', 'faq', 'join']) {
     test(`#${id} exists`, async ({ page }) => {
       await expect(page.locator(`section#${id}`)).toBeAttached()
     })
   }
+
+  test('#statement is the exact D7.2 sentence', async ({ page }) => {
+    const text = ((await page.locator('section#statement').textContent()) ?? '').replace(/\s+/g, ' ').trim()
+    expect(text).toBe(STATEMENT)
+    expect(await page.locator('section#statement .w').count()).toBe(18)
+  })
+
+  test('data-sda is on in Chromium and off with ?sda=off', async ({ page }) => {
+    await expect(page.locator('html')).toHaveAttribute('data-sda', 'on')
+    await page.goto('/?sda=off')
+    await expect(page.locator('html')).not.toHaveAttribute('data-sda', /.*/)
+  })
+
+  test('crowd numeral reads 20 once the class-size section has scrolled fully in', async ({ page }) => {
+    const n = page.locator('#class-size [data-crowd-n]')
+    await expect(n).toHaveText('20') // SSR text
+    await scrollThrough(page, { step: 300, delay: 60 })
+    await page.locator('#class-size').scrollIntoViewIfNeeded()
+    await page.evaluate(() => document.querySelector('#class-size')!.scrollIntoView({ block: 'center' }))
+    await expect(n).toHaveText('20', { timeout: 5000 })
+    await page.evaluate(() => scrollTo(0, 0))
+    await expect(n).toHaveText('0', { timeout: 5000 })
+  })
 
   test('hero contains the h1', async ({ page }) => {
     await expect(page.locator('section#hero h1')).toBeVisible()

@@ -4,7 +4,9 @@
 import { chromium } from '@playwright/test'
 
 const BASE = process.env.BASE_URL || 'http://localhost:3000'
-const GL = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']
+// --angle=<backend> or BENCH_ANGLE (default swiftshader; use metal on a Mac GPU). perf.mjs spawns this with its env, so BENCH_ANGLE flows through.
+const ANGLE = process.argv.find((a) => a.startsWith('--angle='))?.slice(8) || process.env.BENCH_ANGLE || 'swiftshader'
+const GL = ['--use-gl=angle', `--use-angle=${ANGLE}`, ...(ANGLE === 'swiftshader' ? ['--enable-unsafe-swiftshader'] : [])]
 
 const stats = (a) => {
   const s = [...a].sort((x, y) => x - y)
@@ -72,4 +74,4 @@ const results = Object.fromEntries([
   ),
 ])
 await browser.close()
-console.log(JSON.stringify({ base: BASE, results }, null, 2))
+console.log(JSON.stringify({ base: BASE, angle: ANGLE, results }, null, 2))

@@ -62,3 +62,40 @@ test('rAF loop idles when tab reports hidden (no-preference)', async ({ page }) 
   await page.waitForTimeout(1500)
   expect((await raf(page)) - a, 'page-scheduled rAF calls while hidden').toBeLessThanOrEqual(2)
 })
+
+// Phosphor: reduced motion keeps cross-fades (opacity/colour, <= 240ms) and nothing else; no scroll timelines.
+test.describe('reduced motion allows opacity animations only', () => {
+  test.use({ reducedMotion: 'reduce' })
+  const SAFE = /^(opacity|color|background-?color|border-?\w*color|outline-?color|fill|stroke|offset|composite|easing|computedOffset)$/i
+
+  for (const route of ROUTES) {
+    test(`${route.path}: only opacity/colour effects <= 240ms, no scroll timeline`, async ({ page }) => {
+      await page.goto(route.path)
+      await settle(page)
+      const bad = await page.evaluate((src) => {
+        const safe = new RegExp(src, 'i')
+        return document
+          .getAnimations()
+          .filter((a) => a.playState === 'running')
+          .flatMap((a) => {
+            const props = Array.from(new Set((a.effect as KeyframeEffect).getKeyframes().flatMap((k) => Object.keys(k))))
+            const dur = Number(a.effect!.getComputedTiming().duration)
+            const scroll = !!a.timeline && a.timeline !== document.timeline
+            const name = (a as CSSAnimation).animationName ?? (a as CSSTransition).transitionProperty
+            return scroll || dur > 240 || props.some((p) => !safe.test(p)) ? [`${name}: ${props} ${dur}ms${scroll ? ' scroll-timeline' : ''}`] : []
+          })
+      }, SAFE.source)
+      expect(bad).toEqual([])
+    })
+  }
+
+  test('home: crowd numeral reads 20 and no scrub target is left faded', async ({ page }) => {
+    await page.goto('/')
+    await page.evaluate(() => document.querySelector('#class-size')!.scrollIntoView({ block: 'center' }))
+    await expect(page.locator('#class-size [data-crowd-n]')).toHaveText('20')
+    const faded = await page.evaluate(
+      () => Array.from(document.querySelectorAll('#statement .w, [data-scrub]')).filter((e) => getComputedStyle(e).opacity !== '1').length,
+    )
+    expect(faded, 'scrub targets left faded under reduced motion').toBe(0)
+  })
+})

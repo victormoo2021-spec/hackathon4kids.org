@@ -2,7 +2,8 @@ import { defineConfig, devices } from '@playwright/test'
 
 const PORT = 3200
 // software GL so WebGL2 works headless locally and in CI
-const GL_ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']
+const ANGLE = process.env.BENCH_ANGLE || 'swiftshader'
+const GL_ARGS = ['--use-gl=angle', `--use-angle=${ANGLE}`, ...(ANGLE === 'swiftshader' ? ['--enable-unsafe-swiftshader'] : [])]
 
 export default defineConfig({
   testDir: './tests/e2e',

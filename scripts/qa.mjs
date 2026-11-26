@@ -8,8 +8,9 @@ const base = arg('url', 'http://localhost:3001').replace(/\/$/, '')
 const out = arg('out', 'qa-out')
 const routes = arg('routes', '/,/about,/programs').split(',')
 const label = arg('label', '')
-const GL_ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']
-const VPS = [[1440, 900], [1024, 768], [768, 1024], [390, 844], [360, 740]]
+const ANGLE = process.env.BENCH_ANGLE || 'swiftshader'
+const GL_ARGS = ['--use-gl=angle', `--use-angle=${ANGLE}`, ...(ANGLE === 'swiftshader' ? ['--enable-unsafe-swiftshader'] : [])]
+const VPS = [[1920, 1080], [1440, 900], [1024, 768], [768, 1024], [390, 844], [360, 740]]
 mkdirSync(out, { recursive: true })
 
 const browser = await chromium.launch({ args: GL_ARGS })
@@ -76,7 +77,7 @@ await browser.close()
 
 writeFileSync(join(out, 'report.json'), JSON.stringify({ base, label, results }, null, 2))
 const md = [`# QA ${label} ${base}`, '', '| route | viewport | errors | failed req | overflow | cls | small text | tap<44 | no-alt |', '|---|---|---|---|---|---|---|---|---|']
-for (const r of results) md.push(`| ${r.route} | ${r.viewport} | ${r.errors.length} | ${r.failed.length} | ${r.overflow ? 'YES ' + (r.overflowEls || []).slice(0, 3).join(' ') : 'no'} | ${r.cls ?? '?'} | ${r.smallCount ?? '?'} | ${r.tapCount ?? '-'} | ${r.noAlt?.length ?? '?'} |`)
+for (const r of results) md.push(`| ${r.route} | ${r.viewport} | ${r.errors.length} | ${r.failed.length} | ${r.overflow ? 'YES ' + (r.overflowEls || []).slice(0, 3).join(' ') : 'no'} | ${r.cls ?? '?'}${r.cls >= 0.02 ? ' FAIL' : ''} | ${r.smallCount ?? '?'} | ${r.tapCount ?? '-'} | ${r.noAlt?.length ?? '?'} |`)
 const det = results.filter((r) => r.errors.length || r.failed.length)
 if (det.length) { md.push('', '## Errors / failed requests'); for (const r of det) md.push(`- ${r.route} ${r.viewport}: ${[...r.errors, ...r.failed].slice(0, 5).join(' | ')}`) }
 writeFileSync(join(out, 'report.md'), md.join('\n') + '\n')

@@ -8,6 +8,8 @@ const VIEWPORTS = [
   { w: 768, h: 1024 },
   { w: 390, h: 844 },
   { w: 360, h: 740 },
+  { w: 360, h: 640 },
+  { w: 1920, h: 1080 },
 ]
 
 for (const { w, h } of VIEWPORTS) {
