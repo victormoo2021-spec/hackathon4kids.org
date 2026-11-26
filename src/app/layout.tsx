@@ -2,8 +2,6 @@ import './globals.css'
 import './press/tokens.css'
 import './shell.css'
 import type { Metadata, Viewport } from 'next'
-import RevealObserver from './components/reveal/RevealObserver'
-import './components/reveal/reveal.css'
 import './components/spot/spot.css'
 import { archivo, ibmPlexMono } from './fonts'
 import Navigation from './Navigation'
@@ -47,7 +45,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <Footer />
-        <RevealObserver />
         <Observe />
       </body>
     </html>
